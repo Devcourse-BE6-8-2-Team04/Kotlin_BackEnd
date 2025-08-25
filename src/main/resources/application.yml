@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: backend  # 애플리케이션 이름
+  profiles:
+    active: dev  # 기본 실행 환경(profile): dev
+  jpa:
+    hibernate:
+      ddl-auto: update  # DB 자동 반영 방식 (update는 기존 테이블 유지 + 변경사항만 적용)
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect  # 사용할 DB 종류 (여기선 H2)
+        format_sql: true       # SQL을 보기 좋게 정렬해서 출력
+        show_sql: true         # 실행되는 SQL 출력
+        use_sql_comments: true # SQL에 설명(주석)도 같이 출력
+  config:
+    import: optional:classpath:application-secret.yml # 비밀 설정 파일을 선택적으로 가져오기 (존재할 경우만)
+
+logging:
+  level:
+    org.hibernate.orm.jdbc.bind: TRACE     # 바인딩된 SQL 파라미터 출력
+    org.hibernate.orm.jdbc.extract: TRACE  # DB에서 가져오는 값 출력
+    org.springframework.transaction.interceptor: TRACE  # 트랜잭션 동작 로그
+    com.team04.back: DEBUG  # 프로젝트 패키지 로그 자세히 보기
+
+server:
+  servlet:
+    encoding:
+      charset: UTF-8   # 문자 인코딩 UTF-8로 설정 (한글 깨짐 방지)
+      enabled: true    # 인코딩 설정 켜기
+      force: true      # 모든 요청/응답에 UTF-8 강제로 적용. &&

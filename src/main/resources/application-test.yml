@@ -1,0 +1,6 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:db_test;MODE=MySQL  # 메모리에서만 동작하는 H2 테스트 DB (앱 종료 시 사라짐)
+    username: sa                         # 기본 사용자 이름
+    password:                            # 비밀번호 없음
+    driver-class-name: org.h2.Driver     # H2 DB용 드라이버
