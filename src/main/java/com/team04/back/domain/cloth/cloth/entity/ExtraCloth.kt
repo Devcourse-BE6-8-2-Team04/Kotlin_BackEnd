@@ -1,81 +1,50 @@
-package com.team04.back.domain.cloth.cloth.entity;
+package com.team04.back.domain.cloth.cloth.entity
 
-import com.team04.back.domain.weather.weather.enums.Weather;
-import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.team04.back.domain.weather.weather.enums.Weather
+import com.team04.back.global.jpa.entity.BaseEntity
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 
-import java.util.Objects;
-
-@Getter
 @Entity
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ExtraCloth implements Clothing {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+class ExtraCloth(
+    @Column(nullable = false)
+    var clothName: String,
 
     @Column(nullable = false)
-    private String clothName;
+    var imageUrl: String,
 
     @Column(nullable = false)
-    private String imageUrl;
-
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Weather weather;
+    var weather: Weather,
 
-    @Builder(access = AccessLevel.PRIVATE)
-    private ExtraCloth(String clothName, String imageUrl, Weather weather) {
-        this.clothName = clothName;
-        this.imageUrl = imageUrl;
-        this.weather = weather;
+    ) : BaseEntity(), Clothing {
+
+    fun update(
+        clothName: String? = null,
+        imageUrl: String? = null,
+        weather: Weather? = null
+    ) {
+        clothName?.takeIf { it.isNotBlank() }?.let { this.clothName = it }
+        imageUrl?.takeIf { it.isNotBlank() }?.let { this.imageUrl = it }
+        weather?.let { this.weather = it }
     }
 
-    public static ExtraCloth create(String clothName, String imageUrl, Weather weather) {
-        if (clothName == null || clothName.isBlank()) {
-            throw new IllegalArgumentException("Cloth name cannot be empty.");
-        }
-        if (imageUrl == null || imageUrl.isBlank()) {
-            throw new IllegalArgumentException("Image URL cannot be empty.");
-        }
-        if (weather == null) {
-            throw new IllegalArgumentException("Weather cannot be null.");
-        }
+    companion object {
+        fun create(
+            clothName: String,
+            imageUrl: String,
+            weather: Weather
+        ): ExtraCloth {
+            require(clothName.isNotBlank()) { "Cloth name cannot be empty." }
+            require(imageUrl.isNotBlank()) { "Image URL cannot be empty." }
 
-        return ExtraCloth.builder()
-                .clothName(clothName)
-                .imageUrl(imageUrl)
-                .weather(weather)
-                .build();
-    }
-
-    public void update(String clothName, String imageUrl, Weather weather) {
-        if (clothName != null && !clothName.isBlank()) {
-            this.clothName = clothName;
+            return ExtraCloth(
+                clothName = clothName,
+                imageUrl = imageUrl,
+                weather = weather
+            )
         }
-        if (imageUrl != null && !imageUrl.isBlank()) {
-            this.imageUrl = imageUrl;
-        }
-        if (weather != null) {
-            this.weather = weather;
-        }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ExtraCloth that = (ExtraCloth) o;
-        return clothName.equals(that.clothName) &&
-                imageUrl.equals(that.imageUrl) &&
-                weather == that.weather;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(clothName, imageUrl, weather);
     }
 }
