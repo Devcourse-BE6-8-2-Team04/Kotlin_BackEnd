@@ -35,22 +35,22 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
         BooleanBuilder builder = new BooleanBuilder();
 
         // 검색 조건 추가
-        if (search.hasLocation()) {
-            builder.and(weather.location.containsIgnoreCase(search.location()));
+        if (search.getLocation() != null) {
+            builder.and(weather.location.containsIgnoreCase(search.getLocation()));
         }
-        if (search.hasMonth()) {
-            builder.and(weather.date.month().eq(search.month()));
+        if (search.getMonth() != null) {
+            builder.and(weather.date.month().eq(search.getMonth()));
         }
-        if (search.hasFeelsLikeTemperature()) {
-            double min = search.feelsLikeTemperature() - 2.5;
-            double max = search.feelsLikeTemperature() + 2.5;
+        if (search.getFeelsLikeTemperature() != null) {
+            double min = search.getFeelsLikeTemperature() - 2.5;
+            double max = search.getFeelsLikeTemperature() + 2.5;
             builder.and(weather.feelsLikeTemperature.between(min, max));
         }
-        if (search.hasDate()) {
-            builder.and(weather.date.month().eq(search.date().getMonthValue()));
+        if (search.getDate() != null) {
+            builder.and(weather.date.month().eq(search.getDate().getMonthValue()));
         }
-        if (search.hasEmail()) {
-            builder.and(review.email.eq(search.email()));
+        if (search.getEmail() != null) {
+            builder.and(review.email.eq(search.getEmail()));
         }
 
         // 데이터 조회
