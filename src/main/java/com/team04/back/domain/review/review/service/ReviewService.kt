@@ -35,7 +35,7 @@ class ReviewService(
         tagString: String?,
         weatherInfo: WeatherInfo
     ): Review {
-        val comment = Review(email, password, imageUrl, title, sentence, tagString, weatherInfo)
+        val comment = Review(email, password, title, sentence, tagString, imageUrl, weatherInfo)
         return reviewRepository.save(comment)
     }
 
