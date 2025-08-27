@@ -27,6 +27,8 @@ class ClothInfo(
 
     ) : BaseEntity(), Clothing {
 
+    protected constructor() : this("", "", Category.CASUAL_DAILY, 0.0, 0.0)
+
     fun update(
         clothName: String? = null,
         imageUrl: String? = null,
@@ -42,15 +44,19 @@ class ClothInfo(
     }
 
     companion object {
+        @JvmStatic
         fun create(
-            clothName: String,
-            imageUrl: String,
-            category: Category,
-            minFeelsLike: Double,
-            maxFeelsLike: Double
+            clothName: String?,
+            imageUrl: String?,
+            category: Category?,
+            minFeelsLike: Double?,
+            maxFeelsLike: Double?
         ): ClothInfo {
-            require(clothName.isNotBlank()) { "Cloth name cannot be empty." }
-            require(imageUrl.isNotBlank()) { "Image URL cannot be empty." }
+            require(!clothName.isNullOrBlank()) { "Cloth name cannot be empty." }
+            require(!imageUrl.isNullOrBlank()) { "Image URL cannot be empty." }
+            require(category != null) { "Category cannot be null." }
+            require(minFeelsLike != null) { "Min feels like temperature cannot be null." }
+            require(maxFeelsLike != null) { "Max feels like temperature cannot be null." }
             require(maxFeelsLike >= minFeelsLike) { "Max feels like temperature must be greater than or equal to min feels like temperature." }
 
             return ClothInfo(

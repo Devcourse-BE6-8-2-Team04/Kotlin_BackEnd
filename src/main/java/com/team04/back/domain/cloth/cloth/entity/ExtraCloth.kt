@@ -21,6 +21,8 @@ class ExtraCloth(
 
     ) : BaseEntity(), Clothing {
 
+    protected constructor() : this("", "", Weather.CLEAR_SKY)
+
     fun update(
         clothName: String? = null,
         imageUrl: String? = null,
@@ -32,13 +34,15 @@ class ExtraCloth(
     }
 
     companion object {
+        @JvmStatic
         fun create(
-            clothName: String,
-            imageUrl: String,
-            weather: Weather
+            clothName: String?,
+            imageUrl: String?,
+            weather: Weather?
         ): ExtraCloth {
-            require(clothName.isNotBlank()) { "Cloth name cannot be empty." }
-            require(imageUrl.isNotBlank()) { "Image URL cannot be empty." }
+            require(!clothName.isNullOrBlank()) { "Cloth name cannot be empty." }
+            require(!imageUrl.isNullOrBlank()) { "Image URL cannot be empty." }
+            require(weather != null) { "Weather cannot be null." }
 
             return ExtraCloth(
                 clothName = clothName,
