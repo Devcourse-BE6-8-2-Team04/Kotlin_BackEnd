@@ -1,7 +1,7 @@
 package com.team04.back.domain.review.review.controller;
 
 import com.team04.back.domain.review.review.entity.Review;
-import com.team04.back.domain.review.review.service.CommentService;
+import com.team04.back.domain.review.review.service.ReviewService;
 import com.team04.back.domain.review.review.dto.ReviewSearchDto;
 import com.team04.back.domain.weather.geo.service.GeoService;
 import com.team04.back.domain.weather.weather.entity.WeatherInfo;
@@ -45,7 +45,7 @@ public class CommentControllerTest {
     @Autowired
     private MockMvc mvc;
     @Autowired
-    private CommentService commentService;
+    private ReviewService reviewService;
 
     @Test
     @DisplayName("커멘트 다건 조회")
@@ -57,7 +57,7 @@ public class CommentControllerTest {
 
         ReviewSearchDto search = new ReviewSearchDto(null, null, null, null, null);
         Pageable pageable = PageRequest.of(0, 10);
-        Page<Review> comments = commentService.findBySearch(search, pageable);
+        Page<Review> comments = reviewService.findBySearch(search, pageable);
         int size = comments.getContent().size();
 
         resultActions
@@ -92,7 +92,7 @@ public class CommentControllerTest {
 
         ReviewSearchDto search = new ReviewSearchDto("삿포로", LocalDate.of(2025, 1, 1), null, null, null);
         Pageable pageable = PageRequest.of(0, 10);
-        Page<Review> comments = commentService.findBySearch(search, pageable);
+        Page<Review> comments = reviewService.findBySearch(search, pageable);
         int size = comments.getContent().size();
 
         resultActions
@@ -126,7 +126,7 @@ public class CommentControllerTest {
 
         ReviewSearchDto search = new ReviewSearchDto("삿포로", null, -4.0, null, null);
         Pageable pageable = PageRequest.of(0, 10);
-        Page<Review> comments = commentService.findBySearch(search, pageable);
+        Page<Review> comments = reviewService.findBySearch(search, pageable);
         int size = comments.getContent().size();
 
         resultActions
@@ -159,7 +159,7 @@ public class CommentControllerTest {
 
         ReviewSearchDto search = new ReviewSearchDto(null, null, null, 1, null);
         Pageable pageable = PageRequest.of(0, 10);
-        Page<Review> comments = commentService.findBySearch(search, pageable);
+        Page<Review> comments = reviewService.findBySearch(search, pageable);
         int size = comments.getContent().size();
 
         resultActions
@@ -194,7 +194,7 @@ public class CommentControllerTest {
 
         ReviewSearchDto search = new ReviewSearchDto(null, null, null, null, "user1@test.com");
         Pageable pageable = PageRequest.of(0, 10);
-        Page<Review> comments = commentService.findBySearch(search, pageable);
+        Page<Review> comments = reviewService.findBySearch(search, pageable);
         int size = comments.getContent().size();
 
         resultActions
@@ -223,7 +223,7 @@ public class CommentControllerTest {
     public void t3() throws Exception {
         ReviewSearchDto search = new ReviewSearchDto(null, null, null, null, null);
         Pageable pageable = PageRequest.of(0, 10);
-        Page<Review> comments = commentService.findBySearch(search, pageable);
+        Page<Review> comments = reviewService.findBySearch(search, pageable);
 
         int id = comments.getContent().get(0).getId();
 
@@ -232,7 +232,7 @@ public class CommentControllerTest {
                         get("/api/v1/comments/" + id)
                 ).andDo(print());
 
-        Review comment = commentService.findById(id).get();
+        Review comment = reviewService.findById(id).get();
 
         resultActions
                 .andExpect(handler().handlerType(ReviewController.class))
@@ -272,7 +272,7 @@ public class CommentControllerTest {
     public void t4() throws Exception {
         ReviewSearchDto search = new ReviewSearchDto(null, null, null, null, null);
         Pageable pageable = PageRequest.of(0, 10);
-        Page<Review> comments = commentService.findBySearch(search, pageable);
+        Page<Review> comments = reviewService.findBySearch(search, pageable);
 
         int id = comments.getContent().get(0).getId();
 
@@ -301,7 +301,7 @@ public class CommentControllerTest {
     public void t4_1() throws Exception {
         ReviewSearchDto search = new ReviewSearchDto(null, null, null, null, null);
         Pageable pageable = PageRequest.of(0, 10);
-        Page<Review> comments = commentService.findBySearch(search, pageable);
+        Page<Review> comments = reviewService.findBySearch(search, pageable);
 
         int id = comments.getContent().get(0).getId();
 
@@ -330,7 +330,7 @@ public class CommentControllerTest {
     public void t5() throws Exception {
         ReviewSearchDto search = new ReviewSearchDto(null, null, null, null, null);
         Pageable pageable = PageRequest.of(0, 10);
-        Page<Review> comments = commentService.findBySearch(search, pageable);
+        Page<Review> comments = reviewService.findBySearch(search, pageable);
 
         int id = comments.getContent().get(0).getId();
 
@@ -413,7 +413,7 @@ public class CommentControllerTest {
                                         """)
                 ).andDo(print());
 
-        Review comment = commentService.findLatest().get();
+        Review comment = reviewService.findLatest();
 
         resultActions
                 .andExpect(handler().handlerType(ReviewController.class))
@@ -532,7 +532,7 @@ public class CommentControllerTest {
     public void t7() throws Exception {
         ReviewSearchDto search = new ReviewSearchDto(null, null, null, null, null);
         Pageable pageable = PageRequest.of(0, 10);
-        Page<Review> comments = commentService.findBySearch(search, pageable);
+        Page<Review> comments = reviewService.findBySearch(search, pageable);
 
         int id = comments.getContent().get(0).getId();
 
@@ -553,7 +553,7 @@ public class CommentControllerTest {
                                         """)
                 ).andDo(print());
 
-        Review comment = commentService.findById(id).get();
+        Review comment = reviewService.findById(id).get();
 
         resultActions
                 .andExpect(handler().handlerType(ReviewController.class))

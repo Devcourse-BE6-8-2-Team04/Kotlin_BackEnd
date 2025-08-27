@@ -2,7 +2,7 @@ package com.team04.back.domain.review.review.controller;
 
 import com.team04.back.domain.review.review.dto.ReviewDto;
 import com.team04.back.domain.review.review.entity.Review;
-import com.team04.back.domain.review.review.service.CommentService;
+import com.team04.back.domain.review.review.service.ReviewService;
 import com.team04.back.domain.review.review.dto.ReviewSearchDto;
 import com.team04.back.domain.weather.geo.service.GeoService;
 import com.team04.back.domain.weather.weather.entity.WeatherInfo;
@@ -32,7 +32,7 @@ import java.util.List;
 @Tag(name = "CommentController", description = "API 커멘트 컨트롤러")
 @RequiredArgsConstructor
 public class ReviewController {
-    private final CommentService commentService;
+    private final ReviewService reviewService;
     private final WeatherService weatherService;
     private final GeoService geoService;
 
@@ -67,7 +67,7 @@ public class ReviewController {
                 email
         );
 
-        Page<Review> items = commentService.findBySearch(search, pageable);
+        Page<Review> items = reviewService.findBySearch(search, pageable);
         return items.map(ReviewDto::new);
     }
 
@@ -80,7 +80,7 @@ public class ReviewController {
     @Transactional(readOnly = true)
     @Operation(summary = "커멘트 단건 조회", description = "ID로 커멘트를 조회합니다.")
     public ReviewDto getComment(@PathVariable int id) {
-        Review comment = commentService.findById(id).get();
+        Review comment = reviewService.findById(id).get();
         return new ReviewDto(comment);
     }
 
@@ -102,9 +102,9 @@ public class ReviewController {
             @PathVariable int id,
             @RequestBody @NonNull verifyPasswordReqBody passwordReqBody
     ) {
-        Review comment = commentService.findById(id).get();
+        Review comment = reviewService.findById(id).get();
 
-        boolean isVerified = commentService.verifyPassword(comment, passwordReqBody.password());
+        boolean isVerified = reviewService.verifyPassword(comment, passwordReqBody.password());
         if (!isVerified) {
             return new RsData<>("400-1", "비밀번호가 일치하지 않습니다.", false);
         }
@@ -125,9 +125,9 @@ public class ReviewController {
     @Transactional
     @Operation(summary = "커멘트 삭제", description = "커멘트를 삭제합니다.")
     public RsData<ReviewDto> deleteComment(@PathVariable int id) {
-        Review comment = commentService.findById(id).get();
+        Review comment = reviewService.findById(id).get();
 
-        commentService.delete(comment);
+        reviewService.delete(comment);
 
         return new RsData<>(
                 "200-1",
@@ -171,7 +171,7 @@ public class ReviewController {
                 createCommentReqBody.date
         );
 
-        Review comment = commentService.createComment(
+        Review comment = reviewService.createComment(
                 createCommentReqBody.email(),
                 createCommentReqBody.password(),
                 createCommentReqBody.imageUrl(),
@@ -212,7 +212,7 @@ public class ReviewController {
             @PathVariable int id,
             @RequestBody @Valid ModifyCommentReqBody modifyCommentReqBody
     ) {
-        Review comment = commentService.findById(id).get();
+        Review comment = reviewService.findById(id).get();
 
         List<Double> coordinates = geoService.getCoordinatesFromLocation(
                 modifyCommentReqBody.cityName(),
@@ -225,7 +225,7 @@ public class ReviewController {
                 modifyCommentReqBody.date()
         );
 
-        comment = commentService.modify(
+        comment = reviewService.modify(
                 comment,
                 modifyCommentReqBody.title(),
                 modifyCommentReqBody.sentence(),
