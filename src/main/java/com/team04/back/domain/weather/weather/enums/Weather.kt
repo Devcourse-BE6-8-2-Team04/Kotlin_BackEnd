@@ -1,14 +1,6 @@
-package com.team04.back.domain.weather.weather.enums;
+package com.team04.back.domain.weather.weather.enums
 
-import lombok.Getter;
-
-import java.util.Arrays;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-@Getter
-public enum Weather {
+enum class Weather(val code: Int, val description: String) {
     // Group 2xx: Thunderstorm
     THUNDERSTORM_LIGHT_RAIN(200, "약한 비를 동반한 뇌우"),
     THUNDERSTORM_RAIN(201, "비를 동반한 뇌우"),
@@ -73,39 +65,25 @@ public enum Weather {
     CLEAR_SKY(800, "맑은 하늘"),
 
     // Group 80x: Clouds
-
     FEW_CLOUDS(801, "약간의 구름"),
     SCATTERED_CLOUDS(802, "흩어진 구름"),
     BROKEN_CLOUDS(803, "부서진 구름"),
     OVERCAST_CLOUDS(804, "흐린 하늘"),
 
-
     // 폭염
     HEAT_WAVE(900, "폭염");
 
-    private final int code;
-    private final String description;
+    companion object {
+        private val codeMap: Map<Int, Weather> = entries.associateBy { it.code }
 
-    Weather(int code, String description) {
-        this.code = code;
-        this.description = description;
-    }
-
-    private static final Map<Integer, Weather> CODE_MAP =
-            Arrays.stream(values()).collect(Collectors.toMap(Weather::getCode, Function.identity()));
-
-    /**
-     * 주어진 코드에 해당하는 Weather enum을 반환합니다.
-     *
-     * @param code 날씨 코드
-     * @return 해당하는 Weather enum
-     * @throws IllegalArgumentException 코드에 해당하는 날씨가 없을 경우 예외 발생
-     */
-    public static Weather fromCode(int code) {
-        Weather weather = CODE_MAP.get(code);
-        if (weather == null) {
-            throw new IllegalArgumentException("Unknown weather code: " + code);
-        }
-        return weather;
+        /**
+         * 주어진 코드에 해당하는 Weather enum을 반환합니다.
+         *
+         * @param code 날씨 코드
+         * @return 해당하는 Weather enum
+         * @throws IllegalArgumentException 코드에 해당하는 날씨가 없을 경우 예외 발생
+         */
+        fun fromCode(code: Int): Weather =
+            codeMap[code] ?: throw IllegalArgumentException("Unknown weather code: $code")
     }
 }
