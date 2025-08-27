@@ -2,11 +2,9 @@ package com.team04.back.domain.review.review.entity;
 
 import com.team04.back.domain.weather.weather.entity.WeatherInfo;
 import jakarta.persistence.*;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Getter
 @NoArgsConstructor
 public class Review {
     @Id
@@ -43,6 +41,38 @@ public class Review {
         this.sentence = sentence;
         this.tagString = tagString;
         this.weatherInfo = weatherInfo;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getSentence() {
+        return sentence;
+    }
+
+    public String getTagString() {
+        return tagString;
+    }
+
+    public WeatherInfo getWeatherInfo() {
+        return weatherInfo;
     }
 
     public Review modify(String title, String sentence, String tagString, String imageUrl, WeatherInfo weatherInfo) {
