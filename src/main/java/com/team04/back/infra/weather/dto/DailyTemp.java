@@ -1,14 +1,8 @@
 package com.team04.back.infra.weather.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+/**
+ * 일 단위 온도 데이터
+ */
 public class DailyTemp {
     private double day;
     private double min;
@@ -16,4 +10,36 @@ public class DailyTemp {
     private double night;
     private double eve;
     private double morn;
+
+    // 기본 생성자
+    public DailyTemp() {}
+
+    // 전체 필드 생성자
+    public DailyTemp(double day, double min, double max,
+                     double night, double eve, double morn) {
+        this.day = day;
+        this.min = min;
+        this.max = max;
+        this.night = night;
+        this.eve = eve;
+        this.morn = morn;
+    }
+
+    public double getDay() { return day; }
+    public void setDay(double day) { this.day = day; }
+
+    public double getMin() { return min; }
+    public void setMin(double min) { this.min = min; }
+
+    public double getMax() { return max; }
+    public void setMax(double max) { this.max = max; }
+
+    public double getNight() { return night; }
+    public void setNight(double night) { this.night = night; }
+
+    public double getEve() { return eve; }
+    public void setEve(double eve) { this.eve = eve; }
+
+    public double getMorn() { return morn; }
+    public void setMorn(double morn) { this.morn = morn; }
 }
