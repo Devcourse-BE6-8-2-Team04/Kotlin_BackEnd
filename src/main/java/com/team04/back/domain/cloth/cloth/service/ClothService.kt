@@ -1,108 +1,85 @@
-package com.team04.back.domain.cloth.cloth.service;
+package com.team04.back.domain.cloth.cloth.service
 
-import com.team04.back.domain.cloth.cloth.dto.CategoryClothDto;
-import com.team04.back.domain.cloth.cloth.entity.ClothInfo;
-import com.team04.back.domain.cloth.cloth.entity.Clothing;
-import com.team04.back.domain.cloth.cloth.entity.ExtraCloth;
-import com.team04.back.domain.cloth.cloth.enums.Category;
-import com.team04.back.domain.cloth.cloth.repository.ClothRepository;
-import com.team04.back.domain.cloth.cloth.repository.ExtraClothRepository;
-import com.team04.back.domain.weather.weather.entity.WeatherInfo;
-import com.team04.back.domain.weather.weather.enums.Weather;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.*;
+import com.team04.back.domain.cloth.cloth.dto.CategoryClothDto
+import com.team04.back.domain.cloth.cloth.entity.ClothInfo
+import com.team04.back.domain.cloth.cloth.entity.Clothing
+import com.team04.back.domain.cloth.cloth.entity.ExtraCloth
+import com.team04.back.domain.cloth.cloth.enums.Category
+import com.team04.back.domain.cloth.cloth.repository.ClothRepository
+import com.team04.back.domain.cloth.cloth.repository.ExtraClothRepository
+import com.team04.back.domain.weather.weather.entity.WeatherInfo
+import com.team04.back.domain.weather.weather.enums.Weather
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
-@RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class ClothService {
-    private final ClothRepository clothRepository;
-    private final ExtraClothRepository extraClothRepository;
+class ClothService(
+    private val clothRepository: ClothRepository,
+    private val extraClothRepository: ExtraClothRepository
+) {
 
-    public List<CategoryClothDto> findClothByWeather(Double feelsLikeTemperature) {
-        List<ClothInfo> cloths = clothRepository.findByMinFeelsLikeLessThanEqualAndMaxFeelsLikeGreaterThanEqual(feelsLikeTemperature, feelsLikeTemperature);
-        List<CategoryClothDto> clothDtos = cloths.stream()
-                .map(cloth -> new CategoryClothDto(cloth.getClothName(), cloth.getImageUrl(), cloth.getCategory()))
-                .toList();
-
-        return clothDtos;
+    fun findClothByWeather(feelsLikeTemperature: Double?): List<CategoryClothDto> {
+        return clothRepository
+            .findByMinFeelsLikeLessThanEqualAndMaxFeelsLikeGreaterThanEqual(
+                feelsLikeTemperature,
+                feelsLikeTemperature
+            )
+            .map { cloth -> CategoryClothDto(cloth.clothName, cloth.imageUrl, cloth.category) }
     }
 
-    public Map<Category, List<Clothing>> getOutfitWithPeriod(List<WeatherInfo> weatherPlan) {
-        Map<Category, List<Clothing>> recommendedClothesMap = new HashMap<>();
-        Set<ExtraCloth> allExtraClothes = new HashSet<>();
+    fun getOutfitWithPeriod(weatherPlan: List<WeatherInfo>): Map<Category, MutableList<Clothing>> {
+        val recommendedClothesMap = mutableMapOf<Category, MutableList<Clothing>>()
+        val allExtraClothes = mutableSetOf<ExtraCloth>()
 
-        for (WeatherInfo weather : weatherPlan) {
-            Double feelsLike = weather.getFeelsLikeTemperature();
+        for (weather in weatherPlan) {
+            val recommendedClothes = clothRepository.findByTemperature(weather.feelsLikeTemperature)
 
-            List<ClothInfo> recommendedClothes = clothRepository.findByTemperature(feelsLike);
-
-            for (ClothInfo cloth : recommendedClothes) {
-                recommendedClothesMap
-                        .computeIfAbsent(cloth.getCategory(), k -> new ArrayList<>())
-                        .add(cloth);
+            for (cloth in recommendedClothes) {
+                recommendedClothesMap.getOrPut(cloth.category) { mutableListOf() }.add(cloth)
             }
 
-            allExtraClothes.addAll(getExtraClothes(weather));
+            allExtraClothes.addAll(getExtraClothes(weather))
         }
 
-        recommendedClothesMap
-                .computeIfAbsent(Category.EXTRA, k -> new ArrayList<>())
-                .addAll(allExtraClothes);
+        recommendedClothesMap.getOrPut(Category.EXTRA) { mutableListOf() }.addAll(allExtraClothes)
 
-        return recommendedClothesMap;
+        return recommendedClothesMap
     }
 
-    public Set<ExtraCloth> getExtraClothes(WeatherInfo weather) {
-        Weather weatherGroup = getWeatherGroup(weather);
-        return extraClothRepository.findDistinctByWeather(weatherGroup);
-
+    fun getExtraClothes(weather: WeatherInfo): Set<ExtraCloth> {
+        val weatherGroup = getWeatherGroup(weather)
+        return extraClothRepository.findDistinctByWeather(weatherGroup)
     }
 
-    private Weather getWeatherGroup(WeatherInfo weather) {
-        int code = weather.getWeather().getCode();
+    private fun getWeatherGroup(weather: WeatherInfo): Weather {
+        val code = weather.weather.code
 
-        // 폭염- 체감기온 30 이상
-        if (weather.getFeelsLikeTemperature() != null && 30 <= weather.getFeelsLikeTemperature()) {
-            return Weather.HEAT_WAVE;
+        return when {
+            // 폭염 - 체감기온 30 이상
+            weather.feelsLikeTemperature != null && weather.feelsLikeTemperature >= 30 -> Weather.HEAT_WAVE
+            // 비 또는 뇌우
+            (code in 200..399) || (code in 500..599) -> Weather.MODERATE_RAIN
+            // 눈
+            (code in 600..699) -> Weather.SNOW
+            // 안개 또는 먼지
+            (code in 700..799) -> Weather.MIST
+            // 그 외는 맑은 하늘
+            else -> Weather.CLEAR_SKY
         }
-
-        // 비 또는 뇌우
-        if (200 <= code && code < 400 || 500 <= code && code < 600)
-            return Weather.MODERATE_RAIN;
-        //눈
-        if ( 600 <= code && code < 700)
-            return Weather.SNOW;
-
-        // 안개 또는 먼지
-        if (700 <= code && code < 800)
-            return Weather.MIST;
-
-        // 그외에는 맑은 하늘로 간주
-        return Weather.CLEAR_SKY;
-
-
-    }
-
-
-    @Transactional
-    public void save(ClothInfo clothInfo) {
-        clothRepository.save(clothInfo);
-    }
-    public long count() {
-        return clothRepository.count();
     }
 
     @Transactional
-    public void save(ExtraCloth extraCloth) {
-        extraClothRepository.save(extraCloth);
+    fun save(clothInfo: ClothInfo) {
+        clothRepository.save(clothInfo)
     }
 
-    public long countExtra() {
-        return extraClothRepository.count();
+    fun count(): Long = clothRepository.count()
+
+    @Transactional
+    fun save(extraCloth: ExtraCloth) {
+        extraClothRepository.save(extraCloth)
     }
 
+    fun countExtra(): Long = extraClothRepository.count()
 }
