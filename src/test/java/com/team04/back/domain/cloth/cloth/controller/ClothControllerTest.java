@@ -71,7 +71,7 @@ class ClothControllerUnitTest {
         WeatherClothResponseDto response = clothController.getClothDetails(TEST_LATITUDE, TEST_LONGITUDE); // 체감온도 해당하는 옷 정보 가져오기
 
         // then
-        assertThat(response.weatherInfo.weather()).isEqualTo(WEATHER_DESC.name());
+        assertThat(response.weatherInfo.getWeather()).isEqualTo(WEATHER_DESC.name());
         assertThat(response.clothList).hasSize(2);
         assertThat(response.clothList.get(0).clothName).isEqualTo("반팔티");
     }
@@ -105,7 +105,7 @@ class ClothControllerUnitTest {
         WeatherClothResponseDto response = clothController.getClothDetails(TEST_LATITUDE, TEST_LONGITUDE);
 
         // then
-        assertThat(response.weatherInfo.weather()).isEqualTo(Weather.CLEAR_SKY.name());
+        assertThat(response.weatherInfo.getWeather()).isEqualTo(Weather.CLEAR_SKY.name());
         assertThat(response.clothList).hasSize(2);
         assertThat(response.extraCloth).hasSize(2);
         assertThat(response.extraCloth.stream()

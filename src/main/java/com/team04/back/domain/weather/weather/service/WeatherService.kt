@@ -148,10 +148,10 @@ class WeatherService(
     private fun mapDailyDataToWeatherInfo(info: WeatherInfo, data: DailyData, location: String, date: LocalDate) {
         info.weather = Weather.fromCode(data.weather.first().id)
         info.description = info.weather.description
-        info.dailyTemperatureGap = data.temp.max - data.temp.min
-        info.feelsLikeTemperature = data.feelsLike.day
-        info.maxTemperature = data.temp.max
-        info.minTemperature = data.temp.min
+        info.dailyTemperatureGap = (data.temp?.max ?: 0.0) - (data.temp?.min ?: 0.0)
+        info.feelsLikeTemperature = data.feelsLike?.day ?: 0.0
+        info.maxTemperature = data.temp?.max ?: 0.0
+        info.minTemperature = data.temp?.min ?: 0.0
         info.location = location
         info.date = date
         info.pop = data.pop
