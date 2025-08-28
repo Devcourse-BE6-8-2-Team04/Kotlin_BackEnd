@@ -72,8 +72,7 @@ class WeatherInfo(
 
 ) : BaseEntity() {
 
-    // JPA 프록시 생성을 위한 기본 생성자
-    protected constructor() : this(
+    constructor() : this(
         weather = Weather.CLEAR_SKY,
         dailyTemperatureGap = 0.0,
         feelsLikeTemperature = 0.0,
