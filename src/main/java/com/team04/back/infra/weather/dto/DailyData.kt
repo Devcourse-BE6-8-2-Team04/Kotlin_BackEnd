@@ -34,4 +34,3 @@ data class DailyData(
     val snow: Double = 0.0,
     val uvi: Double = 0.0
 )
-s
