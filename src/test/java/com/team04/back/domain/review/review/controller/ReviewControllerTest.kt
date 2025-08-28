@@ -9,6 +9,8 @@ import com.team04.back.domain.weather.weather.enums.Weather
 import com.team04.back.domain.weather.weather.repository.WeatherRepository
 import com.team04.back.domain.weather.weather.service.WeatherService
 import com.team04.back.global.initData.TestInitData
+import com.team04.back.standard.dto.ReviewSearchSortType
+import com.team04.back.standard.dto.ReviewSearchSortType.ID
 import com.team04.back.standard.extensions.getOrThrow
 import io.mockk.every
 import io.mockk.mockk
@@ -55,8 +57,7 @@ class ReviewControllerTest {
             ).andDo(MockMvcResultHandlers.print())
 
         val search = ReviewSearchDto(null, null, null, null, null)
-        val pageable: Pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "id"))
-        val reviews = reviewService.findBySearch(search, pageable)
+        val reviews = reviewService.findBySearch(search)
         val size = reviews.content.size
 
         resultActions
@@ -100,8 +101,7 @@ class ReviewControllerTest {
             ).andDo(MockMvcResultHandlers.print())
 
         val search = ReviewSearchDto("삿포로", LocalDate.of(2025, 1, 1), null, null, null)
-        val pageable: Pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "id"))
-        val reviews = reviewService.findBySearch(search, pageable)
+        val reviews = reviewService.findBySearch(search)
         val size = reviews.content.size
 
         resultActions
@@ -141,8 +141,7 @@ class ReviewControllerTest {
             ).andDo(MockMvcResultHandlers.print())
 
         val search = ReviewSearchDto("삿포로", null, -4.0, null, null)
-        val pageable: Pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "id"))
-        val reviews = reviewService.findBySearch(search, pageable)
+        val reviews = reviewService.findBySearch(search)
         val size = reviews.content.size
 
         resultActions
@@ -181,8 +180,7 @@ class ReviewControllerTest {
             ).andDo(MockMvcResultHandlers.print())
 
         val search = ReviewSearchDto(null, null, null, 1, null)
-        val pageable: Pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "id"))
-        val reviews = reviewService.findBySearch(search, pageable)
+        val reviews = reviewService.findBySearch(search)
         val size = reviews.content.size
 
         resultActions
@@ -226,8 +224,7 @@ class ReviewControllerTest {
             ).andDo(MockMvcResultHandlers.print())
 
         val search = ReviewSearchDto(null, null, null, null, "user1@test.com")
-        val pageable: Pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "id"))
-        val reviews = reviewService.findBySearch(search, pageable)
+        val reviews = reviewService.findBySearch(search)
         val size = reviews.content.size
 
         resultActions
@@ -265,8 +262,7 @@ class ReviewControllerTest {
     @Throws(Exception::class)
     fun t3() {
         val search = ReviewSearchDto(null, null, null, null, null)
-        val pageable: Pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "id"))
-        val reviews = reviewService.findBySearch(search, pageable)
+        val reviews = reviewService.findBySearch(search)
 
         val id = reviews.content[0].id
 
@@ -325,8 +321,7 @@ class ReviewControllerTest {
     @Throws(Exception::class)
     fun t4() {
         val search = ReviewSearchDto(null, null, null, null, null)
-        val pageable: Pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "id"))
-        val reviews = reviewService.findBySearch(search, pageable)
+        val reviews = reviewService.findBySearch(search)
 
         val id = reviews.content[0].id
 
@@ -358,8 +353,7 @@ class ReviewControllerTest {
     @Throws(Exception::class)
     fun t4_1() {
         val search = ReviewSearchDto(null, null, null, null, null)
-        val pageable: Pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "id"))
-        val reviews = reviewService.findBySearch(search, pageable)
+        val reviews = reviewService.findBySearch(search)
 
         val id = reviews.content[0].id
 
@@ -391,8 +385,7 @@ class ReviewControllerTest {
     @Throws(Exception::class)
     fun t5() {
         val search = ReviewSearchDto(null, null, null, null, null)
-        val pageable: Pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "id"))
-        val reviews = reviewService.findBySearch(search, pageable)
+        val reviews = reviewService.findBySearch(search)
 
         val id = reviews.content[0].id
 
@@ -618,8 +611,7 @@ class ReviewControllerTest {
     @Throws(Exception::class)
     fun t7() {
         val search = ReviewSearchDto(null, null, null, null, null)
-        val pageable: Pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "id"))
-        val reviews = reviewService.findBySearch(search, pageable)
+        val reviews = reviewService.findBySearch(search)
 
         val id = reviews.content[0].id
 

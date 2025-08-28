@@ -4,8 +4,10 @@ import com.team04.back.domain.review.review.dto.ReviewSearchDto
 import com.team04.back.domain.review.review.entity.Review
 import com.team04.back.domain.review.review.repository.ReviewRepository
 import com.team04.back.domain.weather.weather.entity.WeatherInfo
+import com.team04.back.standard.dto.ReviewSearchSortType
+import com.team04.back.standard.dto.ReviewSearchSortType.ID
 import org.springframework.data.domain.Page
-import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 
 @Service
@@ -18,8 +20,15 @@ class ReviewService(
 
     fun findBySearch(
         search: ReviewSearchDto,
-        pageable: Pageable
-    ): Page<Review> = reviewRepository.findBySearch(search, pageable)
+        page: Int = 1,
+        pageSize: Int = 10,
+        sort: ReviewSearchSortType = ID
+    ): Page<Review> {
+        val pageSize = if (pageSize in 1..100) pageSize else 30
+        val page = if (page > 0) page else 1
+        val pageable = PageRequest.of(page - 1, pageSize, sort.sortBy)
+        return reviewRepository.findBySearch(search, pageable)
+    }
 
     fun verifyPassword(review: Review, password: String): Boolean = review.password == password
 
