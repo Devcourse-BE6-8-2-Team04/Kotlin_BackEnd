@@ -1,6 +1,6 @@
 package com.team04.back.domain.review.review.service
 
-import com.team04.back.domain.review.review.dto.ReviewSearchDto
+import com.team04.back.standard.dto.ReviewSearchDto
 import com.team04.back.domain.review.review.entity.Review
 import com.team04.back.domain.review.review.repository.ReviewRepository
 import com.team04.back.domain.weather.weather.entity.WeatherInfo

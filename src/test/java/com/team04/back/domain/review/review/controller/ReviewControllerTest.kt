@@ -1,7 +1,7 @@
 package com.team04.back.domain.review.review.controller
 
 import com.team04.back.domain.review.review.controller.ReviewControllerTest.TestConfig
-import com.team04.back.domain.review.review.dto.ReviewSearchDto
+import com.team04.back.standard.dto.ReviewSearchDto
 import com.team04.back.domain.review.review.service.ReviewService
 import com.team04.back.domain.weather.geo.service.GeoService
 import com.team04.back.domain.weather.weather.entity.WeatherInfo

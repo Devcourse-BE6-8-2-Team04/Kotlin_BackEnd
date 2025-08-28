@@ -4,12 +4,12 @@ import com.team04.back.standard.extensions.toCamelCase
 import org.springframework.data.domain.Sort
 
 enum class ReviewSearchSortType {
-    ID,
+    ID,         // 작성 날짜 최신순
     ID_ASC,
     EMAIL,
     EMAIL_ASC,
-    CREATED_AT,
-    CREATED_AT_ASC,
+    DATE,       // 여행 날짜 최신순
+    DATE_ASC,
     LOCATION,
     LOCATION_ASC;
 

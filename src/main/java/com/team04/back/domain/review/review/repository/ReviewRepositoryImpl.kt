@@ -3,10 +3,10 @@ package com.team04.back.domain.review.review.repository
 import com.querydsl.core.BooleanBuilder
 import com.querydsl.jpa.impl.JPAQuery
 import com.querydsl.jpa.impl.JPAQueryFactory
-import com.team04.back.domain.review.review.dto.ReviewSearchDto
 import com.team04.back.domain.review.review.entity.QReview.review
 import com.team04.back.domain.review.review.entity.Review
 import com.team04.back.domain.weather.weather.entity.QWeatherInfo.weatherInfo
+import com.team04.back.standard.dto.ReviewSearchDto
 import com.team04.back.standard.util.QueryDslUtil
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -59,10 +59,10 @@ class ReviewRepositoryImpl(
     private fun applySorting(query: JPAQuery<Review>, pageable: Pageable) {
         QueryDslUtil.applySorting(query, pageable) {
             when (it) {
-                "id" -> review.id
+                "id" -> review.id                           // 작성 날짜
                 "email" -> review.email
                 "location" -> review.weatherInfo.location
-                "createAt" -> review.createDate
+                "date" -> review.weatherInfo.date           // 여행 날짜
                 else -> null
             }
         }
