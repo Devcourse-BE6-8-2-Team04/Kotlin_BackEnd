@@ -39,4 +39,3 @@ out/
 ### Custom ###
 *.db
 application-secret.yml
-/src/main/generated/
