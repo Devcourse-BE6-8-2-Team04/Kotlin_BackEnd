@@ -10,12 +10,14 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Profile;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
 @Configuration
 @RequiredArgsConstructor
+@Profile("dev")
 public class BaseInitData {
     @Autowired
     @Lazy

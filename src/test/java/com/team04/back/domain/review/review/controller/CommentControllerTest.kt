@@ -2,13 +2,13 @@ package com.team04.back.domain.review.review.controller
 
 import com.team04.back.domain.review.review.controller.CommentControllerTest.TestConfig
 import com.team04.back.domain.review.review.dto.ReviewSearchDto
-import com.team04.back.domain.review.review.entity.Review
 import com.team04.back.domain.review.review.service.ReviewService
 import com.team04.back.domain.weather.geo.service.GeoService
 import com.team04.back.domain.weather.weather.entity.WeatherInfo
 import com.team04.back.domain.weather.weather.enums.Weather
 import com.team04.back.domain.weather.weather.repository.WeatherRepository
 import com.team04.back.domain.weather.weather.service.WeatherService
+import com.team04.back.global.initData.TestInitData
 import com.team04.back.standard.extensions.getOrThrow
 import io.mockk.every
 import io.mockk.mockk
@@ -37,7 +37,7 @@ import java.time.LocalDateTime
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-@Import(TestConfig::class)
+@Import(TestConfig::class, TestInitData::class)
 class CommentControllerTest {
     @Autowired
     private lateinit var mvc: MockMvc
@@ -65,7 +65,7 @@ class CommentControllerTest {
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.jsonPath("$.content.length()").value(size))
 
-        for (i in 0..size-1) {
+        for (i in 0..size - 1) {
             val comment = comments.content[i]
             resultActions
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content[${i}].email").value(comment.email))
@@ -109,7 +109,7 @@ class CommentControllerTest {
             .andExpect(MockMvcResultMatchers.handler().methodName("getComments"))
             .andExpect(MockMvcResultMatchers.status().isOk)
 
-        for (i in 0..size-1) {
+        for (i in 0..size - 1) {
             val comment = comments.content[i]
             resultActions
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content[${i}].id").value(comment.id))
@@ -150,7 +150,7 @@ class CommentControllerTest {
             .andExpect(MockMvcResultMatchers.handler().methodName("getComments"))
             .andExpect(MockMvcResultMatchers.status().isOk)
 
-        for (i in 0..size-1) {
+        for (i in 0..size - 1) {
             val comment = comments.content[i]
             resultActions
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content[${i}].id").value(comment.id))
@@ -191,7 +191,7 @@ class CommentControllerTest {
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.jsonPath("$.content.length()").value(size))
 
-        for (i in 0..size-1) {
+        for (i in 0..size - 1) {
             val comment = comments.content[i]
             resultActions
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content[${i}].id").value(comment.id))
@@ -236,7 +236,7 @@ class CommentControllerTest {
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.jsonPath("$.content.length()").value(size))
 
-        for (i in 0..size-1) {
+        for (i in 0..size - 1) {
             val comment = comments.content[i]
             resultActions
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content[${i}].id").value(comment.id))
@@ -287,12 +287,18 @@ class CommentControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$.title").value(comment.title))
             .andExpect(MockMvcResultMatchers.jsonPath("$.sentence").value(comment.sentence))
             .andExpect(MockMvcResultMatchers.jsonPath("$.tagString").value(comment.tagString))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.weatherInfoDto.location")
-                .value(comment.weatherInfo.location))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.weatherInfoDto.date")
-                .value(comment.weatherInfo.date.toString()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.weatherInfoDto.feelsLikeTemperature")
-                .value(comment.weatherInfo.feelsLikeTemperature))
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$.weatherInfoDto.location")
+                    .value(comment.weatherInfo.location)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$.weatherInfoDto.date")
+                    .value(comment.weatherInfo.date.toString())
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$.weatherInfoDto.feelsLikeTemperature")
+                    .value(comment.weatherInfo.feelsLikeTemperature)
+            )
     }
 
     @Test
@@ -463,7 +469,6 @@ class CommentControllerTest {
                                             "cityName": "Seoul",
                                             "date": "2025-01-01"
                                         }
-                                        
                                         """.trimIndent()
                     )
             ).andDo(MockMvcResultHandlers.print())
@@ -517,7 +522,6 @@ class CommentControllerTest {
                                             "cityName": "Seoul",
                                             "date": "2025-01-01"
                                         }
-                                        
                                         """.trimIndent()
                     )
             ).andDo(MockMvcResultHandlers.print())
@@ -557,7 +561,6 @@ class CommentControllerTest {
                                             "cityName": "Seoul",
                                             "date": "2025-01-01"
                                         }
-                                        
                                         """.trimIndent()
                     )
             ).andDo(MockMvcResultHandlers.print())
@@ -598,7 +601,6 @@ class CommentControllerTest {
                                             "cityName": "Seoul",
                                             "date": "2025-13-01"
                                         }
-                                        
                                         """.trimIndent()
                     )
             ).andDo(MockMvcResultHandlers.print())
@@ -636,7 +638,6 @@ class CommentControllerTest {
                                             "cityName": "Seoul",
                                             "date": "2025-01-01"
                                         }
-                                        
                                         """.trimIndent()
                     )
             ).andDo(MockMvcResultHandlers.print())
