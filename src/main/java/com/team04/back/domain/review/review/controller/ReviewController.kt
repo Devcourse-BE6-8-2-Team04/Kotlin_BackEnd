@@ -24,7 +24,7 @@ import java.time.LocalDate
 
 @RestController
 @RequestMapping("/api/v1/reviews")
-@Tag(name = "ReviewController", description = "API 리뷰 컨트롤러")
+@Tag(name = "ReviewController", description = "리뷰 API")
 class ReviewController(
     private val reviewService: ReviewService,
     private val weatherService: WeatherService,
