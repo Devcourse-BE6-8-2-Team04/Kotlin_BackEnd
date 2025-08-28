@@ -1,18 +1,16 @@
-package com.team04.back.domain.cloth.cloth.repository;
+package com.team04.back.domain.cloth.cloth.repository
 
-import com.team04.back.domain.cloth.cloth.entity.ClothInfo;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
-
-import java.util.List;
+import com.team04.back.domain.cloth.cloth.entity.ClothInfo
+import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
+import org.springframework.stereotype.Repository
 
 @Repository
-public interface ClothRepository extends JpaRepository<ClothInfo, Integer> {
-    List<ClothInfo> findByMinFeelsLikeLessThanEqualAndMaxFeelsLikeGreaterThanEqual(Double min, Double max);
+interface ClothRepository : JpaRepository<ClothInfo?, Int?> {
+    fun findByMinFeelsLikeLessThanEqualAndMaxFeelsLikeGreaterThanEqual(min: Double?, max: Double?): List<ClothInfo?>?
 
 
     @Query("SELECT c FROM ClothInfo c WHERE :temperature BETWEEN c.minFeelsLike AND c.maxFeelsLike")
-    List<ClothInfo> findByTemperature(@Param("temperature") Double temperature);
+    fun findByTemperature(@Param("temperature") temperature: Double?): List<ClothInfo?>?
 }
