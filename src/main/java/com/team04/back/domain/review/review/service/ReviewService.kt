@@ -7,7 +7,6 @@ import com.team04.back.domain.weather.weather.entity.WeatherInfo
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
-import java.util.*
 
 @Service
 class ReviewService(
@@ -15,7 +14,7 @@ class ReviewService(
 ) {
     fun count(): Long = reviewRepository.count()
 
-    fun findById(id: Int): Optional<Review> = reviewRepository.findById(id)
+    fun findById(id: Int): Review? = reviewRepository.findById(id).orElse(null)
 
     fun findBySearch(
         search: ReviewSearchDto,

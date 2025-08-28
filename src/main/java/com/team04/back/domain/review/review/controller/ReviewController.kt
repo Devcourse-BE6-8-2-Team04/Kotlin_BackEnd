@@ -7,6 +7,7 @@ import com.team04.back.domain.review.review.service.ReviewService
 import com.team04.back.domain.weather.geo.service.GeoService
 import com.team04.back.domain.weather.weather.service.WeatherService
 import com.team04.back.global.rsData.RsData
+import com.team04.back.standard.extensions.getOrThrow
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
@@ -74,7 +75,7 @@ class ReviewController(
     @Transactional(readOnly = true)
     @Operation(summary = "커멘트 단건 조회", description = "ID로 커멘트를 조회합니다.")
     fun getComment(@PathVariable id: Int): ReviewDto {
-        val comment = reviewService.findById(id).get()
+        val comment = reviewService.findById(id).getOrThrow()
         return ReviewDto(comment)
     }
 
@@ -96,7 +97,7 @@ class ReviewController(
         @PathVariable id: Int,
         @RequestBody passwordReqBody: VerifyPasswordReqBody
     ): RsData<Boolean> {
-        val comment = reviewService.findById(id).get()
+        val comment = reviewService.findById(id).getOrThrow()
 
         val isVerified = reviewService.verifyPassword(comment, passwordReqBody.password)
         if (!isVerified) {
@@ -119,7 +120,7 @@ class ReviewController(
     @Transactional
     @Operation(summary = "커멘트 삭제", description = "커멘트를 삭제합니다.")
     fun deleteComment(@PathVariable id: Int): RsData<ReviewDto> {
-        val comment = reviewService.findById(id).get()
+        val comment = reviewService.findById(id).getOrThrow()
 
         reviewService.delete(comment)
 
@@ -206,7 +207,7 @@ class ReviewController(
         @PathVariable id: Int,
         @RequestBody @Valid modifyCommentReqBody: ModifyCommentReqBody
     ): RsData<ReviewDto> {
-        var comment = reviewService.findById(id).get()
+        var comment = reviewService.findById(id).getOrThrow()
 
         val coordinates = geoService.getCoordinatesFromLocation(
             modifyCommentReqBody.cityName,
