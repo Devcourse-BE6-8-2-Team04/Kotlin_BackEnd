@@ -46,7 +46,7 @@ class TestInitData(
         weatherService.save(weatherInfo3)
         weatherService.save(weatherInfo4)
 
-        reviewService.createComment(
+        reviewService.createReview(
             "user1@test.com",
             "1234",
             "https://images.unsplash.com/photo-1658874761235-8d56cbd5da2d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8b290ZCUyMCVFQyU5NyVBQyVFQiVBNiU4NHxlbnwwfHwwfHx8MA%3D%3D",
@@ -55,7 +55,7 @@ class TestInitData(
             "#한국여름#폭염주의",
             weatherInfo1
         )
-        reviewService.createComment(
+        reviewService.createReview(
             "user2@test.com",
             "1234",
             "https://images.unsplash.com/photo-1638385583463-e3d424c22916?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fCVFQyU5RCVCQyVFQiVCMyVCOCUyMCVFQyU4MiVCRiVFRCU4RiVBQyVFQiVBMSU5QyUyMCVFQyVCRCU5NCVFQiU5NCU5NHxlbnwwfHwwfHx8MA%3D%3D",
@@ -64,7 +64,7 @@ class TestInitData(
             "#일본#삿포로#겨울#눈폭탄",
             weatherInfo2
         )
-        reviewService.createComment(
+        reviewService.createReview(
             "user3@test.com",
             "1234",
             "https://images.unsplash.com/photo-1569789496053-095f2d6e3b05?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OTR8fCVFRCU4QyU4QyVFQiVBNiVBQyUyMCVFQyU4MiVCMCVFQyVCMSU4NXxlbnwwfHwwfHx8MA%3D%3D",
@@ -73,7 +73,7 @@ class TestInitData(
             "#파리#유럽여행#여름날씨#산책",
             weatherInfo3
         )
-        reviewService.createComment(
+        reviewService.createReview(
             "user4@test.com",
             "1234",
             "https://images.unsplash.com/photo-1518090753814-263ac71fc863?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8JUVCJTlGJUIwJUVCJThEJTk4JTIwJUVDJTlBJUIwJUVDJTgyJUIwfGVufDB8fDB8fHww",

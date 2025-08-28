@@ -21,11 +21,11 @@ class ReviewService(
         pageable: Pageable
     ): Page<Review> = reviewRepository.findBySearch(search, pageable)
 
-    fun verifyPassword(comment: Review, password: String): Boolean = comment.password == password
+    fun verifyPassword(review: Review, password: String): Boolean = review.password == password
 
-    fun delete(comment: Review) = reviewRepository.delete(comment)
+    fun delete(review: Review) = reviewRepository.delete(review)
 
-    fun createComment(
+    fun createReview(
         email: String,
         password: String,
         imageUrl: String?,
@@ -34,18 +34,18 @@ class ReviewService(
         tagString: String?,
         weatherInfo: WeatherInfo
     ): Review {
-        val comment = Review(email, password, title, sentence, tagString, imageUrl, weatherInfo)
-        return reviewRepository.save(comment)
+        val review = Review(email, password, title, sentence, tagString, imageUrl, weatherInfo)
+        return reviewRepository.save(review)
     }
 
     fun findLatest(): Review? = reviewRepository.findFirstByOrderByIdDesc()
 
     fun modify(
-        comment: Review,
+        review: Review,
         title: String,
         sentence: String,
         tagString: String?,
         imageUrl: String?,
         weatherInfo: WeatherInfo
-    ): Review = comment.modify(title, sentence, tagString, imageUrl, weatherInfo)
+    ): Review = review.modify(title, sentence, tagString, imageUrl, weatherInfo)
 }
