@@ -28,10 +28,10 @@ class GeoService(
      */
     fun getLocationFromCoordinates(lat: Double, lon: Double): String =
         weatherApiClient.fetchCityByCoordinates(lat, lon, 1)
-            .blockOptional()
-            .flatMap { list -> list.firstOrNull()?.let { java.util.Optional.of(it) } }
-            .map { geo -> geo.localNames?.korean ?: geo.name }
-            .orElse("알 수 없음")
+            .block()
+            ?.firstOrNull()
+            ?.let { it.localNames?.korean ?: it.name }
+            ?: "알 수 없음"
 
     /**
      * 지역 이름을 이용하여 좌표 조회
