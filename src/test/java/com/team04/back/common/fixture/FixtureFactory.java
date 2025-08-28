@@ -7,6 +7,7 @@ import com.team04.back.domain.weather.weather.entity.WeatherInfo;
 import com.team04.back.domain.weather.weather.enums.Weather;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -15,25 +16,29 @@ public class FixtureFactory {
 
     public static ClothInfo createClothInfo(Category category, double minTemp, double maxTemp) {
         return ClothInfo.create(
-            "테스트 의류",
-            "test_image.jpg",
-            category,
-            minTemp,
-            maxTemp
+                "테스트 의류",
+                "test_image.jpg",
+                category,
+                minTemp,
+                maxTemp
         );
     }
 
     public static ExtraCloth createExtraCloth(String clothName, String imageUrl, Weather weather) {
         return ExtraCloth.create(clothName, imageUrl, weather);
-
     }
 
-    public static WeatherInfo createWeatherInfo(String location, LocalDate date, Weather weather,Double feelsLikeTemperature) {
+    public static WeatherInfo createWeatherInfo(String location, LocalDate date, Weather weather, Double feelsLikeTemperature) {
         WeatherInfo weatherInfo = new WeatherInfo();
         weatherInfo.setLocation(location);
         weatherInfo.setDate(date);
         weatherInfo.setWeather(weather);
         weatherInfo.setFeelsLikeTemperature(feelsLikeTemperature);
+
+        LocalDateTime now = LocalDateTime.now();
+        weatherInfo.setCreateDate(now);
+        weatherInfo.setModifyDate(now);
+
         return weatherInfo;
     }
 
@@ -55,4 +60,3 @@ public class FixtureFactory {
                 .collect(Collectors.toList());
     }
 }
-
