@@ -2,7 +2,7 @@ package com.team04.back.domain.cloth.cloth.controller;
 
 import com.team04.back.domain.cloth.cloth.dto.CategoryClothDto;
 import com.team04.back.domain.cloth.cloth.dto.ExtraClothDto;
-import com.team04.back.domain.cloth.cloth.dto.OutfitResponse;
+import com.team04.back.domain.cloth.cloth.dto.OutfitResponseDto;
 import com.team04.back.domain.cloth.cloth.dto.WeatherClothResponseDto;
 import com.team04.back.domain.cloth.cloth.entity.Clothing;
 import com.team04.back.domain.cloth.cloth.entity.ExtraCloth;
@@ -84,7 +84,7 @@ public class ClothController {
     }
 
     @GetMapping
-    public OutfitResponse getOutfitWithPeriod(TripSchedule tripSchedule) {
+    public OutfitResponseDto getOutfitWithPeriod(TripSchedule tripSchedule) {
         List<WeatherInfo> duration = weatherService.getWeatherInfos(
                 tripSchedule.lat,
                 tripSchedule.lon,
@@ -92,6 +92,6 @@ public class ClothController {
                 tripSchedule.end
         );
         Map<Category, List<Clothing>> outfits = clothService.getOutfitWithPeriod(duration);
-        return new OutfitResponse(outfits);
+        return new OutfitResponseDto(outfits);
     }
 }

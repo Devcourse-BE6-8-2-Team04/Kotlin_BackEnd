@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public record OutfitResponse(
+public record OutfitResponseDto(
         Map<Category, List<Clothing>> clothes,
         Map<Category, List<Clothing>> extraClothes
 ) {
-    public OutfitResponse(Map<Category, List<Clothing>> outfits) {
+    public OutfitResponseDto(Map<Category, List<Clothing>> outfits) {
         this(
             outfits.entrySet().stream()
                    .filter(entry -> entry.getKey() != Category.EXTRA)
