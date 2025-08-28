@@ -53,7 +53,7 @@ class GlobalExceptionHandler {
         val message = ex.bindingResult.allErrors
             .filter { it is FieldError }
             .map { it as FieldError }
-            .map { "${it.field}-${it.code}-{${it.defaultMessage}}" }
+            .map { "${it.field}-${it.code}-${it.defaultMessage}" }
             .sorted()
             .joinToString("\n")
 
