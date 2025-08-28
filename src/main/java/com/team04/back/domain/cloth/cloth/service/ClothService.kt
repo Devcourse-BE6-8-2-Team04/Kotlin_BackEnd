@@ -57,7 +57,7 @@ class ClothService(
 
         return when {
             // 폭염 - 체감기온 30 이상
-            weather.feelsLikeTemperature != null && weather.feelsLikeTemperature >= 30 -> Weather.HEAT_WAVE
+            weather.feelsLikeTemperature >= 30 -> Weather.HEAT_WAVE
             // 비 또는 뇌우
             (code in 200..399) || (code in 500..599) -> Weather.MODERATE_RAIN
             // 눈
