@@ -20,9 +20,9 @@ import reactor.core.publisher.Mono;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.team04.back.common.fixture.FixtureFactory.createWeatherInfoList;
@@ -201,19 +201,48 @@ class WeatherServiceTest {
     }
 
     private OneCallApiResponse createOneCallApiResponse(LocalDate startDate, LocalDate endDate) {
-        OneCallApiResponse response = new OneCallApiResponse();
-        List<DailyData> dailyDataList = new java.util.ArrayList<>();
+        List<DailyData> dailyDataList = new ArrayList<>();
 
         for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
-            DailyData dailyData = new DailyData();
-            dailyData.setDt(date.atStartOfDay().toEpochSecond(ZoneOffset.UTC));
-            dailyData.setTemp(new DailyTemp(25.0, 15.0, 25.0, 15.0, 20.0, 15.0));
-            dailyData.setFeelsLike(new DailyFeelsLike(20.0, 20.0, 20.0, 20.0));
-            dailyData.setWeather(Collections.singletonList(
-                    new WeatherDescription(804, "Overcast Cloud", "overcast clouds", "04d")));
+            DailyData dailyData = new DailyData(
+                    date.atStartOfDay().toEpochSecond(ZoneOffset.UTC), // dt
+                    0, // sunrise
+                    0, // sunset
+                    0, // moonrise
+                    0, // moonset
+                    0.0, // moonPhase
+                    null, // summary
+                    new DailyTemp(25.0, 15.0, 25.0, 15.0, 20.0, 15.0), // temp
+                    new DailyFeelsLike(20.0, 20.0, 20.0, 20.0), // feelsLike
+                    0, // pressure
+                    0, // humidity
+                    0.0, // dewPoint
+                    0.0, // windSpeed
+                    0,   // windDeg
+                    0.0, // windGust
+                    Collections.singletonList(
+                            new WeatherDescription(804, "Overcast Cloud", "overcast clouds", "04d")
+                    ), // weather
+                    0, // clouds
+                    0.0, // pop
+                    0.0, // rain
+                    0.0, // snow
+                    0.0  // uvi
+            );
             dailyDataList.add(dailyData);
         }
-        response.setDaily(dailyDataList);
-        return response;
+
+        return new OneCallApiResponse(
+                0.0, // lat
+                0.0, // lon
+                null, // timezone
+                0,    // timezoneOffset
+                null, // current
+                Collections.emptyList(), // minutely
+                Collections.emptyList(), // hourly
+                dailyDataList,           // daily
+                Collections.emptyList()  // alerts
+        );
     }
+
 }
