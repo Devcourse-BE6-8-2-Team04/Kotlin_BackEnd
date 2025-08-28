@@ -1,24 +1,20 @@
-package com.team04.back.domain.cloth.cloth.dto;
+package com.team04.back.domain.cloth.cloth.dto
 
-import com.team04.back.domain.cloth.cloth.entity.Clothing;
-import com.team04.back.domain.cloth.cloth.enums.Category;
+import com.team04.back.domain.cloth.cloth.entity.Clothing
+import com.team04.back.domain.cloth.cloth.enums.Category
 
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-public record OutfitResponseDto(
-        Map<Category, List<Clothing>> clothes,
-        Map<Category, List<Clothing>> extraClothes
+@JvmRecord
+data class OutfitResponseDto(
+    val clothes: Map<Category, List<Clothing>>,
+    val extraClothes: Map<Category, List<Clothing>>
 ) {
-    public OutfitResponseDto(Map<Category, List<Clothing>> outfits) {
-        this(
-            outfits.entrySet().stream()
-                   .filter(entry -> entry.getKey() != Category.EXTRA)
-                   .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)),
-            outfits.entrySet().stream()
-                   .filter(entry -> entry.getKey() == Category.EXTRA)
-                   .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
-        );
-    }
+    constructor(outfits: Map<Category, List<Clothing?>?>) : this(
+        outfits
+            .filterKeys { it != Category.EXTRA }
+            .mapValues { it.value?.filterNotNull() ?: emptyList() },
+        outfits
+            .filterKeys { it == Category.EXTRA }
+            .mapValues { it.value?.filterNotNull() ?: emptyList() }
+    )
+
 }

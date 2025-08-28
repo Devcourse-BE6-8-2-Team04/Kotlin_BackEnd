@@ -1,20 +1,19 @@
-package com.team04.back.domain.cloth.cloth.dto;
+package com.team04.back.domain.cloth.cloth.dto
 
-import com.team04.back.domain.cloth.cloth.entity.ExtraCloth;
-import com.team04.back.domain.weather.weather.enums.Weather;
+import com.team04.back.domain.cloth.cloth.entity.ExtraCloth
+import com.team04.back.domain.weather.weather.enums.Weather
 
-public record ExtraClothDto(
-    int id,
-    String clothName,
-    String imageUrl,
-    Weather weather
+@JvmRecord
+data class ExtraClothDto(
+    val id: Int,
+    @JvmField val clothName: String,
+    val imageUrl: String,
+    val weather: Weather
 ) {
-    public ExtraClothDto(ExtraCloth extraCloth) {
-        this(
-            extraCloth.getId(),
-            extraCloth.getClothName(),
-            extraCloth.getImageUrl(),
-            extraCloth.getWeather()
-        );
-    }
+    constructor(extraCloth: ExtraCloth) : this(
+        extraCloth.id,
+        extraCloth.clothName,
+        extraCloth.imageUrl,
+        extraCloth.weather
+    )
 }
