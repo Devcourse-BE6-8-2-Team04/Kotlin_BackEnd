@@ -1,12 +1,13 @@
-package com.team04.back.infra.weather;
+package com.team04.back.infra.weather
 
-import com.team04.back.infra.weather.dto.*;
-import jakarta.validation.constraints.NotNull;
-import reactor.core.publisher.Mono;
+import com.team04.back.infra.weather.dto.*
+import jakarta.validation.constraints.NotNull
+import reactor.core.publisher.Mono
 
-import java.util.List;
-
-public interface WeatherApiClient {
+/**
+ * Weather API Client 인터페이스
+ */
+interface WeatherApiClient {
 
     /**
      * Current and forecasts weather data.
@@ -18,7 +19,13 @@ public interface WeatherApiClient {
      * @param lang 출력 언어. (선택 사항)
      * @return 구조화된 DTO로 날씨 데이터를 포함하는 Mono.
      */
-    Mono<OneCallApiResponse> fetchOneCallWeatherData(@NotNull double lat, @NotNull double lon, List<String> exclude, String units, String lang);
+    fun fetchOneCallWeatherData(
+        @NotNull lat: Double,
+        @NotNull lon: Double,
+        exclude: List<String>,
+        units: String,
+        lang: String
+    ): Mono<OneCallApiResponse>
 
     /**
      * Weather data for timestamp.
@@ -30,7 +37,13 @@ public interface WeatherApiClient {
      * @param lang 출력 언어. (선택 사항)
      * @return 구조화된 DTO로 날씨 데이터를 포함하는 Mono.
      */
-    Mono<TimeMachineApiResponse> fetchTimeMachineWeatherData(@NotNull double lat, @NotNull double lon, @NotNull long dt, String units, String lang);
+    fun fetchTimeMachineWeatherData(
+        @NotNull lat: Double,
+        @NotNull lon: Double,
+        @NotNull dt: Long,
+        units: String,
+        lang: String
+    ): Mono<TimeMachineApiResponse>
 
     /**
      * Daily Aggregation.
@@ -42,7 +55,13 @@ public interface WeatherApiClient {
      * @param units 측정 단위. "standard", "metric", "imperial" 사용 가능. (선택 사항)
      * @return 구조화된 DTO로 일별 요약 날씨 데이터를 포함하는 Mono.
      */
-    Mono<DaySummaryApiResponse> fetchDaySummaryWeatherData(@NotNull double lat, @NotNull double lon, @NotNull String date, String tz, String units);
+    fun fetchDaySummaryWeatherData(
+        @NotNull lat: Double,
+        @NotNull lon: Double,
+        @NotNull date: String,
+        tz: String,
+        units: String
+    ): Mono<DaySummaryApiResponse>
 
     /**
      * Weather overview
@@ -53,7 +72,12 @@ public interface WeatherApiClient {
      * @param units 측정 단위. "standard", "metric", "imperial" 사용 가능. (선택 사항)
      * @return 구조화된 DTO로 날씨 개요를 포함하는 Mono.
      */
-    Mono<WeatherOverviewApiResponse> fetchWeatherOverview(@NotNull double lat, @NotNull double lon, String date, String units);
+    fun fetchWeatherOverview(
+        @NotNull lat: Double,
+        @NotNull lon: Double,
+        date: String,
+        units: String
+    ): Mono<WeatherOverviewApiResponse>
 
     /**
      * Fetch coordinates by city name.
@@ -63,7 +87,11 @@ public interface WeatherApiClient {
      * @param limit 최대 결과 수. (선택 사항)
      * @return 도시 이름에 해당하는 좌표 목록을 포함하는 Mono.
      */
-    Mono<List<GeoDirectResponse>> fetchCoordinatesByCity(@NotNull String cityName, String countryCode, Integer limit);
+    fun fetchCoordinatesByCity(
+        @NotNull cityName: String,
+        countryCode: String?,
+        limit: Int?
+    ): Mono<List<GeoDirectResponse>>
 
     /**
      * Fetch city by coordinates.
@@ -73,5 +101,9 @@ public interface WeatherApiClient {
      * @param limit 최대 결과 수. (선택 사항)
      * @return 좌표에 해당하는 도시 정보 목록을 포함하는 Mono.
      */
-    Mono<List<GeoReverseResponse>> fetchCityByCoordinates(@NotNull double lat, @NotNull double lon, Integer limit);
+    fun fetchCityByCoordinates(
+        @NotNull lat: Double,
+        @NotNull lon: Double,
+        limit: Int?
+    ): Mono<List<GeoReverseResponse>>
 }
