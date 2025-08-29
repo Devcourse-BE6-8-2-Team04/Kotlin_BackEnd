@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-class ClothControllerUnitTest {
+class ClothControllerTest {
 
     private static final double TEST_LATITUDE = 37.5;
     private static final double TEST_LONGITUDE = 127.0;

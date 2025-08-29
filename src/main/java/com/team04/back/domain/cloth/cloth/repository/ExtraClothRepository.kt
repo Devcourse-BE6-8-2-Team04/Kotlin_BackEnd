@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface ExtraClothRepository : JpaRepository<ExtraCloth?, Int?> {
-    fun findDistinctByWeather(weather: Weather?): Set<ExtraCloth?>?
+interface ExtraClothRepository : JpaRepository<ExtraCloth, Int> {
+    fun findDistinctByWeather(weather: Weather): Set<ExtraCloth>
 }
