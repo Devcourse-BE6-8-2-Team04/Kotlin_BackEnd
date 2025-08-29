@@ -1,4 +1,4 @@
-package com.team04.back.domain.review.review.dto
+package com.team04.back.standard.dto
 
 import java.time.LocalDate
 

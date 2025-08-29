@@ -1,12 +1,14 @@
 package com.team04.back.domain.review.review.controller
 
 import com.team04.back.domain.review.review.dto.ReviewDto
-import com.team04.back.domain.review.review.dto.ReviewSearchDto
 import com.team04.back.domain.review.review.entity.Review
 import com.team04.back.domain.review.review.service.ReviewService
 import com.team04.back.domain.weather.geo.service.GeoService
 import com.team04.back.domain.weather.weather.service.WeatherService
 import com.team04.back.global.rsData.RsData
+import com.team04.back.standard.dto.PageDto
+import com.team04.back.standard.dto.ReviewSearchDto
+import com.team04.back.standard.dto.ReviewSearchSortType
 import com.team04.back.standard.extensions.getOrThrow
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -15,9 +17,6 @@ import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 import org.springframework.data.domain.Page
-import org.springframework.data.domain.Pageable
-import org.springframework.data.domain.Sort
-import org.springframework.data.web.PageableDefault
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
@@ -25,7 +24,7 @@ import java.time.LocalDate
 
 @RestController
 @RequestMapping("/api/v1/reviews")
-@Tag(name = "ReviewController", description = "API 리뷰 컨트롤러")
+@Tag(name = "ReviewController", description = "리뷰 API")
 class ReviewController(
     private val reviewService: ReviewService,
     private val weatherService: WeatherService,
@@ -40,7 +39,9 @@ class ReviewController(
      * @param date 날짜 필터링
      * @param feelsLikeTemperature 체감 온도 필터링
      * @param month 월 필터링
-     * @param pageable 페이지 정보
+     * @param page 페이지 번호(1부터 시작)
+     * @param pageSize 페이지 크기
+     * @param sort 정렬 기준
      * @return 리뷰 DTO 목록
      */
     @GetMapping
@@ -52,8 +53,10 @@ class ReviewController(
         @RequestParam feelsLikeTemperature: Double?,
         @RequestParam month: Int?,
         @RequestParam email: String?,
-        @PageableDefault(size = 10, page = 0, sort = ["id"], direction = Sort.Direction.DESC) pageable: Pageable
-    ): Page<ReviewDto> {
+        @RequestParam(defaultValue = "1") page: Int,
+        @RequestParam(defaultValue = "10") pageSize: Int,
+        @RequestParam(defaultValue = "ID") sort: ReviewSearchSortType
+    ): PageDto<ReviewDto> {
         val search = ReviewSearchDto(
             location,
             date,
@@ -62,8 +65,8 @@ class ReviewController(
             email
         )
 
-        val items: Page<Review> = reviewService.findBySearch(search, pageable)
-        return items.map { ReviewDto(it) }
+        val items: Page<Review> = reviewService.findBySearch(search, page, pageSize, sort)
+        return PageDto(items.map { ReviewDto(it) })
     }
 
     /**
