@@ -3,6 +3,7 @@ package com.team04.back.domain.review.review.service
 import com.team04.back.domain.cloth.cloth.entity.ClothInfo
 import com.team04.back.domain.cloth.cloth.service.ClothService
 import com.team04.back.domain.review.review.entity.Review
+import com.team04.back.domain.review.review.entity.ReviewClothInfo
 import com.team04.back.domain.review.review.repository.ReviewClothInfoRepository
 import com.team04.back.domain.review.review.repository.ReviewRepository
 import com.team04.back.domain.weather.weather.entity.WeatherInfo
@@ -37,7 +38,10 @@ class ReviewService(
 
     fun verifyPassword(review: Review, password: String): Boolean = review.password == password
 
-    fun delete(review: Review) = reviewRepository.delete(review)
+    fun delete(review: Review) {
+        reviewRepository.delete(review)
+        reviewClothInfoRepository.deleteByReviewId(review.id)
+    }
 
     fun createReview(
         email: String,
@@ -63,8 +67,10 @@ class ReviewService(
         weatherInfo: WeatherInfo
     ): Review = review.modify(title, sentence, tagString, imageUrl, weatherInfo)
 
-    fun getRecommendedClothInfo(review: Review): List<ClothInfo> {
-        val reviewClothList = reviewClothInfoRepository.findByReviewId(review.id)
+    fun findReviewClothInfo(reviewId: Int): List<ReviewClothInfo> = reviewClothInfoRepository.findByReviewId(reviewId)
+
+    fun findRecommendedClothInfo(reviewId: Int): List<ClothInfo> {
+        val reviewClothList = findReviewClothInfo(reviewId)
         val clothInfoIdList = reviewClothList
             .filter { it.isRecommend }
             .map { it.clothInfoId }
@@ -72,8 +78,8 @@ class ReviewService(
         return clothService.findByIdList(clothInfoIdList)
     }
 
-    fun getNonRecommendedClothInfo(review: Review): List<ClothInfo> {
-        val reviewClothList = reviewClothInfoRepository.findByReviewId(review.id)
+    fun findNonRecommendedClothInfo(reviewId: Int): List<ClothInfo> {
+        val reviewClothList = findReviewClothInfo(reviewId)
         val clothInfoIdList = reviewClothList
             .filter { !it.isRecommend }
             .map { it.clothInfoId }

@@ -5,4 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface ReviewClothInfoRepository : JpaRepository<ReviewClothInfo, Int> {
     fun findByReviewId(reviewId: Int): List<ReviewClothInfo>
+    fun deleteByReviewId(reviewId: Int)
 }

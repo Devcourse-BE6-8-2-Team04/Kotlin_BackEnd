@@ -81,8 +81,8 @@ class ReviewController(
     @Operation(summary = "리뷰 단건 조회", description = "ID로 리뷰를 조회합니다.")
     fun getReview(@PathVariable id: Int): ReviewDetailDto {
         val review = reviewService.findById(id).getOrThrow()
-        val recommendedClothInfo: List<ClothInfo> = reviewService.getRecommendedClothInfo(review)
-        val nonRecommendedClothInfo: List<ClothInfo> = reviewService.getNonRecommendedClothInfo(review)
+        val recommendedClothInfo: List<ClothInfo> = reviewService.findRecommendedClothInfo(id)
+        val nonRecommendedClothInfo: List<ClothInfo> = reviewService.findNonRecommendedClothInfo(id)
 
         return ReviewDetailDto(review, recommendedClothInfo, nonRecommendedClothInfo)
     }

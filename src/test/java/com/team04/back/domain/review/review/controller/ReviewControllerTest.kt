@@ -12,6 +12,7 @@ import com.team04.back.standard.dto.ReviewSearchDto
 import com.team04.back.standard.extensions.getOrThrow
 import io.mockk.every
 import io.mockk.mockk
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -257,8 +258,8 @@ class ReviewControllerTest {
             ).andDo(MockMvcResultHandlers.print())
 
         val review = reviewService.findById(id).getOrThrow()
-        val recommendedClothList = reviewService.getRecommendedClothInfo(review)
-        val nonRecommendedClothList = reviewService.getNonRecommendedClothInfo(review)
+        val recommendedClothList = reviewService.findRecommendedClothInfo(id)
+        val nonRecommendedClothList = reviewService.findNonRecommendedClothInfo(id)
 
         resultActions
             .andExpect(MockMvcResultMatchers.handler().handlerType(ReviewController::class.java))
@@ -401,6 +402,9 @@ class ReviewControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$.resultCode").value("200-1"))
             .andExpect(MockMvcResultMatchers.jsonPath("$.msg").value("${id}번 리뷰가 삭제되었습니다."))
             .andExpect(MockMvcResultMatchers.jsonPath("$.data.id").value(id))
+
+        val reviewClothInfo = reviewService.findReviewClothInfo(id)
+        assertThat(reviewClothInfo.size).isEqualTo(0)
     }
 
 
