@@ -1,6 +1,7 @@
 package com.team04.back.domain.review.review.dto
 
 import com.team04.back.domain.cloth.cloth.dto.CategoryClothDto
+import com.team04.back.domain.cloth.cloth.entity.ClothInfo
 import com.team04.back.domain.review.review.entity.Review
 import com.team04.back.domain.weather.weather.dto.WeatherInfoDto
 
@@ -17,8 +18,8 @@ data class ReviewDetailDto(
 ) {
     constructor(
         review: Review,
-        recommendedClothList: List<CategoryClothDto>,
-        nonRecommendedClothList: List<CategoryClothDto>
+        recommendedClothList: List<ClothInfo>,
+        nonRecommendedClothList: List<ClothInfo>
     ) : this(
         review.id,
         review.email,
@@ -27,7 +28,7 @@ data class ReviewDetailDto(
         review.sentence,
         review.tagString,
         WeatherInfoDto(review.weatherInfo),
-        recommendedClothList,
-        nonRecommendedClothList
+        recommendedClothList.map { CategoryClothDto(it) },
+        nonRecommendedClothList.map { CategoryClothDto(it) }
     )
 }

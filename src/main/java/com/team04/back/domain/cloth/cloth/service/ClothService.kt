@@ -65,4 +65,8 @@ class ClothService(
     }
 
     fun count(): Long = clothRepository.count()
+
+    fun findByIdList(clothInfoIdList: List<Int>): List<ClothInfo> {
+        return clothRepository.findAllById(clothInfoIdList)
+    }
 }

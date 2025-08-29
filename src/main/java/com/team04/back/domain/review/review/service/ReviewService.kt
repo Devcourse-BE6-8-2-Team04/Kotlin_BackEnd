@@ -1,9 +1,12 @@
 package com.team04.back.domain.review.review.service
 
-import com.team04.back.standard.dto.ReviewSearchDto
+import com.team04.back.domain.cloth.cloth.entity.ClothInfo
+import com.team04.back.domain.cloth.cloth.service.ClothService
 import com.team04.back.domain.review.review.entity.Review
+import com.team04.back.domain.review.review.repository.ReviewClothInfoRepository
 import com.team04.back.domain.review.review.repository.ReviewRepository
 import com.team04.back.domain.weather.weather.entity.WeatherInfo
+import com.team04.back.standard.dto.ReviewSearchDto
 import com.team04.back.standard.dto.ReviewSearchSortType
 import com.team04.back.standard.dto.ReviewSearchSortType.ID
 import org.springframework.data.domain.Page
@@ -12,7 +15,9 @@ import org.springframework.stereotype.Service
 
 @Service
 class ReviewService(
-    private val reviewRepository: ReviewRepository
+    private val reviewRepository: ReviewRepository,
+    private val reviewClothInfoRepository: ReviewClothInfoRepository,
+    private val clothService: ClothService
 ) {
     fun count(): Long = reviewRepository.count()
 
@@ -57,4 +62,22 @@ class ReviewService(
         imageUrl: String?,
         weatherInfo: WeatherInfo
     ): Review = review.modify(title, sentence, tagString, imageUrl, weatherInfo)
+
+    fun getRecommendedClothInfo(review: Review): List<ClothInfo> {
+        val reviewClothList = reviewClothInfoRepository.findByReviewId(review.id)
+        val clothInfoIdList = reviewClothList
+            .filter { it.isRecommend }
+            .map { it.clothInfoId }
+
+        return clothService.findByIdList(clothInfoIdList)
+    }
+
+    fun getNonRecommendedClothInfo(review: Review): List<ClothInfo> {
+        val reviewClothList = reviewClothInfoRepository.findByReviewId(review.id)
+        val clothInfoIdList = reviewClothList
+            .filter { !it.isRecommend }
+            .map { it.clothInfoId }
+
+        return clothService.findByIdList(clothInfoIdList)
+    }
 }

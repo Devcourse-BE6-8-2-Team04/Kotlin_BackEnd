@@ -9,7 +9,7 @@ import jakarta.persistence.Table
 @Table(name = "review_cloth_info")
 class ReviewClothInfo(
     @field:Column(name = "review_id") val reviewId: Int,
-    @field:Column(name = "cloth_id") val clothId: Int,
+    @field:Column(name = "cloth_info_id") val clothInfoId: Int,
     @field:Column(name = "is_recommend") var isRecommend: Boolean
 ) : BaseEntity() {
     fun toggleRecommend(isRecommend: Boolean): ReviewClothInfo {
@@ -18,8 +18,8 @@ class ReviewClothInfo(
     }
 
     companion object {
-        fun of(reviewId: Int, clothId: Int, isRecommend: Boolean): ReviewClothInfo {
-            return ReviewClothInfo(reviewId, clothId, isRecommend)
+        fun of(reviewId: Int, clothInfoId: Int, isRecommend: Boolean): ReviewClothInfo {
+            return ReviewClothInfo(reviewId, clothInfoId, isRecommend)
         }
     }
 }

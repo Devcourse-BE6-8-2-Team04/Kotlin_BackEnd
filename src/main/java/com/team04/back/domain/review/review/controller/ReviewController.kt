@@ -1,5 +1,7 @@
 package com.team04.back.domain.review.review.controller
 
+import com.team04.back.domain.cloth.cloth.entity.ClothInfo
+import com.team04.back.domain.review.review.dto.ReviewDetailDto
 import com.team04.back.domain.review.review.dto.ReviewDto
 import com.team04.back.domain.review.review.entity.Review
 import com.team04.back.domain.review.review.service.ReviewService
@@ -72,14 +74,17 @@ class ReviewController(
     /**
      * ID로 리뷰를 조회합니다.
      * @param id 리뷰 ID
-     * @return 리뷰 DTO
+     * @return 리뷰 상세 DTO
      */
     @GetMapping("/{id}")
     @Transactional(readOnly = true)
     @Operation(summary = "리뷰 단건 조회", description = "ID로 리뷰를 조회합니다.")
-    fun getReview(@PathVariable id: Int): ReviewDto {
+    fun getReview(@PathVariable id: Int): ReviewDetailDto {
         val review = reviewService.findById(id).getOrThrow()
-        return ReviewDto(review)
+        val recommendedClothInfo: List<ClothInfo> = reviewService.getRecommendedClothInfo(review)
+        val nonRecommendedClothInfo: List<ClothInfo> = reviewService.getNonRecommendedClothInfo(review)
+
+        return ReviewDetailDto(review, recommendedClothInfo, nonRecommendedClothInfo)
     }
 
 
