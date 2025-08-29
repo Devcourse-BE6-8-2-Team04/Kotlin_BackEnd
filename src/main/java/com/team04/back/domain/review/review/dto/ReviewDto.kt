@@ -8,8 +8,6 @@ data class ReviewDto(
     val email: String,
     val imageUrl: String?,
     val title: String,
-    val sentence: String,
-    val tagString: String?,
     val weatherInfoDto: WeatherInfoDto
 ) {
     constructor(review: Review) : this(
@@ -17,8 +15,6 @@ data class ReviewDto(
         review.email,
         review.imageUrl,
         review.title,
-        review.sentence,
-        review.tagString,
         WeatherInfoDto(review.weatherInfo)
     )
 }
