@@ -8,10 +8,20 @@ import jakarta.persistence.Table
 @Entity
 @Table(name = "review_cloth_info")
 class ReviewClothInfo(
-    @field:Column(name = "review_id") val reviewId: Int,
-    @field:Column(name = "cloth_info_id") val clothInfoId: Int,
-    @field:Column(name = "is_recommend") var isRecommend: Boolean
+    reviewId: Int,
+    clothInfoId: Int,
+    isRecommend: Boolean
 ) : BaseEntity() {
+    @Column(name = "review_id", nullable = false)
+    val reviewId: Int = reviewId
+
+    @Column(name = "cloth_info_id", nullable = false)
+    val clothInfoId: Int = clothInfoId
+
+    @Column(name = "is_recommend", nullable = false)
+    var isRecommend: Boolean = isRecommend
+
+
     fun toggleRecommend(isRecommend: Boolean): ReviewClothInfo {
         this.isRecommend = !isRecommend
         return this
