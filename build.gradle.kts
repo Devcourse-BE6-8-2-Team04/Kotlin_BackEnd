@@ -32,6 +32,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-webflux")
+	implementation("org.springframework.boot:spring-boot-starter-data-redis")
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
 
 	compileOnly("org.projectlombok:lombok")
@@ -68,4 +69,17 @@ allOpen {
 	annotation("jakarta.persistence.Entity")
 	annotation("jakarta.persistence.MappedSuperclass")
 	annotation("jakarta.persistence.Embeddable")
+}
+
+tasks.register<Exec>("composeUp") {
+	commandLine("docker-compose", "up", "-d")
+}
+
+tasks.register<Exec>("composeDown") {
+	commandLine("docker-compose", "stop")
+}
+
+tasks.named("bootRun") {
+	dependsOn("composeUp")
+	finalizedBy("composeDown")
 }

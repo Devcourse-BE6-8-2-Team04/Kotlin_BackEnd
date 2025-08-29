@@ -15,6 +15,10 @@ spring:
         default_batch_fetch_size: 100 # N+1 문제 해결
   config:
     import: optional:classpath:application-secret.yml # 비밀 설정 파일을 선택적으로 가져오기 (존재할 경우만)
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
 logging:
   level:
