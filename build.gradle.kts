@@ -48,13 +48,13 @@ dependencies {
 
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-	testImplementation("org.mockito.kotlin:mockito-kotlin:5.1.0")
-	testImplementation("org.mockito:mockito-inline:5.5.0")
 	implementation("org.springframework:spring-aop")
+	testImplementation("org.mockito:mockito-inline:5.2.0")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 
 	implementation("io.github.openfeign.querydsl:querydsl-jpa:7.0")
 	kapt("io.github.openfeign.querydsl:querydsl-apt:7.0:jpa")
+
 }
 
 tasks.named<Test>("test") {
@@ -64,18 +64,6 @@ tasks.named<Test>("test") {
 kotlin {
 	compilerOptions {
 		freeCompilerArgs.addAll("-Xjsr305=strict")
-// QueryDSL Q클래스 생성 경로 설정
-val generated = "src/main/generated"
-
-// querydsl QClass 파일 생성 위치를 지정
-tasks.withType<JavaCompile>().configureEach {
-	options.generatedSourceOutputDirectory.set(file(generated))
-}
-
-// java source set 에 querydsl QClass 위치 추가
-sourceSets {
-	named("main") {
-		java.srcDirs(generated)
 	}
 }
 
@@ -83,7 +71,4 @@ allOpen {
 	annotation("jakarta.persistence.Entity")
 	annotation("jakarta.persistence.MappedSuperclass")
 	annotation("jakarta.persistence.Embeddable")
-// gradle clean 시에 QClass 디렉토리 삭제
-tasks.named<Delete>("clean") {
-	delete(generated)
 }
