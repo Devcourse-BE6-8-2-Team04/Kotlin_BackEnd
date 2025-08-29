@@ -3,7 +3,6 @@ package com.team04.back.domain.cloth.cloth.dto
 import com.team04.back.domain.cloth.cloth.entity.Clothing
 import com.team04.back.domain.cloth.cloth.enums.Category
 
-@JvmRecord
 data class OutfitResponseDto(
     val clothes: Map<Category, List<Clothing>>,
     val extraClothes: Map<Category, List<Clothing>>
@@ -16,5 +15,4 @@ data class OutfitResponseDto(
             .filterKeys { it == Category.EXTRA }
             .mapValues { it.value?.filterNotNull() ?: emptyList() }
     )
-
 }

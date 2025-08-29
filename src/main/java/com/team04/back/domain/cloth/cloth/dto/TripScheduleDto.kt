@@ -6,7 +6,6 @@ import jakarta.validation.constraints.FutureOrPresent
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 
-@JvmRecord
 data class TripScheduleDto(
     val start: @FutureOrPresent LocalDate?,
     val end: @FutureOrPresent LocalDate?,
