@@ -5,6 +5,7 @@ plugins {
 	kotlin("jvm") version "1.9.25"
 	kotlin("plugin.spring") version "1.9.25"
 	kotlin("plugin.jpa") version "1.9.25"
+	kotlin("kapt") version "1.9.25"
 }
 
 group = "com.team04"
@@ -39,26 +40,30 @@ dependencies {
 	runtimeOnly("com.mysql:mysql-connector-j")
 	annotationProcessor("org.projectlombok:lombok")
 
-
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-
-	implementation("com.querydsl:querydsl-jpa:5.0.0:jakarta")
-	annotationProcessor("com.querydsl:querydsl-apt:5.0.0:jakarta")
-	annotationProcessor("jakarta.annotation:jakarta.annotation-api")
-	annotationProcessor("jakarta.persistence:jakarta.persistence-api")
+	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+	testImplementation("org.mockito.kotlin:mockito-kotlin:5.+")
+	testImplementation("io.mockk:mockk:1.14.5")
 
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	testImplementation("org.mockito.kotlin:mockito-kotlin:5.1.0")
 	testImplementation("org.mockito:mockito-inline:5.5.0")
 	implementation("org.springframework:spring-aop")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
+
+	implementation("io.github.openfeign.querydsl:querydsl-jpa:7.0")
+	kapt("io.github.openfeign.querydsl:querydsl-apt:7.0:jpa")
 }
 
 tasks.named<Test>("test") {
 	useJUnitPlatform()
 }
 
+kotlin {
+	compilerOptions {
+		freeCompilerArgs.addAll("-Xjsr305=strict")
 // QueryDSL Q클래스 생성 경로 설정
 val generated = "src/main/generated"
 
@@ -74,6 +79,10 @@ sourceSets {
 	}
 }
 
+allOpen {
+	annotation("jakarta.persistence.Entity")
+	annotation("jakarta.persistence.MappedSuperclass")
+	annotation("jakarta.persistence.Embeddable")
 // gradle clean 시에 QClass 디렉토리 삭제
 tasks.named<Delete>("clean") {
 	delete(generated)

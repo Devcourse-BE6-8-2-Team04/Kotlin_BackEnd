@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-class ClothControllerUnitTest {
+class ClothControllerTest {
 
     private static final double TEST_LATITUDE = 37.5;
     private static final double TEST_LONGITUDE = 127.0;
@@ -71,7 +71,7 @@ class ClothControllerUnitTest {
         WeatherClothResponseDto response = clothController.getClothDetails(TEST_LATITUDE, TEST_LONGITUDE); // 체감온도 해당하는 옷 정보 가져오기
 
         // then
-        assertThat(response.getWeatherInfo().weather()).isEqualTo(WEATHER_DESC.name());
+        assertThat(response.getWeatherInfo().getWeather()).isEqualTo(WEATHER_DESC.name());
         assertThat(response.getClothList()).hasSize(2);
         assertThat(response.getClothList().get(0).getClothName()).isEqualTo("반팔티");
     }
@@ -105,7 +105,7 @@ class ClothControllerUnitTest {
         WeatherClothResponseDto response = clothController.getClothDetails(TEST_LATITUDE, TEST_LONGITUDE);
 
         // then
-        assertThat(response.getWeatherInfo().weather()).isEqualTo(Weather.CLEAR_SKY.name());
+        assertThat(response.getWeatherInfo().getWeather()).isEqualTo(Weather.CLEAR_SKY.name());
         assertThat(response.getClothList()).hasSize(2);
         assertThat(response.getExtraCloth()).hasSize(2);
         assertThat(response.getExtraCloth().stream()
