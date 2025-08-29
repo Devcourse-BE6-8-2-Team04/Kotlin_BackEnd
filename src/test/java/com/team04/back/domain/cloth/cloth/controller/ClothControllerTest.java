@@ -71,9 +71,9 @@ class ClothControllerTest {
         WeatherClothResponseDto response = clothController.getClothDetails(TEST_LATITUDE, TEST_LONGITUDE); // 체감온도 해당하는 옷 정보 가져오기
 
         // then
-        assertThat(response.weatherInfo.getWeather()).isEqualTo(WEATHER_DESC.name());
-        assertThat(response.clothList).hasSize(2);
-        assertThat(response.clothList.get(0).clothName).isEqualTo("반팔티");
+        assertThat(response.getWeatherInfo().getWeather()).isEqualTo(WEATHER_DESC.name());
+        assertThat(response.getClothList()).hasSize(2);
+        assertThat(response.getClothList().get(0).getClothName()).isEqualTo("반팔티");
     }
     @Test
     void getClothDetails_WithHeatWave_ReturnsExtraClothes() {
@@ -105,11 +105,11 @@ class ClothControllerTest {
         WeatherClothResponseDto response = clothController.getClothDetails(TEST_LATITUDE, TEST_LONGITUDE);
 
         // then
-        assertThat(response.weatherInfo.getWeather()).isEqualTo(Weather.CLEAR_SKY.name());
-        assertThat(response.clothList).hasSize(2);
-        assertThat(response.extraCloth).hasSize(2);
-        assertThat(response.extraCloth.stream()
-                .anyMatch(extra -> extra.clothName.equals("선크림"))).isTrue();
+        assertThat(response.getWeatherInfo().getWeather()).isEqualTo(Weather.CLEAR_SKY.name());
+        assertThat(response.getClothList()).hasSize(2);
+        assertThat(response.getExtraCloth()).hasSize(2);
+        assertThat(response.getExtraCloth().stream()
+                .anyMatch(extra -> extra.getClothName().equals("선크림"))).isTrue();
     }
 
 }
