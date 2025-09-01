@@ -18,11 +18,13 @@ import java.util.stream.IntStream;
 
 public class FixtureFactory {
 
-    public static ClothInfo createClothInfo(Category category, double minTemp, double maxTemp) {
+    public static ClothInfo createClothInfo(Style style, double minTemp, double maxTemp) {
         return ClothInfo.create(
-                "테스트 의류",
+                ClothName.T_SHIRT,
                 "test_image.jpg",
-                category,
+                Category.TOP,
+                style,
+                null,
                 minTemp,
                 maxTemp
         );

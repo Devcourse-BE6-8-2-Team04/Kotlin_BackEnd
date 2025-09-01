@@ -15,18 +15,27 @@ class ClothInfo(
     var minFeelsLike: Double
 ) : Clothing(clothName, imageUrl) {
 
-    protected constructor() : this("", "", Category.CASUAL_DAILY, 0.0, 0.0)
+    protected constructor() : this(ClothName.T_SHIRT, "", Category.TOP, null, null, null, null)
 
     fun update(
-        clothName: String? = null,
+        clothName: ClothName,
         imageUrl: String? = null,
-        category: Category? = null,
-        maxFeelsLike: Double? = null,
-        minFeelsLike: Double? = null
+        category: Category,
+        style: Style? = null,
+        material: Material? = null,
+        minFeelsLike: Double? = null,
+        maxFeelsLike: Double? = null
     ) {
-        clothName?.takeIf { it.isNotBlank() }?.let { this.clothName = it }
+        if (minFeelsLike != null && maxFeelsLike != null) {
+            require(maxFeelsLike >= minFeelsLike) { "Max feels like temperature must be greater than or equal to min feels like temperature." }
+        }
+
+        this.clothName = clothName
+        this.category = category
+
         imageUrl?.takeIf { it.isNotBlank() }?.let { this.imageUrl = it }
-        category?.let { this.category = it }
+        style?.let { this.style = it }
+        material?.let { this.material = it }
         maxFeelsLike?.let { this.maxFeelsLike = it }
         minFeelsLike?.let { this.minFeelsLike = it }
     }
@@ -34,9 +43,11 @@ class ClothInfo(
     companion object {
         @JvmStatic
         fun create(
-            clothName: String?,
-            imageUrl: String?,
-            category: Category?,
+            clothName: ClothName,
+            imageUrl: String,
+            category: Category,
+            style: Style?,
+            material: Material?,
             minFeelsLike: Double?,
             maxFeelsLike: Double?
         ): ClothInfo {
@@ -53,6 +64,8 @@ class ClothInfo(
                 clothName = clothName,
                 imageUrl = imageUrl,
                 category = category,
+                style = style,
+                material = material,
                 minFeelsLike = minFeelsLike,
                 maxFeelsLike = maxFeelsLike
             )

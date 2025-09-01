@@ -48,10 +48,13 @@ dependencies {
 
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+	implementation("org.springframework:spring-aop")
+	testImplementation("org.mockito:mockito-inline:5.2.0")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 
 	implementation("io.github.openfeign.querydsl:querydsl-jpa:7.0")
 	kapt("io.github.openfeign.querydsl:querydsl-apt:7.0:jpa")
+
 }
 
 tasks.named<Test>("test") {

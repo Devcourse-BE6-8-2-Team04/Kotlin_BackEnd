@@ -1,3 +1,7 @@
 package com.team04.back.global.annotation
 
-class TrackHistory 
+@Target(AnnotationTarget.FUNCTION)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class TrackHistory(
+    val action: String
+)
