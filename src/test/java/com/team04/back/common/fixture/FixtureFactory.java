@@ -1,7 +1,6 @@
 package com.team04.back.common.fixture;
 
 import com.team04.back.domain.cloth.cloth.entity.ClothInfo;
-import com.team04.back.domain.cloth.cloth.entity.Clothing;
 import com.team04.back.domain.cloth.cloth.enums.Category;
 import com.team04.back.domain.cloth.cloth.enums.ClothName;
 import com.team04.back.domain.cloth.cloth.enums.Style;
@@ -68,8 +67,8 @@ public class FixtureFactory {
             User user,
             String location,
             List<WeatherInfo> weatherInfos,
-            List<Clothing> likedClothings,
-            List<Clothing> unLikedClothings
+            List<ClothInfo> likedClothings,
+            List<ClothInfo> unLikedClothings
     ) {
         return new ClothRecommendationHistory(
                 user,
@@ -95,8 +94,8 @@ public class FixtureFactory {
             User user,
             String location,
             List<WeatherInfo> weatherInfos,
-            List<Clothing> likedClothings,
-            List<Clothing> unLikedClothings
+            List<ClothInfo> likedClothings,
+            List<ClothInfo> unLikedClothings
     ) {
         ClothRecommendationHistory history = createClothRecommendationHistory(
                 user,

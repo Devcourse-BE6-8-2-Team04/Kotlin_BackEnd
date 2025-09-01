@@ -1,6 +1,6 @@
 package com.team04.back.domain.history.history.entity
 
-import com.team04.back.domain.cloth.cloth.entity.Clothing
+import com.team04.back.domain.cloth.cloth.entity.ClothInfo
 import com.team04.back.domain.user.user.entity.User
 import com.team04.back.domain.weather.weather.entity.WeatherInfo
 import com.team04.back.global.jpa.entity.BaseEntity
@@ -34,7 +34,7 @@ class ClothRecommendationHistory(
         joinColumns = [JoinColumn(name = "history_id")],
         inverseJoinColumns = [JoinColumn(name = "clothing_id")]
     )
-    val likedClothings: List<Clothing> = mutableListOf(),
+    val likedClothings: List<ClothInfo> = mutableListOf(),
 
     //비추천 의류 리스트
     @OneToMany(cascade = [CascadeType.ALL])
@@ -43,7 +43,7 @@ class ClothRecommendationHistory(
         joinColumns = [JoinColumn(name = "history_id")],
         inverseJoinColumns = [JoinColumn(name = "clothing_id")]
     )
-    val unLikedClothings: List<Clothing> = mutableListOf(),
+    val unLikedClothings: List<ClothInfo> = mutableListOf(),
 
     // 체감온도
     @Column(name = "feels_like")
