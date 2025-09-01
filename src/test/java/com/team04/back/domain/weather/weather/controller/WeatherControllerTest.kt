@@ -51,6 +51,21 @@ class WeatherControllerTest @Autowired constructor(
     }
 
     @Test
+    @DisplayName("주간 날씨 조회 성공 (location 파라미터 포함)")
+    fun getWeeklyWeather_withLocation_success() {
+        val result = mvc.perform(
+            get("/api/v1/weathers")
+                .param("location", "서울시")
+                .param("lat", latStr)
+                .param("lon", lonStr)
+        )
+
+        result.andExpect(status().isOk)
+            .andExpect(jsonPath("$.length()").value(7))
+            .andExpect(jsonPath("$[0].location").value("서울"))
+    }
+
+    @Test
     @DisplayName("특정 날짜 날씨 조회 성공")
     fun getWeatherByDate_success() {
         // given
