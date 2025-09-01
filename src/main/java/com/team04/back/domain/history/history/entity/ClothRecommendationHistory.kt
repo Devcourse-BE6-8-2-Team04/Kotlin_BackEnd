@@ -1,3 +1,5 @@
+package com.team04.back.domain.history.history.entity
+
 import com.team04.back.domain.cloth.cloth.entity.Clothing
 import com.team04.back.domain.user.user.entity.User
 import com.team04.back.domain.weather.weather.entity.WeatherInfo
@@ -28,7 +30,7 @@ class ClothRecommendationHistory(
     //추천 의류 리스트
     @OneToMany(cascade = [CascadeType.ALL])
     @JoinTable(
-        name = "history_clothing_map",
+        name = "history_liked_clothing_map",
         joinColumns = [JoinColumn(name = "history_id")],
         inverseJoinColumns = [JoinColumn(name = "clothing_id")]
     )
@@ -37,7 +39,7 @@ class ClothRecommendationHistory(
     //비추천 의류 리스트
     @OneToMany(cascade = [CascadeType.ALL])
     @JoinTable(
-        name = "history_clothing_map",
+        name = "history_unliked_clothing_map",
         joinColumns = [JoinColumn(name = "history_id")],
         inverseJoinColumns = [JoinColumn(name = "clothing_id")]
     )
