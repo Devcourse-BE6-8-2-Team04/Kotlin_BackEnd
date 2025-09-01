@@ -3,7 +3,7 @@ package com.team04.back.domain.cloth.cloth.service;
 import com.team04.back.domain.cloth.cloth.entity.ClothInfo;
 import com.team04.back.domain.cloth.cloth.entity.Clothing;
 import com.team04.back.domain.cloth.cloth.entity.ExtraCloth;
-import com.team04.back.domain.cloth.cloth.enums.Category;
+import com.team04.back.domain.cloth.cloth.enums.Style;
 import com.team04.back.domain.cloth.cloth.repository.ClothRepository;
 import com.team04.back.domain.cloth.cloth.repository.ExtraClothRepository;
 import com.team04.back.domain.weather.weather.entity.WeatherInfo;
@@ -44,14 +44,14 @@ class ClothServiceTest {
         WeatherInfo coldWeather = createWeatherInfo("Seoul", LocalDate.now().plusDays(3), Weather.HEAVY_RAIN, 4.0);
         List<WeatherInfo> weatherPlan = Arrays.asList(hotWeather, mildWeather, coldWeather);
 
-        ClothInfo summerTee = createClothInfo(Category.CASUAL_DAILY, 25.0, 30.0);
-        ClothInfo shorts = createClothInfo(Category.CASUAL_DAILY, 25.0, 30.0);
-        ClothInfo springJacket = createClothInfo(Category.CASUAL_DAILY, 15.0, 24.0);
-        ClothInfo jeans = createClothInfo(Category.CASUAL_DAILY, 10.0, 20.0);
-        ClothInfo winterCoat = createClothInfo(Category.CASUAL_DAILY, 0.0, 10.0);
-        ClothInfo scarf = createClothInfo(Category.OUTDOOR, 0.0, 10.0);
-        ClothInfo formalShirt = createClothInfo(Category.FORMAL_OFFICE, 10.0, 20.0);
-        ClothInfo runningShoes = createClothInfo(Category.OUTDOOR, 18.0, 28.0);
+        ClothInfo summerTee = createClothInfo(Style.CASUAL_DAILY, 25.0, 30.0);
+        ClothInfo shorts = createClothInfo(Style.CASUAL_DAILY, 25.0, 30.0);
+        ClothInfo springJacket = createClothInfo(Style.CASUAL_DAILY, 15.0, 24.0);
+        ClothInfo jeans = createClothInfo(Style.CASUAL_DAILY, 10.0, 20.0);
+        ClothInfo winterCoat = createClothInfo(Style.CASUAL_DAILY, 0.0, 10.0);
+        ClothInfo scarf = createClothInfo(Style.OUTDOOR, 0.0, 10.0);
+        ClothInfo formalShirt = createClothInfo(Style.FORMAL_OFFICE, 10.0, 20.0);
+        ClothInfo runningShoes = createClothInfo(Style.OUTDOOR, 18.0, 28.0);
 
         when(clothRepository.findByTemperature(hotWeather.getFeelsLikeTemperature()))
                 .thenReturn(List.of(summerTee, shorts, runningShoes));
@@ -68,26 +68,26 @@ class ClothServiceTest {
         when(extraClothRepository.findDistinctByWeather(Weather.MODERATE_RAIN))
                 .thenReturn(Set.of(umbrella));
 
-        Map<Category, List<Clothing>> result = clothService.getOutfitWithPeriod(weatherPlan);
+        Map<Style, List<Clothing>> result = clothService.getOutfitWithPeriod(weatherPlan);
 
         assertThat(result).isNotNull();
 
-        assertThat(result).containsKey(Category.CASUAL_DAILY);
-        assertThat(result.get(Category.CASUAL_DAILY)).containsExactlyInAnyOrder(
+        assertThat(result).containsKey(Style.CASUAL_DAILY);
+        assertThat(result.get(Style.CASUAL_DAILY)).containsExactlyInAnyOrder(
                 summerTee, shorts, springJacket, jeans, winterCoat);
-        assertThat(result.get(Category.CASUAL_DAILY)).hasSize(5);
+        assertThat(result.get(Style.CASUAL_DAILY)).hasSize(5);
 
-        assertThat(result).containsKey(Category.FORMAL_OFFICE);
-        assertThat(result.get(Category.FORMAL_OFFICE)).containsExactlyInAnyOrder(formalShirt);
-        assertThat(result.get(Category.FORMAL_OFFICE)).hasSize(1);
+        assertThat(result).containsKey(Style.FORMAL_OFFICE);
+        assertThat(result.get(Style.FORMAL_OFFICE)).containsExactlyInAnyOrder(formalShirt);
+        assertThat(result.get(Style.FORMAL_OFFICE)).hasSize(1);
 
-        assertThat(result).containsKey(Category.OUTDOOR);
-        assertThat(result.get(Category.OUTDOOR)).containsExactlyInAnyOrder(runningShoes, scarf);
-        assertThat(result.get(Category.OUTDOOR)).hasSize(2);
+        assertThat(result).containsKey(Style.OUTDOOR);
+        assertThat(result.get(Style.OUTDOOR)).containsExactlyInAnyOrder(runningShoes, scarf);
+        assertThat(result.get(Style.OUTDOOR)).hasSize(2);
 
         // EXTRA 카테고리 검증
-        assertThat(result).containsKey(Category.EXTRA);
-        assertThat(result.get(Category.EXTRA)).containsExactlyInAnyOrder(mask, umbrella);
-        assertThat(result.get(Category.EXTRA)).hasSize(2);
+        assertThat(result).containsKey(Style.EXTRA);
+        assertThat(result.get(Style.EXTRA)).containsExactlyInAnyOrder(mask, umbrella);
+        assertThat(result.get(Style.EXTRA)).hasSize(2);
     }
 }

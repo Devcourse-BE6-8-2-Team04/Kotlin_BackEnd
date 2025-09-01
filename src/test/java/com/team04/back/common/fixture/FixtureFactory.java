@@ -3,6 +3,8 @@ package com.team04.back.common.fixture;
 import com.team04.back.domain.cloth.cloth.entity.ClothInfo;
 import com.team04.back.domain.cloth.cloth.entity.ExtraCloth;
 import com.team04.back.domain.cloth.cloth.enums.Category;
+import com.team04.back.domain.cloth.cloth.enums.ClothName;
+import com.team04.back.domain.cloth.cloth.enums.Style;
 import com.team04.back.domain.weather.weather.entity.WeatherInfo;
 import com.team04.back.domain.weather.weather.enums.Weather;
 
@@ -14,11 +16,13 @@ import java.util.stream.IntStream;
 
 public class FixtureFactory {
 
-    public static ClothInfo createClothInfo(Category category, double minTemp, double maxTemp) {
+    public static ClothInfo createClothInfo(Style style, double minTemp, double maxTemp) {
         return ClothInfo.create(
-                "테스트 의류",
+                ClothName.T_SHIRT,
                 "test_image.jpg",
-                category,
+                Category.TOP,
+                style,
+                null,
                 minTemp,
                 maxTemp
         );

@@ -4,6 +4,8 @@ import com.team04.back.domain.cloth.cloth.dto.CategoryClothDto;
 import com.team04.back.domain.cloth.cloth.dto.WeatherClothResponseDto;
 import com.team04.back.domain.cloth.cloth.entity.ExtraCloth;
 import com.team04.back.domain.cloth.cloth.enums.Category;
+import com.team04.back.domain.cloth.cloth.enums.ClothName;
+import com.team04.back.domain.cloth.cloth.enums.Style;
 import com.team04.back.domain.cloth.cloth.service.ClothService;
 import com.team04.back.domain.weather.weather.entity.WeatherInfo;
 import com.team04.back.domain.weather.weather.enums.Weather;
@@ -36,8 +38,8 @@ class ClothControllerTest {
     private static final double MIN_TEMP = 18.0;
     private static final String LOCATION = "서울";
 
-    private static final CategoryClothDto CLOTH_1 = new CategoryClothDto("반팔티", "/images/tshirt.png", Category.CASUAL_DAILY);
-    private static final CategoryClothDto CLOTH_2 = new CategoryClothDto("청바지", "/images/jeans.png", Category.CASUAL_DAILY);
+    private static final CategoryClothDto CLOTH_1 = new CategoryClothDto(ClothName.T_SHIRT, "/images/tshirt.png", Category.TOP, Style.CASUAL_DAILY, null);
+    private static final CategoryClothDto CLOTH_2 = new CategoryClothDto(ClothName.JEANS, "/images/jeans.png", Category.BOTTOM, Style.CASUAL_DAILY, null);
 
     @InjectMocks
     private ClothController clothController;
@@ -73,7 +75,7 @@ class ClothControllerTest {
         // then
         assertThat(response.getWeatherInfo().getWeather()).isEqualTo(WEATHER_DESC.name());
         assertThat(response.getClothList()).hasSize(2);
-        assertThat(response.getClothList().get(0).getClothName()).isEqualTo("반팔티");
+        assertThat(response.getClothList().get(0).getClothName()).isEqualTo(ClothName.T_SHIRT);
     }
     @Test
     void getClothDetails_WithHeatWave_ReturnsExtraClothes() {

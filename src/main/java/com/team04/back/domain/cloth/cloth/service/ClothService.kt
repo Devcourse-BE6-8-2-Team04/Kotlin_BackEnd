@@ -4,7 +4,7 @@ import com.team04.back.domain.cloth.cloth.dto.CategoryClothDto
 import com.team04.back.domain.cloth.cloth.entity.ClothInfo
 import com.team04.back.domain.cloth.cloth.entity.Clothing
 import com.team04.back.domain.cloth.cloth.entity.ExtraCloth
-import com.team04.back.domain.cloth.cloth.enums.Category
+import com.team04.back.domain.cloth.cloth.enums.Style
 import com.team04.back.domain.cloth.cloth.repository.ClothRepository
 import com.team04.back.domain.cloth.cloth.repository.ExtraClothRepository
 import com.team04.back.domain.weather.weather.entity.WeatherInfo
@@ -25,24 +25,24 @@ class ClothService(
                 feelsLikeTemperature,
                 feelsLikeTemperature
             )
-            .map { cloth -> CategoryClothDto(cloth.clothName, cloth.imageUrl, cloth.category) }
+            .map { cloth -> CategoryClothDto(cloth.clothName, cloth.imageUrl, cloth.category, cloth.style, cloth.material) }
     }
 
-    fun getOutfitWithPeriod(weatherPlan: List<WeatherInfo>): Map<Category, MutableList<Clothing>> {
-        val recommendedClothesMap = mutableMapOf<Category, MutableList<Clothing>>()
+    fun getOutfitWithPeriod(weatherPlan: List<WeatherInfo>): Map<Style, MutableList<Clothing>> {
+        val recommendedClothesMap = mutableMapOf<Style, MutableList<Clothing>>()
         val allExtraClothes = mutableSetOf<ExtraCloth>()
 
         for (weather in weatherPlan) {
             val recommendedClothes = clothRepository.findByTemperature(weather.feelsLikeTemperature)
 
             for (cloth in recommendedClothes) {
-                recommendedClothesMap.getOrPut(cloth.category) { mutableListOf() }.add(cloth)
+                recommendedClothesMap.getOrPut(cloth.style!!) { mutableListOf() }.add(cloth)
             }
 
             allExtraClothes.addAll(getExtraClothes(weather))
         }
 
-        recommendedClothesMap.getOrPut(Category.EXTRA) { mutableListOf() }.addAll(allExtraClothes)
+        recommendedClothesMap.getOrPut(Style.EXTRA) { mutableListOf() }.addAll(allExtraClothes)
 
         return recommendedClothesMap
     }
