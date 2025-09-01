@@ -2,11 +2,13 @@ package com.team04.back.domain.review.review.service
 
 import com.team04.back.domain.cloth.cloth.entity.ClothInfo
 import com.team04.back.domain.cloth.cloth.service.ClothService
+import com.team04.back.domain.review.review.dto.ClothItemReqBody
 import com.team04.back.domain.review.review.entity.Review
 import com.team04.back.domain.review.review.entity.ReviewClothInfo
 import com.team04.back.domain.review.review.repository.ReviewClothInfoRepository
 import com.team04.back.domain.review.review.repository.ReviewRepository
 import com.team04.back.domain.weather.weather.entity.WeatherInfo
+import com.team04.back.global.exception.ServiceException
 import com.team04.back.standard.dto.ReviewSearchDto
 import com.team04.back.standard.dto.ReviewSearchSortType
 import com.team04.back.standard.dto.ReviewSearchSortType.ID
@@ -50,10 +52,29 @@ class ReviewService(
         title: String,
         sentence: String,
         tagString: String?,
-        weatherInfo: WeatherInfo
+        weatherInfo: WeatherInfo,
+        clothList: List<ClothItemReqBody>
     ): Review {
         val review = Review(email, password, title, sentence, tagString, imageUrl, weatherInfo)
-        return reviewRepository.save(review)
+        reviewRepository.save(review)
+
+        clothList.forEach { clothItem ->
+            // ClothName을 이용해 대표 ClothInfo 조회 (이미지 사용 위해)
+            val defaultClothInfo = clothService.findByClothNameAndStyle(clothItem.clothName, null) ?: throw ServiceException("400-1","옷 정보를 찾을 수 없습니다.")
+            val clothInfo = ClothInfo.create(
+                clothName = clothItem.clothName,
+                imageUrl = defaultClothInfo.imageUrl,
+                category = clothItem.category,
+                style = clothItem.style,
+                material = clothItem.material,
+                minFeelsLike = null,
+                maxFeelsLike = null
+            )
+            clothService.save(clothInfo)
+            addReviewClothInfo(review.id, clothInfo.id, clothItem.isRecommend)
+        }
+
+        return review
     }
 
     fun findLatest(): Review? = reviewRepository.findFirstByOrderByIdDesc()
@@ -85,5 +106,10 @@ class ReviewService(
             .map { it.clothInfoId }
 
         return clothService.findByIdList(clothInfoIdList)
+    }
+
+    fun addReviewClothInfo(reviewId: Int, clothInfoId: Int, isRecommend: Boolean) {
+        val reviewClothInfo = ReviewClothInfo(reviewId, clothInfoId, isRecommend)
+        reviewClothInfoRepository.save(reviewClothInfo)
     }
 }

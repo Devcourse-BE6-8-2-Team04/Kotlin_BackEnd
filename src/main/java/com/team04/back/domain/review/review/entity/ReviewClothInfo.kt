@@ -26,10 +26,4 @@ class ReviewClothInfo(
         this.isRecommend = !isRecommend
         return this
     }
-
-    companion object {
-        fun of(reviewId: Int, clothInfoId: Int, isRecommend: Boolean): ReviewClothInfo {
-            return ReviewClothInfo(reviewId, clothInfoId, isRecommend)
-        }
-    }
 }

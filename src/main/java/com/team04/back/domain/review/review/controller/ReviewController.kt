@@ -1,6 +1,7 @@
 package com.team04.back.domain.review.review.controller
 
 import com.team04.back.domain.cloth.cloth.entity.ClothInfo
+import com.team04.back.domain.review.review.dto.ClothItemReqBody
 import com.team04.back.domain.review.review.dto.ReviewDetailDto
 import com.team04.back.domain.review.review.dto.ReviewDto
 import com.team04.back.domain.review.review.entity.Review
@@ -149,7 +150,8 @@ class ReviewController(
         val imageUrl: String?,
         @field:NotBlank val countryCode: String,
         @field:NotBlank val cityName: String,
-        @field:DateTimeFormat(iso = DateTimeFormat.ISO.DATE) val date: LocalDate
+        @field:DateTimeFormat(iso = DateTimeFormat.ISO.DATE) val date: LocalDate,
+        val clothList: List<ClothItemReqBody>
     )
 
     /**
@@ -181,7 +183,8 @@ class ReviewController(
             createReviewReqBody.title,
             createReviewReqBody.sentence,
             createReviewReqBody.tagString,
-            weatherInfo
+            weatherInfo,
+            createReviewReqBody.clothList
         )
 
         return RsData(

@@ -2,6 +2,7 @@ package com.team04.back.domain.cloth.cloth.service
 
 import com.team04.back.domain.cloth.cloth.dto.CategoryClothDto
 import com.team04.back.domain.cloth.cloth.entity.ClothInfo
+import com.team04.back.domain.cloth.cloth.enums.ClothName
 import com.team04.back.domain.cloth.cloth.enums.Style
 import com.team04.back.domain.cloth.cloth.repository.ClothRepository
 import com.team04.back.domain.weather.weather.entity.WeatherInfo
@@ -68,5 +69,9 @@ class ClothService(
 
     fun findByIdList(clothInfoIdList: List<Int>): List<ClothInfo> {
         return clothRepository.findAllById(clothInfoIdList)
+    }
+
+    fun findByClothNameAndStyle(clothName: ClothName, style: Style?) : ClothInfo? {
+        return clothRepository.findByClothNameAndStyle(clothName, style)
     }
 }
