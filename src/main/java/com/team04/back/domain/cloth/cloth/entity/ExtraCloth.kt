@@ -10,28 +10,17 @@ import jakarta.persistence.Enumerated
 @Entity
 class ExtraCloth(
     @Column(nullable = false)
-    var clothName: String,
+    override var clothName: String,
 
     @Column(nullable = false)
-    var imageUrl: String,
+    override var imageUrl: String,
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    var weather: Weather,
-
-    ) : BaseEntity(), Clothing {
+    var weather: Weather
+) : BaseEntity(), Clothing {
 
     protected constructor() : this("", "", Weather.CLEAR_SKY)
-
-    fun update(
-        clothName: String? = null,
-        imageUrl: String? = null,
-        weather: Weather? = null
-    ) {
-        clothName?.takeIf { it.isNotBlank() }?.let { this.clothName = it }
-        imageUrl?.takeIf { it.isNotBlank() }?.let { this.imageUrl = it }
-        weather?.let { this.weather = it }
-    }
 
     companion object {
         @JvmStatic
