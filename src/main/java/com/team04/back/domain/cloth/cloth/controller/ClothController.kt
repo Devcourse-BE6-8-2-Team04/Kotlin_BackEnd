@@ -3,7 +3,6 @@ package com.team04.back.domain.cloth.cloth.controller
 import com.team04.back.domain.cloth.cloth.dto.OutfitRecommendationResponseDto
 import com.team04.back.domain.cloth.cloth.dto.WeatherClothResponseDto
 import com.team04.back.domain.cloth.cloth.service.ClothService
-import com.team04.back.domain.history.history.service.ClothRecommendationHistoryService
 import com.team04.back.domain.weather.weather.dto.WeatherInfoDto
 import com.team04.back.domain.weather.weather.service.WeatherService
 import io.swagger.v3.oas.annotations.Operation
@@ -18,7 +17,6 @@ import java.time.LocalDate
 class ClothController(
     private val clothService: ClothService,
     private val weatherService: WeatherService,
-    private val clothRecommendationHistoryService: ClothRecommendationHistoryService
 ) {
 
     @GetMapping("/details")

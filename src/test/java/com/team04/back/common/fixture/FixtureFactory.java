@@ -18,16 +18,20 @@ import java.util.stream.IntStream;
 
 public class FixtureFactory {
 
-    public static ClothInfo createClothInfo(Style style, double minTemp, double maxTemp) {
+    public static ClothInfo createClothInfo(ClothName clothName, Category category, Style style, double minTemp, double maxTemp) {
         return ClothInfo.create(
-                ClothName.T_SHIRT,
+                clothName,
                 "test_image.jpg",
-                Category.TOP,
+                category,
                 style,
                 null,
                 minTemp,
                 maxTemp
         );
+    }
+
+    public static ClothInfo createClothInfo(Style style, double minTemp, double maxTemp) {
+        return createClothInfo(ClothName.T_SHIRT, Category.TOP, style, minTemp, maxTemp);
     }
 
 
@@ -68,14 +72,17 @@ public class FixtureFactory {
             String location,
             List<WeatherInfo> weatherInfos,
             List<ClothInfo> likedClothings,
-            List<ClothInfo> unLikedClothings
+            List<ClothInfo> dislikedClothings
     ) {
+        LocalDate date = weatherInfos.isEmpty() ? LocalDate.now() : weatherInfos.get(0).getDate();
+
         return new ClothRecommendationHistory(
                 user,
                 location,
+                date,
                 weatherInfos,
                 likedClothings,
-                unLikedClothings,
+                dislikedClothings,
                 20.0,   // feelsLike
                 5.0,    // uvi
                 0.1,    // rain
@@ -95,14 +102,14 @@ public class FixtureFactory {
             String location,
             List<WeatherInfo> weatherInfos,
             List<ClothInfo> likedClothings,
-            List<ClothInfo> unLikedClothings
+            List<ClothInfo> dislikedClothings
     ) {
         ClothRecommendationHistory history = createClothRecommendationHistory(
                 user,
                 location,
                 weatherInfos,
                 likedClothings,
-                unLikedClothings
+                dislikedClothings
         );
         try {
             Field idField = history.getClass().getSuperclass().getDeclaredField("id");
