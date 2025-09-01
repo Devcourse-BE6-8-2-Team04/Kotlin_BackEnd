@@ -15,6 +15,16 @@ class ExtraCloth(
 
     protected constructor() : this("", "", Weather.CLEAR_SKY)
 
+    fun update(
+        clothName: String? = null,
+        imageUrl: String? = null,
+        weather: Weather? = null
+    ) {
+        clothName?.takeIf { it.isNotBlank() }?.let { this.clothName = it }
+        imageUrl?.takeIf { it.isNotBlank() }?.let { this.imageUrl = it }
+        weather?.let { this.weather = it }
+    }
+
     companion object {
         @JvmStatic
         fun create(
