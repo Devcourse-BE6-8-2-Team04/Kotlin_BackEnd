@@ -1,7 +1,6 @@
 package com.team04.back.domain.cloth.cloth.service;
 
 import com.team04.back.domain.cloth.cloth.entity.ClothInfo;
-import com.team04.back.domain.cloth.cloth.entity.Clothing;
 import com.team04.back.domain.cloth.cloth.enums.Style;
 import com.team04.back.domain.cloth.cloth.repository.ClothRepository;
 import com.team04.back.domain.weather.weather.entity.WeatherInfo;
@@ -56,8 +55,8 @@ class ClothServiceTest {
         when(clothRepository.findByTemperature(coldWeather.getFeelsLikeTemperature()))
                 .thenReturn(List.of(winterCoat, scarf));
 
-
-        Map<Style, List<Clothing>> result = clothService.getOutfitWithPeriod(weatherPlan);
+        // ✅ ClothInfo 기반으로 수정
+        Map<Style, List<ClothInfo>> result = clothService.getOutfitWithPeriod(weatherPlan);
 
         assertThat(result).isNotNull();
 
@@ -73,6 +72,5 @@ class ClothServiceTest {
         assertThat(result).containsKey(Style.OUTDOOR);
         assertThat(result.get(Style.OUTDOOR)).containsExactlyInAnyOrder(runningShoes, scarf);
         assertThat(result.get(Style.OUTDOOR)).hasSize(2);
-
     }
 }

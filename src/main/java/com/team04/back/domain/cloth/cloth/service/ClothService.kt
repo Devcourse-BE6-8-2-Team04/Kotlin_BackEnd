@@ -2,7 +2,6 @@ package com.team04.back.domain.cloth.cloth.service
 
 import com.team04.back.domain.cloth.cloth.dto.CategoryClothDto
 import com.team04.back.domain.cloth.cloth.entity.ClothInfo
-import com.team04.back.domain.cloth.cloth.entity.Clothing
 import com.team04.back.domain.cloth.cloth.enums.Style
 import com.team04.back.domain.cloth.cloth.repository.ClothRepository
 import com.team04.back.domain.weather.weather.entity.WeatherInfo
@@ -25,9 +24,8 @@ class ClothService(
             .map { cloth -> CategoryClothDto(cloth.clothName, cloth.imageUrl, cloth.category, cloth.style, cloth.material) }
     }
 
-    fun getOutfitWithPeriod(weatherPlan: List<WeatherInfo>): Map<Style, MutableList<Clothing>> {
-        val recommendedClothesMap = mutableMapOf<Style, MutableList<Clothing>>()
-//        val allExtraClothes = mutableSetOf<ExtraCloth>()
+    fun getOutfitWithPeriod(weatherPlan: List<WeatherInfo>): Map<Style, MutableList<ClothInfo>> {
+        val recommendedClothesMap = mutableMapOf<Style, MutableList<ClothInfo>>()
 
         for (weather in weatherPlan) {
             val recommendedClothes = clothRepository.findByTemperature(weather.feelsLikeTemperature)

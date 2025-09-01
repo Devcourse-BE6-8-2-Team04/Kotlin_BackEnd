@@ -4,6 +4,7 @@ import com.team04.back.domain.cloth.cloth.enums.Category
 import com.team04.back.domain.cloth.cloth.enums.ClothName
 import com.team04.back.domain.cloth.cloth.enums.Material
 import com.team04.back.domain.cloth.cloth.enums.Style
+import com.team04.back.global.jpa.entity.BaseEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -11,6 +12,10 @@ import jakarta.persistence.Enumerated
 
 @Entity
 class ClothInfo(
+    @Column(nullable = false)
+    var clothName: ClothName,
+    @Column(nullable = false)
+    var imageUrl: String,
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     var category: Category,
@@ -25,11 +30,9 @@ class ClothInfo(
 
     var minFeelsLike: Double?,
 
-    clothName: ClothName,
-    imageUrl: String
-    ) : Clothing(clothName, imageUrl) {
+) : BaseEntity() {
 
-    protected constructor() : this(Category.TOP, null, null, null, null, ClothName.T_SHIRT, "")
+    protected constructor() : this(clothName = ClothName.T_SHIRT, imageUrl = "", category = Category.TOP, style = null, material = null, maxFeelsLike = null, minFeelsLike = null)
 
     fun update(
         clothName: ClothName,
