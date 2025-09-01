@@ -85,7 +85,7 @@ class ClothInfoTest {
         Double newMaxFeelsLike = 30.0;
         Double newMinFeelsLike = 20.0;
 
-        clothInfo.update(newClothName, newImageUrl, newCategory, newStyle, newMaterial, newMaxFeelsLike, newMinFeelsLike);
+        clothInfo.update(newClothName, newImageUrl, newCategory, newStyle, newMaterial, newMinFeelsLike, newMaxFeelsLike);
 
         assertThat(clothInfo.getClothName()).isEqualTo(newClothName);
         assertThat(clothInfo.getImageUrl()).isEqualTo(newImageUrl);

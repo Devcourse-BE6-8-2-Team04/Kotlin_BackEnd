@@ -43,9 +43,13 @@ class ClothInfo(
         category: Category,
         style: Style? = null,
         material: Material? = null,
-        maxFeelsLike: Double? = null,
-        minFeelsLike: Double? = null
+        minFeelsLike: Double? = null,
+        maxFeelsLike: Double? = null
     ) {
+        if (minFeelsLike != null && maxFeelsLike != null) {
+            require(maxFeelsLike >= minFeelsLike) { "Max feels like temperature must be greater than or equal to min feels like temperature." }
+        }
+
         this.clothName = clothName
         this.category = category
 
