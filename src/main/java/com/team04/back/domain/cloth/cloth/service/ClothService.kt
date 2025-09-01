@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional(readOnly = true)
 class ClothService(
     private val clothRepository: ClothRepository,
-    private val clothRecommendationHistoryRepository : ClothRecommendationHistoryRepository
+    private val clothRecommendationHistoryRepository: ClothRecommendationHistoryRepository
 ) {
 
     fun findClothByWeather(feelsLikeTemperature: Double?): List<CategoryClothDto> {
@@ -24,12 +24,20 @@ class ClothService(
                 feelsLikeTemperature,
                 feelsLikeTemperature
             )
-            .map { cloth -> CategoryClothDto(cloth.clothName, cloth.imageUrl, cloth.category, cloth.style, cloth.material) }
+            .map { cloth ->
+                CategoryClothDto(
+                    cloth.clothName,
+                    cloth.imageUrl,
+                    cloth.category,
+                    cloth.style,
+                    cloth.material
+                )
+            }
     }
 
     fun getOutfitRecommendations(
         weatherPlan: List<WeatherInfo>,
-        location : String
+        location: String
     ): OutfitRecommendationResponseDto {
         val recommendedMap = mutableMapOf<Category, MutableMap<ClothInfo, Int>>() // 의류별 추천 횟수
         val notRecommendedMap = mutableMapOf<Category, MutableMap<ClothInfo, Int>>() // 의류별 비추천 횟수
@@ -80,6 +88,62 @@ class ClothService(
         )
     }
 
+    fun getOutfitRecommendations(
+        weatherPlan: List<WeatherInfo>,
+        location: String,
+        limit: Int = 5
+    ): OutfitRecommendationResponseDto {
+
+        val recommendedMap = mutableMapOf<Category, MutableMap<ClothInfo, Int>>()
+        val notRecommendedMap = mutableMapOf<Category, MutableMap<ClothInfo, Int>>()
+
+        for (weather in weatherPlan) {
+
+            // 1. 현재 날씨 기록 조회
+            var histories = clothRecommendationHistoryRepository.findByDateAndLocation(weather.date, location)
+
+            // 2. 없으면 유사 날씨 기반 과거 기록 조회
+            if (histories.isEmpty()) {
+                val pastWeathers = clothRecommendationHistoryRepository.findByDateBetweenAndLocation(
+                    weather.date.minusYears(3),
+                    weather.date.minusYears(1),
+                    location
+                )
+
+                val similarWeathers = pastWeathers
+                    .flatMap { it.weatherInfo }
+                    .filter { pastWeather -> isWeatherInfoSimilar(weather, pastWeather) }
+                    .take(limit)
+
+                histories = similarWeathers.flatMap {
+                    clothRecommendationHistoryRepository.findByDateAndLocation(it.date, location)
+                }
+            }
+
+            // 3. 추천/비추천 의류 종합
+            histories.forEach { history ->
+                history.likedClothings.forEach { cloth ->
+                    val key = cloth.category ?: Category.EXTRA
+                    recommendedMap.getOrPut(key) { mutableMapOf() }
+                        .merge(cloth, 1, Int::plus)
+                }
+                history.dislikedClothings.forEach { cloth ->
+                    val key = cloth.category ?: Category.EXTRA
+                    notRecommendedMap.getOrPut(key) { mutableMapOf() }
+                        .merge(cloth, 1, Int::plus)
+                }
+            }
+        }
+
+        // 4. 추천/비추천 Map 최종 정리
+        val finalRecommended = recommendedMap.mapValues { it.value.keys.toList() }
+        val finalNotRecommended = notRecommendedMap.mapValues { it.value.keys.toList() }
+
+        return OutfitRecommendationResponseDto(
+            recommendedOutfits = finalRecommended,
+            notRecommendedOutfits = finalNotRecommended
+        )
+    }
 
     private fun getWeatherGroup(weather: WeatherInfo): Weather {
         val code = weather.weather.code

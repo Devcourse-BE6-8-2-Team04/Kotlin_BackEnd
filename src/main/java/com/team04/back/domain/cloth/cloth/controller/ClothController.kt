@@ -1,19 +1,24 @@
 package com.team04.back.domain.cloth.cloth.controller
 
-import com.team04.back.domain.cloth.cloth.dto.OutfitResponseDto
+import com.team04.back.domain.cloth.cloth.dto.OutfitRecommendationResponseDto
 import com.team04.back.domain.cloth.cloth.dto.WeatherClothResponseDto
 import com.team04.back.domain.cloth.cloth.service.ClothService
+import com.team04.back.domain.history.history.service.ClothRecommendationHistoryService
 import com.team04.back.domain.weather.weather.dto.WeatherInfoDto
 import com.team04.back.domain.weather.weather.service.WeatherService
 import io.swagger.v3.oas.annotations.Operation
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import java.time.LocalDate
 
 @RestController
 @RequestMapping("/api/v1/cloth")
 class ClothController(
     private val clothService: ClothService,
-    private val weatherService: WeatherService
+    private val weatherService: WeatherService,
+    private val clothRecommendationHistoryService: ClothRecommendationHistoryService
 ) {
 
     @GetMapping("/details")
@@ -32,16 +37,20 @@ class ClothController(
     fun getOutfitWithPeriod(
         @RequestParam latitude: Double,
         @RequestParam longitude: Double,
+        @RequestParam location: String,
         @RequestParam startDate: LocalDate,
         @RequestParam endDate: LocalDate
-    ): OutfitResponseDto {
-        val duration = weatherService.getWeatherInfos(
+    ): OutfitRecommendationResponseDto {
+        // 1. 기간 동안 날씨 계획 조회
+        val weatherPlan = weatherService.getWeatherInfos(
             latitude,
             longitude,
             startDate,
             endDate
         )
-        val outfits = clothService.getOutfitWithPeriod(duration)
-        return OutfitResponseDto(outfits)
+
+        // 2. ClothService에서 추천/비추천 의류 계산
+        val outfitRecommendations : OutfitRecommendationResponseDto = clothService.getOutfitRecommendations(weatherPlan, location)
+        return outfitRecommendations
     }
 }
