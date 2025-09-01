@@ -1,5 +1,6 @@
 package com.team04.back.domain.weather.weather.controller
 
+import com.team04.back.domain.weather.geo.service.GeoService
 import com.team04.back.domain.weather.weather.dto.WeatherInfoDto
 import com.team04.back.domain.weather.weather.entity.WeatherInfo
 import com.team04.back.domain.weather.weather.service.WeatherService
@@ -18,17 +19,18 @@ import java.time.LocalDate
 @Tag(name = "Weather", description = "날씨 정보 API")
 @Validated
 class WeatherController(
-    private val weatherService: WeatherService
+    private val weatherService: WeatherService,
+    private val geoService: GeoService
 ) {
 
     @GetMapping
     @Operation(summary = "주간 날씨 조회", description = "위도와 경도를 이용하여 주간 날씨 정보를 조회합니다.")
     fun getWeeklyWeather(
+        @RequestParam(required = false, defaultValue = "unknown") location: String,
         @RequestParam @DecimalMin("-90.0") @DecimalMax("90.0") lat: Double,
         @RequestParam @DecimalMin("-180.0") @DecimalMax("180.0") lon: Double,
     ): List<WeatherInfoDto> {
-        val date = LocalDate.now()
-        val weatherInfos: List<WeatherInfo> = weatherService.getWeatherInfos(lat, lon, date, date.plusDays(6))
+        val weatherInfos: List<WeatherInfo> = weatherService.getWeeklyWeather(location, lat, lon)
         return weatherInfos.map { WeatherInfoDto(it) }
     }
 
