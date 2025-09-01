@@ -1,5 +1,10 @@
 package com.team04.back.global.initData
 
+import com.team04.back.domain.cloth.cloth.enums.Category
+import com.team04.back.domain.cloth.cloth.enums.ClothName
+import com.team04.back.domain.cloth.cloth.enums.Material
+import com.team04.back.domain.cloth.cloth.enums.Style
+import com.team04.back.domain.review.review.dto.ClothItemReqBody
 import com.team04.back.domain.review.review.service.ReviewService
 import com.team04.back.domain.weather.weather.entity.WeatherInfo
 import com.team04.back.domain.weather.weather.enums.Weather
@@ -52,7 +57,33 @@ class BaseInitData(
             "요즘 서울 진짜 미쳤어요... 햇빛이 너무 따갑고, 낮엔 밖에 나가면 숨이 턱턱 막혀요. 아침저녁은 그나마 나은데 낮 기온은 거의 37도 가까이 올라가네요. 에어컨 없으면 진짜 버티기 힘듭니다 ㅠㅠ",
             "#한국여름#폭염주의",
             weatherInfo1,
-            null
+            listOf(
+                ClothItemReqBody(
+                    clothName = ClothName.FUNCTIONAL_T_SHIRT,
+                    category = Category.TOP,
+                    style = Style.CASUAL_DAILY,
+                    material = Material.POLYESTER,
+                    isRecommend = true
+                ),
+                ClothItemReqBody(
+                    clothName = ClothName.SHORTS,
+                    category = Category.BOTTOM,
+                    style = Style.CASUAL_DAILY,
+                    isRecommend = true
+                ),
+                ClothItemReqBody(
+                    clothName = ClothName.SANDALS,
+                    category = Category.SHOES,
+                    style = Style.CASUAL_DAILY,
+                    isRecommend = true
+                ),
+                ClothItemReqBody(
+                    clothName = ClothName.CAP,
+                    category = Category.EXTRA,
+                    style = Style.CASUAL_DAILY,
+                    isRecommend = true
+                )
+            )
         )
         reviewService.createReview(
             "user2@test.com",

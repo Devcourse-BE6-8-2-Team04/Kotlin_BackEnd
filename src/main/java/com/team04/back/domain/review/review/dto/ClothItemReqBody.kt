@@ -8,7 +8,7 @@ import com.team04.back.domain.cloth.cloth.enums.Style
 data class ClothItemReqBody(
     val clothName: ClothName,
     val category: Category,
-    val style: Style?,
-    val material: Material?,
+    val style: Style? = null,
+    val material: Material? = null,
     val isRecommend: Boolean,
 )
