@@ -4,7 +4,7 @@ import com.team04.back.domain.weather.weather.entity.WeatherInfo
 import java.time.LocalDate
 
 data class WeatherInfoDto(
-    val id: Int,
+    val id: Int?,
     val weather: String,
     val weatherCode: Int,
     val weatherDescription: String?,

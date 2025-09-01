@@ -4,7 +4,7 @@ import com.team04.back.domain.review.review.entity.Review
 import com.team04.back.domain.weather.weather.dto.WeatherInfoDto
 
 data class ReviewDto(
-    val id: Int,
+    val id: Int?,
     val email: String,
     val imageUrl: String?,
     val title: String,
