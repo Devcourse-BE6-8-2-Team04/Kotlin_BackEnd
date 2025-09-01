@@ -53,28 +53,12 @@ class ReviewService(
         sentence: String,
         tagString: String?,
         weatherInfo: WeatherInfo,
-        clothList: List<ClothItemReqBody>
+        clothList: List<ClothItemReqBody>?
     ): Review {
         val review = Review(email, password, title, sentence, tagString, imageUrl, weatherInfo)
-        reviewRepository.save(review)
+        updateClothInfo(review.id, clothList)
 
-        clothList.forEach { clothItem ->
-            // ClothName을 이용해 대표 ClothInfo 조회 (이미지 사용 위해)
-            val defaultClothInfo = clothService.findByClothNameAndStyle(clothItem.clothName, null) ?: throw ServiceException("400-1","옷 정보를 찾을 수 없습니다.")
-            val clothInfo = ClothInfo.create(
-                clothName = clothItem.clothName,
-                imageUrl = defaultClothInfo.imageUrl,
-                category = clothItem.category,
-                style = clothItem.style,
-                material = clothItem.material,
-                minFeelsLike = null,
-                maxFeelsLike = null
-            )
-            clothService.save(clothInfo)
-            addReviewClothInfo(review.id, clothInfo.id, clothItem.isRecommend)
-        }
-
-        return review
+        return reviewRepository.save(review)
     }
 
     fun findLatest(): Review? = reviewRepository.findFirstByOrderByIdDesc()
@@ -85,8 +69,16 @@ class ReviewService(
         sentence: String,
         tagString: String?,
         imageUrl: String?,
-        weatherInfo: WeatherInfo
-    ): Review = review.modify(title, sentence, tagString, imageUrl, weatherInfo)
+        weatherInfo: WeatherInfo,
+        clothList: List<ClothItemReqBody>?
+    ): Review {
+        clothList?.let {
+            reviewClothInfoRepository.deleteByReviewId(review.id)
+            updateClothInfo(review.id, clothList)
+        }
+
+        return review.modify(title, sentence, tagString, imageUrl, weatherInfo)
+    }
 
     fun findReviewClothInfo(reviewId: Int): List<ReviewClothInfo> = reviewClothInfoRepository.findByReviewId(reviewId)
 
@@ -108,8 +100,28 @@ class ReviewService(
         return clothService.findByIdList(clothInfoIdList)
     }
 
-    fun addReviewClothInfo(reviewId: Int, clothInfoId: Int, isRecommend: Boolean) {
+    private fun addReviewClothInfo(reviewId: Int, clothInfoId: Int, isRecommend: Boolean) {
         val reviewClothInfo = ReviewClothInfo(reviewId, clothInfoId, isRecommend)
         reviewClothInfoRepository.save(reviewClothInfo)
+    }
+
+    private fun updateClothInfo(reviewId: Int, clothList: List<ClothItemReqBody>?) {
+        clothList?.forEach { clothItem ->
+            // ClothName을 이용해 대표 ClothInfo 조회 (이미지 사용 위해)
+            val defaultClothInfo = clothService.findByClothNameAndStyle(clothItem.clothName, null)
+                ?: throw ServiceException("400-1","옷 정보를 찾을 수 없습니다.")
+
+            val clothInfo = ClothInfo.create(
+                clothName = clothItem.clothName,
+                imageUrl = defaultClothInfo.imageUrl,
+                category = clothItem.category,
+                style = clothItem.style,
+                material = clothItem.material,
+                minFeelsLike = null,
+                maxFeelsLike = null
+            )
+            clothService.save(clothInfo)
+            addReviewClothInfo(reviewId, clothInfo.id, clothItem.isRecommend)
+        }
     }
 }
