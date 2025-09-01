@@ -48,5 +48,18 @@ enum class ClothName(val category: Category) {
     SANDALS(SHOES),         // 샌들
     OXFORDS(SHOES),         // 옥스포드
     HIKING_SHOES(SHOES),   // 하이킹 신발
-    ANKLE_BOOTS(SHOES)      // 앵클 부츠
+    ANKLE_BOOTS(SHOES),      // 앵클 부츠
+
+    // 기타 (EXTRA)
+    HAT(EXTRA),            // 모자
+    CAP(EXTRA),            // 캡
+    BEANIE(EXTRA),         // 비니
+    SCARF(EXTRA),          // 목도리
+    GLOVES(EXTRA),         // 장갑
+    BELT(EXTRA),           // 벨트
+    BAG(EXTRA),            // 가방
+    BACKPACK(EXTRA),       // 백팩
+    CROSSBODY_BAG(EXTRA),  // 크로스백
+    SUNGLASSES(EXTRA),     // 선글라스
+    UMBRELLA(EXTRA)        // 우산
 }

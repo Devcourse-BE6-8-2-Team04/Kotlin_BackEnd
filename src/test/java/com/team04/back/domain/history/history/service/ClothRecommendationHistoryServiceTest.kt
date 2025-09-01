@@ -17,6 +17,7 @@ import org.mockito.kotlin.whenever
 import org.springframework.test.context.ActiveProfiles
 import java.util.*
 import org.junit.jupiter.api.assertThrows
+import org.springframework.data.repository.findByIdOrNull
 import org.mockito.Mockito.verify
 import org.mockito.kotlin.times
 
@@ -51,8 +52,8 @@ class ClothRecommendationHistoryServiceTest {
     fun getHistory() {
         // Given
         val user = User()
-        val history = createClothRecommendationHistory(1L, user, "Seoul", emptyList(), emptyList(), emptyList())
-        whenever(clothRecommendationHistoryRepository.findById(1)).thenReturn(Optional.of(history))
+        val history = createClothRecommendationHistory(1, user, "Seoul", emptyList(), emptyList(), emptyList())
+        whenever(clothRecommendationHistoryRepository.findById(any())).thenReturn(Optional.of(history))
 
         // When
         val foundHistory = clothRecommendationHistoryService.getHistory(1)

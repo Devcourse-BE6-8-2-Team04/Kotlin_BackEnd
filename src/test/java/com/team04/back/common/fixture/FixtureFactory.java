@@ -2,8 +2,9 @@ package com.team04.back.common.fixture;
 
 import com.team04.back.domain.cloth.cloth.entity.ClothInfo;
 import com.team04.back.domain.cloth.cloth.entity.Clothing;
-import com.team04.back.domain.cloth.cloth.entity.ExtraCloth;
 import com.team04.back.domain.cloth.cloth.enums.Category;
+import com.team04.back.domain.cloth.cloth.enums.ClothName;
+import com.team04.back.domain.cloth.cloth.enums.Style;
 import com.team04.back.domain.history.history.entity.ClothRecommendationHistory;
 import com.team04.back.domain.user.user.entity.User;
 import com.team04.back.domain.weather.weather.entity.WeatherInfo;
@@ -30,9 +31,6 @@ public class FixtureFactory {
         );
     }
 
-    public static ExtraCloth createExtraCloth(String clothName, String imageUrl, Weather weather) {
-        return ExtraCloth.create(clothName, imageUrl, weather);
-    }
 
     public static WeatherInfo createWeatherInfo(String location, LocalDate date, Weather weather, Double feelsLikeTemperature) {
         WeatherInfo weatherInfo = new WeatherInfo();
@@ -93,7 +91,7 @@ public class FixtureFactory {
     }
 
     public static ClothRecommendationHistory createClothRecommendationHistory(
-            long id,
+            int id,
             User user,
             String location,
             List<WeatherInfo> weatherInfos,

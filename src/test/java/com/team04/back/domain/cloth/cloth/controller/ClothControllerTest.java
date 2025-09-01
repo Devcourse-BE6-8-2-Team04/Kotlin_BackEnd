@@ -2,7 +2,6 @@ package com.team04.back.domain.cloth.cloth.controller;
 
 import com.team04.back.domain.cloth.cloth.dto.CategoryClothDto;
 import com.team04.back.domain.cloth.cloth.dto.WeatherClothResponseDto;
-import com.team04.back.domain.cloth.cloth.entity.ExtraCloth;
 import com.team04.back.domain.cloth.cloth.enums.Category;
 import com.team04.back.domain.cloth.cloth.enums.ClothName;
 import com.team04.back.domain.cloth.cloth.enums.Style;
@@ -89,10 +88,6 @@ class ClothControllerTest {
 
         List<CategoryClothDto> mockCloths = List.of(CLOTH_1, CLOTH_2);
 
-        Set<ExtraCloth> mockExtraClothes = Set.of(
-                ExtraCloth.create("선크림", "/images/sunscreen.png", Weather.HEAT_WAVE),
-                ExtraCloth.create("모자", "/images/hat.png", Weather.HEAT_WAVE)
-        );
 
         when(weatherService.getWeatherInfo(anyDouble(), anyDouble(), any()))
                 .thenReturn(mockWeatherInfo);
@@ -100,8 +95,6 @@ class ClothControllerTest {
         when(clothService.findClothByWeather(mockWeatherInfo.getFeelsLikeTemperature()))
                 .thenReturn(mockCloths);
 
-        when(clothService.getExtraClothes(mockWeatherInfo))
-                .thenReturn(mockExtraClothes);
 
         // when
         WeatherClothResponseDto response = clothController.getClothDetails(TEST_LATITUDE, TEST_LONGITUDE);
@@ -109,9 +102,6 @@ class ClothControllerTest {
         // then
         assertThat(response.getWeatherInfo().getWeather()).isEqualTo(Weather.CLEAR_SKY.name());
         assertThat(response.getClothList()).hasSize(2);
-        assertThat(response.getExtraCloth()).hasSize(2);
-        assertThat(response.getExtraCloth().stream()
-                .anyMatch(extra -> extra.getClothName().equals("선크림"))).isTrue();
     }
 
 }

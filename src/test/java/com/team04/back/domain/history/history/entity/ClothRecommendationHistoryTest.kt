@@ -3,6 +3,7 @@ package com.team04.back.domain.history.history.entity
 import com.team04.back.common.fixture.FixtureFactory
 import com.team04.back.domain.cloth.cloth.entity.ClothInfo
 import com.team04.back.domain.cloth.cloth.enums.Category
+import com.team04.back.domain.cloth.cloth.enums.Style
 import com.team04.back.domain.user.user.entity.User
 import com.team04.back.domain.weather.weather.enums.Weather
 import org.assertj.core.api.Assertions
@@ -18,8 +19,8 @@ class ClothRecommendationHistoryTest {
         val weatherInfos = listOf(
             FixtureFactory.createWeatherInfo("서울", LocalDate.now(), Weather.CLEAR_SKY, 22.0)
         )
-        val liked: ClothInfo = FixtureFactory.createClothInfo(Category.OUTDOOR, 15.0, 25.0)
-        val unLiked: ClothInfo = FixtureFactory.createClothInfo(Category.CASUAL_DAILY, 5.0, 15.0)
+        val liked: ClothInfo = FixtureFactory.createClothInfo(Style.OUTDOOR, 15.0, 25.0)
+        val unLiked: ClothInfo = FixtureFactory.createClothInfo(Style.CASUAL_DAILY, 5.0, 15.0)
 
         // when
         val history = FixtureFactory.createClothRecommendationHistory(
