@@ -121,6 +121,18 @@ class WeatherService(
         return result
     }
 
+    fun isWeatherInfoSimilar(info1: WeatherInfo, info2: WeatherInfo): Boolean {
+        fun closeEnough(a: Double?, b: Double?, tolerance: Double) =
+            if (a != null && b != null) kotlin.math.abs(a - b) < tolerance else true
+
+        return kotlin.math.abs(info1.feelsLikeTemperature - info2.feelsLikeTemperature) <= 3.0 &&
+                closeEnough(info1.rain, info2.rain, 1.0) &&
+                closeEnough(info1.snow, info2.snow, 1.0) &&
+                closeEnough(info1.windSpeed, info2.windSpeed, 3.0) &&
+                closeEnough(info1.uvi, info2.uvi, 2.0) &&
+                kotlin.math.abs(info1.dailyTemperatureGap - info2.dailyTemperatureGap) < 5.0
+    }
+
     // 유효성 검사: 마지막 업데이트가 3시간 이내인지 확인
     private fun isValid(weatherInfo: WeatherInfo): Boolean {
         val lastUpdated = weatherInfo.modifyDate
