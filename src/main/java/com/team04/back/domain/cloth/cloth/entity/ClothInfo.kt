@@ -1,21 +1,35 @@
 package com.team04.back.domain.cloth.cloth.entity
 
 import com.team04.back.domain.cloth.cloth.enums.Category
+import com.team04.back.domain.cloth.cloth.enums.ClothName
+import com.team04.back.domain.cloth.cloth.enums.Material
+import com.team04.back.domain.cloth.cloth.enums.Style
+import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 
 @Entity
 class ClothInfo(
-    override var clothName: String,
-    override var imageUrl: String,
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     var category: Category,
-    var maxFeelsLike: Double,
-    var minFeelsLike: Double
-) : Clothing(clothName, imageUrl) {
 
-    protected constructor() : this(ClothName.T_SHIRT, "", Category.TOP, null, null, null, null)
+    @Enumerated(EnumType.STRING)
+    var style: Style?,
+
+    @Enumerated(EnumType.STRING)
+    var material: Material?,
+
+    var maxFeelsLike: Double?,
+
+    var minFeelsLike: Double?,
+
+    clothName: ClothName,
+    imageUrl: String
+    ) : Clothing(clothName, imageUrl) {
+
+    protected constructor() : this(Category.TOP, null, null, null, null, ClothName.T_SHIRT, "")
 
     fun update(
         clothName: ClothName,
@@ -51,13 +65,9 @@ class ClothInfo(
             minFeelsLike: Double?,
             maxFeelsLike: Double?
         ): ClothInfo {
-            require(!clothName.isNullOrBlank()) { "Cloth name cannot be empty." }
-            require(!imageUrl.isNullOrBlank()) { "Image URL cannot be empty." }
-            require(category != null) { "Category cannot be null." }
-            require(minFeelsLike != null) { "Min feels like temperature cannot be null." }
-            require(maxFeelsLike != null) { "Max feels like temperature cannot be null." }
-            require(maxFeelsLike >= minFeelsLike) {
-                "Max feels like temperature must be greater than or equal to min feels like temperature."
+            require(!imageUrl.isBlank()) { "Image URL cannot be empty." }
+            if (minFeelsLike != null && maxFeelsLike != null) {
+                require(maxFeelsLike >= minFeelsLike) { "Max feels like temperature must be greater than or equal to min feels like temperature." }
             }
 
             return ClothInfo(

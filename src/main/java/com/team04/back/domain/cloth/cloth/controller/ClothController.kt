@@ -1,6 +1,5 @@
 package com.team04.back.domain.cloth.cloth.controller
 
-import com.team04.back.domain.cloth.cloth.dto.ExtraClothDto
 import com.team04.back.domain.cloth.cloth.dto.OutfitResponseDto
 import com.team04.back.domain.cloth.cloth.dto.TripScheduleDto
 import com.team04.back.domain.cloth.cloth.dto.WeatherClothResponseDto
@@ -26,8 +25,7 @@ class ClothController(
     ): WeatherClothResponseDto {
         val weatherInfo = weatherService.getWeatherInfo(latitude, longitude, LocalDate.now())
         val cloths = clothService.findClothByWeather(weatherInfo.feelsLikeTemperature)
-        val extraClothDto = clothService.getExtraClothes(weatherInfo).map { ExtraClothDto(it) }.toSet()
-        return WeatherClothResponseDto(WeatherInfoDto(weatherInfo), cloths, extraClothDto)
+        return WeatherClothResponseDto(WeatherInfoDto(weatherInfo), cloths)
     }
 
     @GetMapping

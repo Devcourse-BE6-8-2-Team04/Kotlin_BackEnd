@@ -1,6 +1,7 @@
 package com.team04.back.global.initData
 
 import com.team04.back.domain.cloth.cloth.enums.Category.*
+import com.team04.back.domain.cloth.cloth.enums.ClothName
 import com.team04.back.domain.cloth.cloth.enums.ClothName.*
 import com.team04.back.domain.cloth.cloth.enums.Material.*
 import com.team04.back.domain.cloth.cloth.enums.Style.*
@@ -14,7 +15,6 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Lazy
 import org.springframework.transaction.annotation.Transactional
 import com.team04.back.domain.cloth.cloth.entity.ClothInfo.Companion.create as createCloth
-import com.team04.back.domain.cloth.cloth.entity.ExtraCloth.Companion.create as createExtraCloth
 
 @Configuration
 class ClothInitData(
@@ -31,7 +31,7 @@ class ClothInitData(
 
     @Transactional
     fun insertData() {
-        if (clothService.count() > 0 || clothService.countExtra() > 0) return
+        if (clothService.count() > 0) return
 
         // === ClothInfo Style별 기본 데이터 ===
         // CASUAL_DAILY - Cold
@@ -95,10 +95,10 @@ class ClothInitData(
         clothService.save(createCloth(HEELS, "https://i.postimg.cc/XY8ny0dz/hot-shoes.png", SHOES, DATE_LOOK, LEATHER, 20.1, 50.0)) // "hot_leather_open_toe_heels"
 
         // === ExtraCloth 저장 ===
-        clothService.save(createExtraCloth("Heatwave Hat", "https://i.postimg.cc/fbzgqVkM/image.png", Weather.HEAT_WAVE))
-        clothService.save(createExtraCloth("Moderate Rain Umbrella", "https://i.postimg.cc/RFm813m1/image.png", Weather.MODERATE_RAIN))
-        clothService.save(createExtraCloth("Snow Umbrella", "https://i.postimg.cc/RFm813m1/image.png", Weather.SNOW))
-        clothService.save(createExtraCloth("Dust Mask", "https://i.postimg.cc/Sx7c2jZb/image.png", Weather.MIST))
+//        clothService.save(ExtraCloth.create(clothName = ClothName.SHORTS, imageUrl = "https://i.postimg.cc/fbzgqVkM/image.png", weather = Weather.HEAT_WAVE))
+//        clothService.save(ExtraCloth.create(clothName = ClothName.JEANS, imageUrl = "https://i.postimg.cc/RFm813m1/image.png", weather = Weather.MODERATE_RAIN))
+//        clothService.save(ExtraCloth.create(clothName = ClothName.CARDIGAN, imageUrl = "https://i.postimg.cc/RFm813m1/image.png", weather = Weather.SNOW))
+//        clothService.save(ExtraCloth.create(clothName = ClothName.CHINOS, imageUrl = "https://i.postimg.cc/Sx7c2jZb/image.png", weather = Weather.MIST))
 
 
         // === ClothInfo ClothName별 기본 데이터 ===
