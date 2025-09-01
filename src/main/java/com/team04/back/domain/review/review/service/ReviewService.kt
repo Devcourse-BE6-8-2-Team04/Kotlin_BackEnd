@@ -41,8 +41,8 @@ class ReviewService(
     fun verifyPassword(review: Review, password: String): Boolean = review.password == password
 
     fun delete(review: Review) {
-        reviewRepository.delete(review)
         reviewClothInfoRepository.deleteByReviewId(review.id)
+        reviewRepository.delete(review)
     }
 
     fun createReview(
@@ -56,9 +56,10 @@ class ReviewService(
         clothList: List<ClothItemReqBody>?
     ): Review {
         val review = Review(email, password, title, sentence, tagString, imageUrl, weatherInfo)
+        val savedReview = reviewRepository.save(review)
         updateClothInfo(review.id, clothList)
 
-        return reviewRepository.save(review)
+        return savedReview
     }
 
     fun findLatest(): Review? = reviewRepository.findFirstByOrderByIdDesc()
