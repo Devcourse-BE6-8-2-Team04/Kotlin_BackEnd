@@ -151,7 +151,7 @@ class ReviewController(
         @field:NotBlank val countryCode: String,
         @field:NotBlank val cityName: String,
         @field:DateTimeFormat(iso = DateTimeFormat.ISO.DATE) val date: LocalDate,
-        val clothList: List<ClothItemReqBody>?
+        @field:Valid val clothList: List<ClothItemReqBody>?
     )
 
     /**
@@ -203,7 +203,7 @@ class ReviewController(
         @field:NotBlank val countryCode: String,
         @field:NotBlank val cityName: String,
         @field:DateTimeFormat(iso = DateTimeFormat.ISO.DATE) val date: LocalDate,
-        val clothList: List<ClothItemReqBody>?
+        @field:Valid val clothList: List<ClothItemReqBody>?
     )
 
     /**

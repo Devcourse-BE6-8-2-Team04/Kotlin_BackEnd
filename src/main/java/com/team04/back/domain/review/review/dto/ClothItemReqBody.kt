@@ -1,5 +1,6 @@
 package com.team04.back.domain.review.review.dto
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.team04.back.domain.cloth.cloth.enums.Category
 import com.team04.back.domain.cloth.cloth.enums.ClothName
 import com.team04.back.domain.cloth.cloth.enums.Material
@@ -10,5 +11,6 @@ data class ClothItemReqBody(
     val category: Category,
     val style: Style? = null,
     val material: Material? = null,
+    @JsonProperty("isRecommend")
     val isRecommend: Boolean,
 )

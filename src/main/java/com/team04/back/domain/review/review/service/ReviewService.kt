@@ -15,6 +15,7 @@ import com.team04.back.standard.dto.ReviewSearchSortType.ID
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class ReviewService(
@@ -40,11 +41,13 @@ class ReviewService(
 
     fun verifyPassword(review: Review, password: String): Boolean = review.password == password
 
+    @Transactional
     fun delete(review: Review) {
         reviewClothInfoRepository.deleteByReviewId(review.id)
         reviewRepository.delete(review)
     }
 
+    @Transactional
     fun createReview(
         email: String,
         password: String,
@@ -57,13 +60,14 @@ class ReviewService(
     ): Review {
         val review = Review(email, password, title, sentence, tagString, imageUrl, weatherInfo)
         val savedReview = reviewRepository.save(review)
-        updateClothInfo(review.id, clothList)
+        updateClothInfo(savedReview.id, clothList)
 
         return savedReview
     }
 
     fun findLatest(): Review? = reviewRepository.findFirstByOrderByIdDesc()
 
+    @Transactional
     fun modify(
         review: Review,
         title: String,
@@ -121,8 +125,8 @@ class ReviewService(
                 minFeelsLike = null,
                 maxFeelsLike = null
             )
-            clothService.save(clothInfo)
-            addReviewClothInfo(reviewId, clothInfo.id, clothItem.isRecommend)
+            val savedClothInfo = clothService.save(clothInfo)
+            addReviewClothInfo(reviewId, savedClothInfo.id, clothItem.isRecommend)
         }
     }
 }

@@ -61,8 +61,8 @@ class ClothService(
     }
 
     @Transactional
-    fun save(clothInfo: ClothInfo) {
-        clothRepository.save(clothInfo)
+    fun save(clothInfo: ClothInfo): ClothInfo {
+        return clothRepository.save(clothInfo)
     }
 
     fun count(): Long = clothRepository.count()
