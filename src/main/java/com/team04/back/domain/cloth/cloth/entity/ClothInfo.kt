@@ -1,6 +1,9 @@
 package com.team04.back.domain.cloth.cloth.entity
 
 import com.team04.back.domain.cloth.cloth.enums.Category
+import com.team04.back.domain.cloth.cloth.enums.ClothName
+import com.team04.back.domain.cloth.cloth.enums.Material
+import com.team04.back.domain.cloth.cloth.enums.Style
 import com.team04.back.global.jpa.entity.BaseEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -10,7 +13,8 @@ import jakarta.persistence.Enumerated
 @Entity
 class ClothInfo(
     @Column(nullable = false)
-    var clothName: String,
+    @Enumerated(EnumType.STRING)
+    var clothName: ClothName,
 
     @Column(nullable = false)
     var imageUrl: String,
@@ -19,26 +23,35 @@ class ClothInfo(
     @Enumerated(EnumType.STRING)
     var category: Category,
 
-    @Column(nullable = false)
-    var maxFeelsLike: Double,
+    @Enumerated(EnumType.STRING)
+    var style: Style?,
 
-    @Column(nullable = false)
-    var minFeelsLike: Double,
+    @Enumerated(EnumType.STRING)
+    var material: Material?,
+
+    var maxFeelsLike: Double?,
+
+    var minFeelsLike: Double?,
 
     ) : BaseEntity(), Clothing {
 
-    protected constructor() : this("", "", Category.CASUAL_DAILY, 0.0, 0.0)
+    protected constructor() : this(ClothName.T_SHIRT, "", Category.TOP, null, null, null, null)
 
     fun update(
-        clothName: String? = null,
+        clothName: ClothName,
         imageUrl: String? = null,
-        category: Category? = null,
+        category: Category,
+        style: Style? = null,
+        material: Material? = null,
         maxFeelsLike: Double? = null,
         minFeelsLike: Double? = null
     ) {
-        clothName?.takeIf { it.isNotBlank() }?.let { this.clothName = it }
+        this.clothName = clothName
+        this.category = category
+
         imageUrl?.takeIf { it.isNotBlank() }?.let { this.imageUrl = it }
-        category?.let { this.category = it }
+        style?.let { this.style = it }
+        material?.let { this.material = it }
         maxFeelsLike?.let { this.maxFeelsLike = it }
         minFeelsLike?.let { this.minFeelsLike = it }
     }
@@ -46,23 +59,25 @@ class ClothInfo(
     companion object {
         @JvmStatic
         fun create(
-            clothName: String?,
-            imageUrl: String?,
-            category: Category?,
+            clothName: ClothName,
+            imageUrl: String,
+            category: Category,
+            style: Style?,
+            material: Material?,
             minFeelsLike: Double?,
             maxFeelsLike: Double?
         ): ClothInfo {
-            require(!clothName.isNullOrBlank()) { "Cloth name cannot be empty." }
-            require(!imageUrl.isNullOrBlank()) { "Image URL cannot be empty." }
-            require(category != null) { "Category cannot be null." }
-            require(minFeelsLike != null) { "Min feels like temperature cannot be null." }
-            require(maxFeelsLike != null) { "Max feels like temperature cannot be null." }
-            require(maxFeelsLike >= minFeelsLike) { "Max feels like temperature must be greater than or equal to min feels like temperature." }
+            require(!imageUrl.isBlank()) { "Image URL cannot be empty." }
+            if (minFeelsLike != null && maxFeelsLike != null) {
+                require(maxFeelsLike >= minFeelsLike) { "Max feels like temperature must be greater than or equal to min feels like temperature." }
+            }
 
             return ClothInfo(
                 clothName = clothName,
                 imageUrl = imageUrl,
                 category = category,
+                style = style,
+                material = material,
                 minFeelsLike = minFeelsLike,
                 maxFeelsLike = maxFeelsLike
             )
