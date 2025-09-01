@@ -9,6 +9,7 @@ import com.team04.back.domain.user.user.entity.User;
 import com.team04.back.domain.weather.weather.entity.WeatherInfo;
 import com.team04.back.domain.weather.weather.enums.Weather;
 
+import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -87,5 +88,30 @@ public class FixtureFactory {
                 9.0,    // dailyTemperatureGap
                 LocalDateTime.now()
         );
+    }
+
+    public static ClothRecommendationHistory createClothRecommendationHistory(
+            long id,
+            User user,
+            String location,
+            List<WeatherInfo> weatherInfos,
+            List<Clothing> likedClothings,
+            List<Clothing> unLikedClothings
+    ) {
+        ClothRecommendationHistory history = createClothRecommendationHistory(
+                user,
+                location,
+                weatherInfos,
+                likedClothings,
+                unLikedClothings
+        );
+        try {
+            Field idField = history.getClass().getSuperclass().getDeclaredField("id");
+            idField.setAccessible(true);
+            idField.set(history, id);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+        return history;
     }
 }
