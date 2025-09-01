@@ -27,6 +27,8 @@ class ReviewService(
 
     fun findById(id: Int): Review? = reviewRepository.findById(id).orElse(null)
 
+    fun findLatest(): Review? = reviewRepository.findFirstByOrderByIdDesc()
+
     fun findBySearch(
         search: ReviewSearchDto,
         page: Int = 1,
@@ -41,11 +43,6 @@ class ReviewService(
 
     fun verifyPassword(review: Review, password: String): Boolean = review.password == password
 
-    @Transactional
-    fun delete(review: Review) {
-        reviewClothInfoRepository.deleteByReviewId(review.id)
-        reviewRepository.delete(review)
-    }
 
     @Transactional
     fun createReview(
@@ -65,8 +62,6 @@ class ReviewService(
         return savedReview
     }
 
-    fun findLatest(): Review? = reviewRepository.findFirstByOrderByIdDesc()
-
     @Transactional
     fun modify(
         review: Review,
@@ -84,6 +79,13 @@ class ReviewService(
 
         return review.modify(title, sentence, tagString, imageUrl, weatherInfo)
     }
+
+    @Transactional
+    fun delete(review: Review) {
+        reviewClothInfoRepository.deleteByReviewId(review.id)
+        reviewRepository.delete(review)
+    }
+
 
     fun findReviewClothInfo(reviewId: Int): List<ReviewClothInfo> = reviewClothInfoRepository.findByReviewId(reviewId)
 
@@ -104,6 +106,7 @@ class ReviewService(
 
         return clothService.findByIdList(clothInfoIdList)
     }
+
 
     private fun addReviewClothInfo(reviewId: Int, clothInfoId: Int, isRecommend: Boolean) {
         val reviewClothInfo = ReviewClothInfo(reviewId, clothInfoId, isRecommend)
