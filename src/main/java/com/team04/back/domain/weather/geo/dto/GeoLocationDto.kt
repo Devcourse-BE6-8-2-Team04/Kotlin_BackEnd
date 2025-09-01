@@ -3,10 +3,10 @@ package com.team04.back.domain.weather.geo.dto
 import com.team04.back.infra.weather.dto.GeoDirectResponse
 
 data class GeoLocationDto(
-    val name: String?,
-    val country: String?,
-    val lat: Double,
-    val lon: Double,
+    val name: String? = null,
+    val country: String? = null,
+    val lat: Double = 0.0,
+    val lon: Double = 0.0,
     val localName: String? = null
 ) {
     constructor(geoDirectResponse: GeoDirectResponse) : this(
@@ -17,3 +17,4 @@ data class GeoLocationDto(
         localName = geoDirectResponse.localNames?.korean
     )
 }
+

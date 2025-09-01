@@ -2,23 +2,45 @@ package com.team04.back.domain.weather.geo.service
 
 import com.team04.back.domain.weather.geo.dto.GeoLocationDto
 import com.team04.back.infra.weather.WeatherApiClient
+import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Service
 
 @Service
 class GeoService(
-    private val weatherApiClient: WeatherApiClient
+    private val weatherApiClient: WeatherApiClient,
+    private val redisTemplate: RedisTemplate<String, Any>
 ) {
+    private val cacheKeyPrefix = "geo:search:"
 
     /**
      * 주어진 도시 이름에 대한 지역 정보를 가져옵니다.
      * @param location 도시 이름
      * @return 도시에 대한 지역 정보 리스트
      */
-    fun getGeoLocations(location: String): List<GeoLocationDto> =
-        weatherApiClient.fetchCoordinatesByCity(location, null, 5)
+    fun getGeoLocations(location: String): List<GeoLocationDto> {
+        val key = cacheKeyPrefix + location
+
+        // Redis 조회
+        @Suppress("UNCHECKED_CAST")
+        val cached = redisTemplate.opsForValue().get(key) as? List<GeoLocationDto>
+        if (cached != null) {
+            println("Cache hit for key: $key: $cached")
+            return cached
+        }
+
+        // Redis에 없으면 외부 API 호출
+        val result = weatherApiClient.fetchCoordinatesByCity(location, null, 5)
             .blockOptional()
             .map { response -> response.map { GeoLocationDto(it) } }
             .orElse(emptyList())
+
+        // 결과 Redis에 저장 (TTL: 24시간)
+        if (result.isNotEmpty()) {
+            redisTemplate.opsForValue().set(key, result, java.time.Duration.ofHours(24))
+        }
+
+        return result
+    }
 
     /**
      * 좌표를 이용하여 지역 이름 조회
