@@ -271,7 +271,7 @@ class ReviewControllerTest {
                 MockMvcRequestBuilders.get("/api/v1/reviews/${id}")
             ).andDo(MockMvcResultHandlers.print())
 
-        val review = reviewService.findById(id).getOrThrow()
+        val review = reviewService.findById(id!!).getOrThrow()
 
         resultActions
             .andExpect(MockMvcResultMatchers.handler().handlerType(ReviewController::class.java))
