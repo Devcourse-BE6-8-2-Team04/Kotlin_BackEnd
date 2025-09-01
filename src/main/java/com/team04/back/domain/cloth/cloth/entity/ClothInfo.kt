@@ -1,27 +1,19 @@
 package com.team04.back.domain.cloth.cloth.entity
 
 import com.team04.back.domain.cloth.cloth.enums.Category
-import com.team04.back.global.jpa.entity.BaseEntity
-import jakarta.persistence.*
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 
 @Entity
 class ClothInfo(
-    @Column(nullable = false)
     override var clothName: String,
-
-    @Column(nullable = false)
     override var imageUrl: String,
-
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     var category: Category,
-
-    @Column(nullable = false)
     var maxFeelsLike: Double,
-
-    @Column(nullable = false)
     var minFeelsLike: Double
-) : BaseEntity(), Clothing {
+) : Clothing(clothName, imageUrl) {
 
     protected constructor() : this("", "", Category.CASUAL_DAILY, 0.0, 0.0)
 
