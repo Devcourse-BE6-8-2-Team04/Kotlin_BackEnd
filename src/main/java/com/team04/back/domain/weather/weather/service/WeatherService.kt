@@ -29,6 +29,25 @@ class WeatherService(
         weatherRepository.save(weatherInfo)
 
     /**
+     * 위치와 좌표를 이용하여 주간 날씨 정보를 조회합니다.
+     * @param location 지역 이름 (알 수 없는 경우 "unknown"으로 전달)
+     * @param lat 위도
+     * @param lon 경도
+     * @return 해당 위치와 좌표에 대한 주간 날씨 정보 리스트
+     */
+    @Transactional
+    fun getWeeklyWeather(location: String, lat: Double, lon: Double): List<WeatherInfo> {
+        val date = LocalDate.now()
+        if (location == "unknown") {
+            return getWeatherInfos(lat, lon, date, date.plusDays(6))
+        } else {
+            // 지역 이름 정규화
+            val normalized = geoService.normalizeCityName(location, lat, lon)
+            return getWeatherInfos(normalized, lat, lon, date, date.plusDays(6))
+        }
+    }
+
+    /**
      * 좌표와 날짜를 이용하여 날씨 정보 단건을 조회합니다.
      * @param lat 위도
      * @param lon 경도

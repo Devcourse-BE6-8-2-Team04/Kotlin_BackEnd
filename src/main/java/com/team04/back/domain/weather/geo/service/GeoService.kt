@@ -4,6 +4,7 @@ import com.team04.back.domain.weather.geo.dto.GeoLocationDto
 import com.team04.back.infra.weather.WeatherApiClient
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Service
+import java.time.Duration
 
 @Service
 class GeoService(
@@ -11,6 +12,7 @@ class GeoService(
     private val redisTemplate: RedisTemplate<String, Any>
 ) {
     private val cacheKeyPrefix = "geo:search:"
+    private val normalizedKeyPrefix = "geo:normalized:"
 
     /**
      * 주어진 도시 이름에 대한 지역 정보를 가져옵니다.
@@ -25,6 +27,7 @@ class GeoService(
         val cached = redisTemplate.opsForValue().get(key) as? List<GeoLocationDto>
         if (cached != null) {
             println("Cache hit for key: $key: $cached")
+            redisTemplate.opsForValue().set(key, cached, Duration.ofHours(24))
             return cached
         }
 
@@ -67,4 +70,31 @@ class GeoService(
             .flatMap { list -> list.firstOrNull()?.let { java.util.Optional.of(it) } }
             .map { geo -> listOf(geo.lat, geo.lon) }
             .orElse(listOf(0.0, 0.0)) // 기본값으로 0.0, 0.0 반환
+
+    /**
+     * 도시 이름 정규화
+     * @param rawCityName 원시 도시 이름
+     * @return 정규화된 도시 이름
+     */
+    fun normalizeCityName(rawCityName: String, lat: Double, lon: Double): String {
+        val key = normalizedKeyPrefix + rawCityName
+
+        // Redis 캐시 조회
+        val cached = redisTemplate.opsForValue().get(key) as? String
+        if (cached != null) {
+            println("Cache hit for key: $key: $cached")
+            redisTemplate.opsForValue().set(key, cached, Duration.ofDays(7))
+            return cached
+        }
+
+        // 외부 API 호출 → 좌표 기반 도시명 조회
+        val normalized = getLocationFromCoordinates(lat, lon)
+
+        // Redis에 캐싱 (TTL: 7일)
+        if (normalized != "알 수 없음") {
+            redisTemplate.opsForValue().set(key, normalized, Duration.ofDays(7))
+        }
+
+        return normalized
+    }
 }
