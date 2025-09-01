@@ -2,11 +2,8 @@ package com.team04.back.domain.cloth.cloth.service
 
 import com.team04.back.domain.cloth.cloth.dto.CategoryClothDto
 import com.team04.back.domain.cloth.cloth.entity.ClothInfo
-import com.team04.back.domain.cloth.cloth.entity.Clothing
-import com.team04.back.domain.cloth.cloth.entity.ExtraCloth
-import com.team04.back.domain.cloth.cloth.enums.Category
+import com.team04.back.domain.cloth.cloth.enums.Style
 import com.team04.back.domain.cloth.cloth.repository.ClothRepository
-import com.team04.back.domain.cloth.cloth.repository.ExtraClothRepository
 import com.team04.back.domain.weather.weather.entity.WeatherInfo
 import com.team04.back.domain.weather.weather.enums.Weather
 import org.springframework.stereotype.Service
@@ -16,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional(readOnly = true)
 class ClothService(
     private val clothRepository: ClothRepository,
-    private val extraClothRepository: ExtraClothRepository
 ) {
 
     fun findClothByWeather(feelsLikeTemperature: Double?): List<CategoryClothDto> {
@@ -25,32 +21,26 @@ class ClothService(
                 feelsLikeTemperature,
                 feelsLikeTemperature
             )
-            .map { cloth -> CategoryClothDto(cloth.clothName, cloth.imageUrl, cloth.category) }
+            .map { cloth -> CategoryClothDto(cloth.clothName, cloth.imageUrl, cloth.category, cloth.style, cloth.material) }
     }
 
-    fun getOutfitWithPeriod(weatherPlan: List<WeatherInfo>): Map<Category, MutableList<Clothing>> {
-        val recommendedClothesMap = mutableMapOf<Category, MutableList<Clothing>>()
-        val allExtraClothes = mutableSetOf<ExtraCloth>()
+    fun getOutfitWithPeriod(weatherPlan: List<WeatherInfo>): Map<Style, MutableList<ClothInfo>> {
+        val recommendedClothesMap = mutableMapOf<Style, MutableList<ClothInfo>>()
 
         for (weather in weatherPlan) {
             val recommendedClothes = clothRepository.findByTemperature(weather.feelsLikeTemperature)
 
             for (cloth in recommendedClothes) {
-                recommendedClothesMap.getOrPut(cloth.category) { mutableListOf() }.add(cloth)
+                recommendedClothesMap.getOrPut(cloth.style!!) { mutableListOf() }.add(cloth)
             }
 
-            allExtraClothes.addAll(getExtraClothes(weather))
         }
 
-        recommendedClothesMap.getOrPut(Category.EXTRA) { mutableListOf() }.addAll(allExtraClothes)
+        recommendedClothesMap.getOrPut(Style.EXTRA) { mutableListOf() }
 
         return recommendedClothesMap
     }
 
-    fun getExtraClothes(weather: WeatherInfo): Set<ExtraCloth> {
-        val weatherGroup = getWeatherGroup(weather)
-        return extraClothRepository.findDistinctByWeather(weatherGroup)
-    }
 
     private fun getWeatherGroup(weather: WeatherInfo): Weather {
         val code = weather.weather.code
@@ -75,11 +65,4 @@ class ClothService(
     }
 
     fun count(): Long = clothRepository.count()
-
-    @Transactional
-    fun save(extraCloth: ExtraCloth) {
-        extraClothRepository.save(extraCloth)
-    }
-
-    fun countExtra(): Long = extraClothRepository.count()
 }

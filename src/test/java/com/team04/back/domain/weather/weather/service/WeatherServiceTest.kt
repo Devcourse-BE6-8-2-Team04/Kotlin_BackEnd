@@ -35,6 +35,8 @@ class WeatherServiceTest {
     @InjectMocks
     private lateinit var weatherService: WeatherService
 
+    private lateinit var spyWeatherService: WeatherService
+
     @Mock
     private lateinit var weatherRepository: WeatherRepository
 
@@ -56,6 +58,43 @@ class WeatherServiceTest {
     fun setUp() {
         today = LocalDate.now()
         weatherInfoList = createWeatherInfoList(TEST_LOCATION, 30)
+    }
+
+    @BeforeEach
+    fun initSpy() {
+        spyWeatherService = spy(weatherService)
+    }
+
+    @Test
+    @DisplayName("location이 unknown일 경우 주간 날씨 정보 조회")
+    fun getWeeklyWeather_LocationUnknown_CallsGetWeatherInfosWithCoordinates() {
+        val startDate = today
+        val endDate = today.plusDays(6)
+        val expected = weatherInfoList.take(7)
+
+        doReturn(expected).`when`(spyWeatherService).getWeatherInfos(lat, lon, startDate, endDate)
+
+        val result = spyWeatherService.getWeeklyWeather("unknown", lat, lon)
+
+        assertThat(result).isEqualTo(expected)
+        verify(geoService, never()).normalizeCityName(any(), any(), any())
+    }
+
+    @Test
+    @DisplayName("location이 주어질 경우 정규화 후 주간 날씨 정보 조회")
+    fun getWeeklyWeather_WithLocation_NormalizesAndCallsGetWeatherInfos() {
+        val startDate = today
+        val endDate = today.plusDays(6)
+        val normalized = "Seoul"
+        val expected = weatherInfoList.take(7)
+
+        whenever(geoService.normalizeCityName(location, lat, lon)).thenReturn(normalized)
+        doReturn(expected).`when`(spyWeatherService).getWeatherInfos(normalized, lat, lon, startDate, endDate)
+
+        val result = spyWeatherService.getWeeklyWeather(location, lat, lon)
+
+        assertThat(result).isEqualTo(expected)
+        verify(geoService).normalizeCityName(eq(location), eq(lat), eq(lon))
     }
 
     @Test
