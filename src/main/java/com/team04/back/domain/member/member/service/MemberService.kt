@@ -28,7 +28,7 @@ class MemberService(
             userId = userId,
             password = encodedPassword,
             email = email,
-            age = 0,
+            age = age,
             gender = gender,
             tendency = tendency
         )

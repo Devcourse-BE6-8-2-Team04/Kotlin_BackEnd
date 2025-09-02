@@ -1,5 +1,6 @@
 package com.team04.back.domain.member.member.controller
 
+import com.team04.back.domain.member.member.dto.MemberDto
 import com.team04.back.domain.member.member.dto.MemberLoginResBody
 import com.team04.back.domain.member.member.entity.Member
 import com.team04.back.domain.member.member.service.MemberService
@@ -34,7 +35,7 @@ class AuthController(
     @Operation(summary = "로그인")
     fun login(@RequestBody @Valid reqBody: MemberLoginReqBody): RsData<MemberLoginResBody> {
         val member: Member = memberService.findByUsername(reqBody.username)
-            ?: throw  ServiceException("401-1", "존재하지 않는 아이디입니다.")
+            ?: throw ServiceException("401-1", "존재하지 않는 아이디입니다.")
 
         memberService.checkPassword(member, reqBody.password)
 
@@ -47,8 +48,9 @@ class AuthController(
             resultCode = "200-1",
             msg = "${member.userId}님 환영합니다.",
             data = MemberLoginResBody(
-                token = accessToken,
-                username = member.userId
+                accessToken = accessToken,
+                apiKey = member.apiKey,
+                memberDto = MemberDto(member)
             )
         )
     }

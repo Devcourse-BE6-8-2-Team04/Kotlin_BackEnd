@@ -3,23 +3,24 @@ package com.team04.back.domain.history.history.service
 import com.team04.back.common.fixture.FixtureFactory.createClothRecommendationHistory
 import com.team04.back.domain.history.history.entity.ClothRecommendationHistory
 import com.team04.back.domain.history.history.repository.ClothRecommendationHistoryRepository
-import com.team04.back.domain.user.user.entity.User
+import com.team04.back.domain.member.member.entity.Gender
+import com.team04.back.domain.member.member.entity.Member
+import com.team04.back.domain.member.member.entity.Tendency
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
+import org.mockito.Mockito.verify
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doNothing
+import org.mockito.kotlin.times
 import org.mockito.kotlin.whenever
 import org.springframework.test.context.ActiveProfiles
 import java.util.*
-import org.junit.jupiter.api.assertThrows
-import org.springframework.data.repository.findByIdOrNull
-import org.mockito.Mockito.verify
-import org.mockito.kotlin.times
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension::class)
@@ -35,8 +36,15 @@ class ClothRecommendationHistoryServiceTest {
     @DisplayName("의류 추천 기록 생성 테스트")
     fun createHistory() {
         // Given
-        val user = User()
-        val history = createClothRecommendationHistory(user, "Seoul", emptyList(), emptyList(), emptyList())
+        val member = Member(
+            userId = "testUser",
+            password = "testPassword",
+            email = "test@example.com",
+            age = 30,
+            gender = Gender.MALE,
+            tendency = Tendency.NEUTRAL
+        )
+        val history = createClothRecommendationHistory(member, "Seoul", emptyList(), emptyList(), emptyList())
         whenever(clothRecommendationHistoryRepository.save(any<ClothRecommendationHistory>())).thenReturn(history)
 
         // When
@@ -44,15 +52,22 @@ class ClothRecommendationHistoryServiceTest {
 
         // Then
         assertThat(createdHistory).isNotNull
-        assertThat(createdHistory.user).isEqualTo(user)
+        assertThat(createdHistory.member).isEqualTo(member)
     }
 
     @Test
     @DisplayName("ID로 의류 추천 기록 조회 테스트")
     fun getHistory() {
         // Given
-        val user = User()
-        val history = createClothRecommendationHistory(1, user, "Seoul", emptyList(), emptyList(), emptyList())
+        val member = Member(
+            userId = "testUser",
+            password = "testPassword",
+            email = "test@example.com",
+            age = 30,
+            gender = Gender.MALE,
+            tendency = Tendency.NEUTRAL
+        )
+        val history = createClothRecommendationHistory(1, member, "Seoul", emptyList(), emptyList(), emptyList())
         whenever(clothRecommendationHistoryRepository.findById(any())).thenReturn(Optional.of(history))
 
         // When
@@ -67,9 +82,16 @@ class ClothRecommendationHistoryServiceTest {
     @DisplayName("모든 의류 추천 기록 조회 테스트")
     fun getAllHistories() {
         // Given
-        val user = User()
-        val history1 = createClothRecommendationHistory(user, "Seoul", emptyList(), emptyList(), emptyList())
-        val history2 = createClothRecommendationHistory(user, "Busan", emptyList(), emptyList(), emptyList())
+        val member = Member(
+            userId = "testUser",
+            password = "testPassword",
+            email = "test@example.com",
+            age = 30,
+            gender = Gender.MALE,
+            tendency = Tendency.NEUTRAL
+        )
+        val history1 = createClothRecommendationHistory(member, "Seoul", emptyList(), emptyList(), emptyList())
+        val history2 = createClothRecommendationHistory(member, "Busan", emptyList(), emptyList(), emptyList())
         whenever(clothRecommendationHistoryRepository.findAll()).thenReturn(listOf(history1, history2))
 
         // When

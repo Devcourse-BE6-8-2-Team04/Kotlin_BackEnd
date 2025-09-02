@@ -2,9 +2,10 @@ package com.team04.back.domain.history.history.entity
 
 import com.team04.back.common.fixture.FixtureFactory
 import com.team04.back.domain.cloth.cloth.entity.ClothInfo
-import com.team04.back.domain.cloth.cloth.enums.Category
 import com.team04.back.domain.cloth.cloth.enums.Style
-import com.team04.back.domain.user.user.entity.User
+import com.team04.back.domain.member.member.entity.Gender
+import com.team04.back.domain.member.member.entity.Member
+import com.team04.back.domain.member.member.entity.Tendency
 import com.team04.back.domain.weather.weather.enums.Weather
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
@@ -15,8 +16,15 @@ class ClothRecommendationHistoryTest {
     @Test
     fun `ClothRecommendationHistory 생성 테스트`() {
         // given
-        val user = User()
-        val weatherInfos = listOf(
+        val member = Member(
+            userId = "testUser",
+            password = "testPassword",
+            email = "test@example.com",
+            age = 30,
+            gender = Gender.MALE,
+            tendency = Tendency.NEUTRAL
+        )
+                val weatherInfos = listOf(
             FixtureFactory.createWeatherInfo("서울", LocalDate.now(), Weather.CLEAR_SKY, 22.0)
         )
         val liked: ClothInfo = FixtureFactory.createClothInfo(Style.OUTDOOR, 15.0, 25.0)
@@ -24,7 +32,7 @@ class ClothRecommendationHistoryTest {
 
         // when
         val history = FixtureFactory.createClothRecommendationHistory(
-            user,
+            member,
             "서울",
             weatherInfos,
             listOf(liked),
@@ -32,7 +40,7 @@ class ClothRecommendationHistoryTest {
         )
 
         // then
-        Assertions.assertThat(history.user).isEqualTo(user)
+        Assertions.assertThat(history.member).isEqualTo(member)
         Assertions.assertThat(history.location).isEqualTo("서울")
         Assertions.assertThat(history.weatherInfo).hasSize(1)
         Assertions.assertThat(history.likedClothings).contains(liked)

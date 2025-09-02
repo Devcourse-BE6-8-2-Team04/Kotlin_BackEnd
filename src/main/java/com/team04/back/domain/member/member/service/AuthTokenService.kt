@@ -1,18 +1,17 @@
 package com.team04.back.domain.member.member.service
 
 import com.team04.back.domain.member.member.entity.Member
+import com.team04.back.global.config.JwtProperties
 import com.team04.back.standard.util.Ut
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 
 @Service
-class AuthTokenService {
+class AuthTokenService(
+    private val jwtProperties: JwtProperties
+) {
 
-    @Value("\${custom.jwt.secretKey}")
-    private lateinit var jwtSecretKey: String
-
-    @Value("\${custom.accessToken.expirationSeconds}")
-    private var accessTokenExpirationSeconds: Int = 0
+    val jwtSecretKey = jwtProperties.jwtSecretKey
+    val accessTokenExpirationSeconds = jwtProperties.accessTokenExpirationSeconds
 
     // AccessToken 생성
     fun genAccessToken(member: Member): String {

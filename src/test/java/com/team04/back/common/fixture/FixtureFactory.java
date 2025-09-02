@@ -5,7 +5,7 @@ import com.team04.back.domain.cloth.cloth.enums.Category;
 import com.team04.back.domain.cloth.cloth.enums.ClothName;
 import com.team04.back.domain.cloth.cloth.enums.Style;
 import com.team04.back.domain.history.history.entity.ClothRecommendationHistory;
-import com.team04.back.domain.user.user.entity.User;
+import com.team04.back.domain.member.member.entity.Member;
 import com.team04.back.domain.weather.weather.entity.WeatherInfo;
 import com.team04.back.domain.weather.weather.enums.Weather;
 
@@ -64,14 +64,14 @@ public class FixtureFactory {
     }
 
     public static ClothRecommendationHistory createClothRecommendationHistory(
-            User user,
+            Member member,
             String location,
             List<WeatherInfo> weatherInfos,
             List<ClothInfo> likedClothings,
             List<ClothInfo> unLikedClothings
     ) {
         return new ClothRecommendationHistory(
-                user,
+                member,
                 location,
                 weatherInfos,
                 likedClothings,
@@ -91,14 +91,14 @@ public class FixtureFactory {
 
     public static ClothRecommendationHistory createClothRecommendationHistory(
             int id,
-            User user,
+            Member member,
             String location,
             List<WeatherInfo> weatherInfos,
             List<ClothInfo> likedClothings,
             List<ClothInfo> unLikedClothings
     ) {
         ClothRecommendationHistory history = createClothRecommendationHistory(
-                user,
+                member,
                 location,
                 weatherInfos,
                 likedClothings,
