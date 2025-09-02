@@ -1,24 +1,28 @@
 package com.team04.back.domain.review.review.entity
 
+import com.team04.back.domain.user.user.entity.User
 import com.team04.back.domain.weather.weather.entity.WeatherInfo
 import com.team04.back.global.jpa.entity.BaseEntity
 import jakarta.persistence.*
 
 @Entity
 class Review(
-    email: String,
-    password: String,
+    user: User? = null,
+    email: String?,
+    password: String?,
     title: String,
     sentence: String,
     tagString: String?,
     imageUrl: String?,
     weatherInfo: WeatherInfo
 ) : BaseEntity() {
-    @Column(nullable = false)
-    val email: String = email
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    val user: User? = user  // 회원일 경우
 
-    @Column(nullable = false)
-    val password: String = password
+    val email: String? = email  // 비회원일 경우
+
+    val password: String? = password  // 비회원일 경우
 
     @Column(length = 100, nullable = false)
     var title: String = title

@@ -1,7 +1,8 @@
 package com.team04.back.domain.user.user.entity;
 
+import com.team04.back.global.jpa.entity.BaseEntity;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 // [원본 코드]
 //public class User {
@@ -12,8 +13,8 @@ import jakarta.persistence.Id;
 // 수정 사유: JPA 매핑 문제 해결 (ClothRecommendationHistory.user 참조 에러)
 // 추후 담당자가 확인 후 필요 시 수정 바람
 @Entity
-public class User {
-    @Id
+@Table(name = "`user`")
+public class User extends BaseEntity {
     private Long dummy;
 
     public void setDummy(Long dummy) {
