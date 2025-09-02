@@ -1,7 +1,6 @@
 package com.team04.back.domain.review.review.controller
 
 import com.team04.back.domain.review.review.controller.ReviewControllerTest.TestConfig
-import com.team04.back.standard.dto.ReviewSearchDto
 import com.team04.back.domain.review.review.service.ReviewService
 import com.team04.back.domain.weather.geo.service.GeoService
 import com.team04.back.domain.weather.weather.entity.WeatherInfo
@@ -9,11 +8,11 @@ import com.team04.back.domain.weather.weather.enums.Weather
 import com.team04.back.domain.weather.weather.repository.WeatherRepository
 import com.team04.back.domain.weather.weather.service.WeatherService
 import com.team04.back.global.initData.TestInitData
-import com.team04.back.standard.dto.ReviewSearchSortType
-import com.team04.back.standard.dto.ReviewSearchSortType.ID
+import com.team04.back.standard.dto.ReviewSearchDto
 import com.team04.back.standard.extensions.getOrThrow
 import io.mockk.every
 import io.mockk.mockk
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -23,9 +22,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
-import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Pageable
-import org.springframework.data.domain.Sort
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
@@ -66,14 +62,12 @@ class ReviewControllerTest {
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.jsonPath("$.content.length()").value(size))
 
-        for (i in 0..size - 1) {
+        for (i in 0 until size) {
             val review = reviews.content[i]
             resultActions
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content[${i}].email").value(review.email))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content[${i}].imageUrl").value(review.imageUrl))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content[${i}].title").value(review.title))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.content[${i}].sentence").value(review.sentence))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.content[${i}].tagString").value(review.tagString))
                 .andExpect(
                     MockMvcResultMatchers.jsonPath("$.content[${i}].weatherInfoDto.location")
                         .value(review.weatherInfo.location)
@@ -109,15 +103,13 @@ class ReviewControllerTest {
             .andExpect(MockMvcResultMatchers.handler().methodName("getReviews"))
             .andExpect(MockMvcResultMatchers.status().isOk)
 
-        for (i in 0..size - 1) {
+        for (i in 0 until size) {
             val review = reviews.content[i]
             resultActions
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content[${i}].id").value(review.id))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content[${i}].email").value(review.email))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content[${i}].imageUrl").value(review.imageUrl))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content[${i}].title").value(review.title))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.content[${i}].sentence").value(review.sentence))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.content[${i}].tagString").value(review.tagString))
                 .andExpect(
                     MockMvcResultMatchers.jsonPath("$.content[${i}].weatherInfoDto.location")
                         .value(review.weatherInfo.location)
@@ -149,15 +141,13 @@ class ReviewControllerTest {
             .andExpect(MockMvcResultMatchers.handler().methodName("getReviews"))
             .andExpect(MockMvcResultMatchers.status().isOk)
 
-        for (i in 0..size - 1) {
+        for (i in 0 until size) {
             val review = reviews.content[i]
             resultActions
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content[${i}].id").value(review.id))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content[${i}].email").value(review.email))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content[${i}].imageUrl").value(review.imageUrl))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content[${i}].title").value(review.title))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.content[${i}].sentence").value(review.sentence))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.content[${i}].tagString").value(review.tagString))
                 .andExpect(
                     MockMvcResultMatchers.jsonPath("$.content[${i}].weatherInfoDto.location")
                         .value(review.weatherInfo.location)
@@ -189,15 +179,13 @@ class ReviewControllerTest {
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.jsonPath("$.content.length()").value(size))
 
-        for (i in 0..size - 1) {
+        for (i in 0 until size) {
             val review = reviews.content[i]
             resultActions
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content[${i}].id").value(review.id))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content[${i}].email").value(review.email))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content[${i}].imageUrl").value(review.imageUrl))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content[${i}].title").value(review.title))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.content[${i}].sentence").value(review.sentence))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.content[${i}].tagString").value(review.tagString))
                 .andExpect(
                     MockMvcResultMatchers.jsonPath("$.content[${i}].weatherInfoDto.location")
                         .value(review.weatherInfo.location)
@@ -233,15 +221,13 @@ class ReviewControllerTest {
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.jsonPath("$.content.length()").value(size))
 
-        for (i in 0..size - 1) {
+        for (i in 0 until size) {
             val review = reviews.content[i]
             resultActions
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content[${i}].id").value(review.id))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content[${i}].email").value(review.email))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content[${i}].imageUrl").value(review.imageUrl))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content[${i}].title").value(review.title))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.content[${i}].sentence").value(review.sentence))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.content[${i}].tagString").value(review.tagString))
                 .andExpect(
                     MockMvcResultMatchers.jsonPath("$.content[${i}].weatherInfoDto.location")
                         .value(review.weatherInfo.location)
@@ -272,6 +258,8 @@ class ReviewControllerTest {
             ).andDo(MockMvcResultHandlers.print())
 
         val review = reviewService.findById(id).getOrThrow()
+        val recommendedClothList = reviewService.findRecommendedClothInfo(id)
+        val nonRecommendedClothList = reviewService.findNonRecommendedClothInfo(id)
 
         resultActions
             .andExpect(MockMvcResultMatchers.handler().handlerType(ReviewController::class.java))
@@ -295,6 +283,19 @@ class ReviewControllerTest {
                 MockMvcResultMatchers.jsonPath("$.weatherInfoDto.feelsLikeTemperature")
                     .value(review.weatherInfo.feelsLikeTemperature)
             )
+            .andExpect(MockMvcResultMatchers.jsonPath("$.recommendedClothList.length()").value(recommendedClothList.size))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.nonRecommendedClothList.length()").value(nonRecommendedClothList.size))
+
+        if (recommendedClothList.isNotEmpty()) {
+            for (i in 0 until recommendedClothList.size) {
+                val cloth = recommendedClothList[i]
+                resultActions
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.recommendedClothList[${i}].id").value(cloth.id))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.recommendedClothList[${i}].clothName").value(cloth.clothName))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.recommendedClothList[${i}].category").value(cloth.category))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.recommendedClothList[${i}].imageUrl").value(cloth.imageUrl))
+            }
+        }
     }
 
     @Test
@@ -401,6 +402,9 @@ class ReviewControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$.resultCode").value("200-1"))
             .andExpect(MockMvcResultMatchers.jsonPath("$.msg").value("${id}번 리뷰가 삭제되었습니다."))
             .andExpect(MockMvcResultMatchers.jsonPath("$.data.id").value(id))
+
+        val reviewClothInfo = reviewService.findReviewClothInfo(id)
+        assertThat(reviewClothInfo.size).isEqualTo(0)
     }
 
 
@@ -456,7 +460,7 @@ class ReviewControllerTest {
                                             "password": "1234",
                                             "title": "Test Review",
                                             "sentence": "This is a test review.",
-                                            "imageUrl": "http://example.com/image.jpg",
+                                            "imageUrl": "https://example.com/image.jpg",
                                             "tagString": "#test#review",
                                             "countryCode": "KR",
                                             "cityName": "Seoul",
@@ -478,8 +482,6 @@ class ReviewControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$.data.email").value(review.email))
             .andExpect(MockMvcResultMatchers.jsonPath("$.data.imageUrl").value(review.imageUrl))
             .andExpect(MockMvcResultMatchers.jsonPath("$.data.title").value(review.title))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.data.sentence").value(review.sentence))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.data.tagString").value(review.tagString))
             .andExpect(
                 MockMvcResultMatchers.jsonPath("$.data.weatherInfoDto.location")
                     .value(review.weatherInfo.location)
@@ -509,7 +511,7 @@ class ReviewControllerTest {
                                             "password": "1234",
                                             "title": "Test Review",
                                             "sentence": "This is a test review.",
-                                            "imageUrl": "http://example.com/image.jpg",
+                                            "imageUrl": "https://example.com/image.jpg",
                                             "tagString": "#test#review",
                                             "countryCode": "KR",
                                             "cityName": "Seoul",
@@ -548,7 +550,7 @@ class ReviewControllerTest {
                                             "password": "1234",
                                             "title": "",
                                             "sentence": "This is a test review.",
-                                            "imageUrl": "http://example.com/image.jpg",
+                                            "imageUrl": "https://example.com/image.jpg",
                                             "tagString": "#test#review",
                                             "countryCode": "KR",
                                             "cityName": "Seoul",
@@ -588,7 +590,7 @@ class ReviewControllerTest {
                                             "password": "1234",
                                             "title": "Test Review",
                                             "sentence": "This is a test review.",
-                                            "imageUrl": "http://example.com/image.jpg",
+                                            "imageUrl": "https://example.com/image.jpg",
                                             "tagString": "#test#review",
                                             "countryCode": "KR",
                                             "cityName": "Seoul",
@@ -625,7 +627,7 @@ class ReviewControllerTest {
                                             "title": "Updated Title",
                                             "sentence": "This is an updated review.",
                                             "tagString": "#updated#review",
-                                            "imageUrl": "http://example.com/updated_image.jpg",
+                                            "imageUrl": "https://example.com/updated_image.jpg",
                                             "countryCode": "KR",
                                             "cityName": "Seoul",
                                             "date": "2025-01-01"
@@ -646,8 +648,6 @@ class ReviewControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$.data.email").value(review.email))
             .andExpect(MockMvcResultMatchers.jsonPath("$.data.imageUrl").value(review.imageUrl))
             .andExpect(MockMvcResultMatchers.jsonPath("$.data.title").value("Updated Title"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.data.sentence").value("This is an updated review."))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.data.tagString").value("#updated#review"))
             .andExpect(
                 MockMvcResultMatchers.jsonPath("$.data.weatherInfoDto.location")
                     .value(review.weatherInfo.location)
