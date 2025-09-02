@@ -5,6 +5,7 @@ import com.team04.back.domain.member.member.entity.Member
 import com.team04.back.domain.weather.weather.entity.WeatherInfo
 import com.team04.back.global.jpa.entity.BaseEntity
 import jakarta.persistence.*
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Entity
@@ -22,6 +23,10 @@ class ClothRecommendationHistory(
     // 지역
     @Column(name = "location", nullable = false)
     val location: String,
+
+    //날짜
+    @Column(name = "date", nullable = false)
+    val date: LocalDate,
 
     //weatherInfo List (날씨 정보)
     @OneToMany(fetch = FetchType.LAZY)
@@ -43,7 +48,7 @@ class ClothRecommendationHistory(
         joinColumns = [JoinColumn(name = "history_id")],
         inverseJoinColumns = [JoinColumn(name = "clothing_id")]
     )
-    val unLikedClothings: List<ClothInfo> = mutableListOf(),
+    val dislikedClothings: List<ClothInfo> = mutableListOf(),
 
     // 체감온도
     @Column(name = "feels_like")

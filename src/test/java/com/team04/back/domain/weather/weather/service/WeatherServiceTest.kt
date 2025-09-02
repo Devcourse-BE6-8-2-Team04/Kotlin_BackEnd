@@ -89,7 +89,7 @@ class WeatherServiceTest {
         val expected = weatherInfoList.take(7)
 
         whenever(geoService.normalizeCityName(location, lat, lon)).thenReturn(normalized)
-        doReturn(expected).`when`(spyWeatherService).getWeatherInfos(normalized, lat, lon, startDate, endDate)
+        doReturn(expected).`when`(spyWeatherService).getWeatherInfos(lat, lon, startDate, endDate, normalized)
 
         val result = spyWeatherService.getWeeklyWeather(location, lat, lon)
 
@@ -100,7 +100,7 @@ class WeatherServiceTest {
     @Test
     @DisplayName("DB에 유효한 날씨 정보가 있을 경우 DB에서 조회")
     fun getWeatherInfo_ValidDataInDB_ReturnsFromDB() {
-        val weatherInfo = FixtureFactory.createWeatherInfo(location, today, Weather.CLEAR_SKY, 20.0)
+        val weatherInfo = FixtureFactory.createWeatherInfo(location, today, Weather.CLEAR_SKY, 20.0, 10.0, 0.0, 0.0, 5.0, 3.0)
         whenever(weatherRepository.findByLocationAndDate(eq(location), eq(today)))
             .thenReturn(weatherInfo)
         whenever(geoService.getLocationFromCoordinates(lat, lon)).thenReturn(location)
@@ -136,7 +136,7 @@ class WeatherServiceTest {
     @Test
     @DisplayName("DB에 있는 날씨 정보가 오래된 경우 API를 통해 조회 후 업데이트")
     fun getWeatherInfo_InvalidDataInDB_FetchesFromApiAndUpdate() {
-        val oldWeatherInfo = FixtureFactory.createWeatherInfo(location, today, Weather.CLEAR_SKY, 20.0).apply {
+        val oldWeatherInfo = FixtureFactory.createWeatherInfo(location, today, Weather.CLEAR_SKY, 20.0, 10.0, 0.0, 0.0, 5.0, 3.0).apply {
             modifyDate = LocalDateTime.now().minusHours(4)
         }
         val beforeUpdate = oldWeatherInfo.modifyDate
@@ -184,8 +184,6 @@ class WeatherServiceTest {
     fun getWeatherInfos_InvalidDateRange_ThrowsException() {
         val startDate = today.plusDays(1)
         val endDate = today
-
-        whenever(geoService.getLocationFromCoordinates(lat, lon)).thenReturn(location)
 
         assertThrows<IllegalArgumentException> {
             weatherService.getWeatherInfos(lat, lon, startDate, endDate)
