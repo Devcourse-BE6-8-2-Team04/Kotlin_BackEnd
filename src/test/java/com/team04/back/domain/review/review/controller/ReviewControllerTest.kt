@@ -1,7 +1,6 @@
 package com.team04.back.domain.review.review.controller
 
 import com.team04.back.domain.review.review.controller.ReviewControllerTest.TestConfig
-import com.team04.back.standard.dto.ReviewSearchDto
 import com.team04.back.domain.review.review.service.ReviewService
 import com.team04.back.domain.weather.geo.service.GeoService
 import com.team04.back.domain.weather.weather.entity.WeatherInfo
@@ -9,8 +8,7 @@ import com.team04.back.domain.weather.weather.enums.Weather
 import com.team04.back.domain.weather.weather.repository.WeatherRepository
 import com.team04.back.domain.weather.weather.service.WeatherService
 import com.team04.back.global.initData.TestInitData
-import com.team04.back.standard.dto.ReviewSearchSortType
-import com.team04.back.standard.dto.ReviewSearchSortType.ID
+import com.team04.back.standard.dto.ReviewSearchDto
 import com.team04.back.standard.extensions.getOrThrow
 import io.mockk.every
 import io.mockk.mockk
@@ -23,10 +21,8 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
-import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Pageable
-import org.springframework.data.domain.Sort
 import org.springframework.http.MediaType
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
@@ -39,6 +35,7 @@ import java.time.LocalDate
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
+@WithMockUser(username="user1")
 @Import(TestConfig::class, TestInitData::class)
 class ReviewControllerTest {
     @Autowired
@@ -634,7 +631,7 @@ class ReviewControllerTest {
                     )
             ).andDo(MockMvcResultHandlers.print())
 
-        val review = reviewService.findById(id).getOrThrow()
+        val review = reviewService.findById(id!!).getOrThrow()
 
         resultActions
             .andExpect(MockMvcResultMatchers.handler().handlerType(ReviewController::class.java))
