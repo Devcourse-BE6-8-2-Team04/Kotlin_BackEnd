@@ -9,7 +9,7 @@ import java.time.LocalDate
 data class ModifyReviewReqBody(
         @field:NotBlank @field:Size(min = 2, max = 100) val title: String,
         @field:NotBlank @field:Size(min = 2, max = 500) val sentence: String,
-        val tagString: @NotBlank String?,
+        val tagString: String?,
         val imageUrl: String?,
         @field:NotBlank val countryCode: String,
         @field:NotBlank val cityName: String,
