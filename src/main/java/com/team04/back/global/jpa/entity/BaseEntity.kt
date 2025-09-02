@@ -8,26 +8,14 @@ import java.time.LocalDateTime
 
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener::class)
-abstract class BaseEntity{
-
+abstract class BaseEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    open var id: Int? = null
-
+    var id: Int = 0
+) {
     @CreatedDate
-    open lateinit var createDate: LocalDateTime
+    lateinit var createDate: LocalDateTime
 
     @LastModifiedDate
-    open lateinit var modifyDate: LocalDateTime
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || this::class != other::class) return false
-
-        other as BaseEntity
-
-        if (id != other.id) return false
-
-        return true
-    }
+    lateinit var modifyDate: LocalDateTime
 }
