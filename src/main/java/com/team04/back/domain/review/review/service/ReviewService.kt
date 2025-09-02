@@ -193,10 +193,10 @@ class ReviewService(
     private fun getWeatherInfo(cityName: String, countryCode: String, date: LocalDate): WeatherInfo {
         val coordinates = geoService.getCoordinatesFromLocation(cityName, countryCode)
         return weatherService.getWeatherInfo(
-            cityName,
             coordinates[0],
             coordinates[1],
-            date
+            date,
+            cityName
         )
     }
 

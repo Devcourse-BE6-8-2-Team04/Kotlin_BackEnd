@@ -66,13 +66,13 @@ class ClothControllerTest {
     @Test
     void getClothDetails_ReturnsWeatherAndClothes() {
         // given
-        WeatherInfo normalWeather = createWeatherInfo(Weather.CLEAR_SKY, NORMAL_TEMP, 18, 28);
-        List<CategoryClothDto> normalCloths = List.of(CLOTH_TOP, CLOTH_BOTTOM);
+        WeatherInfo mockWeatherInfo = createWeatherInfo(Weather.CLEAR_SKY, NORMAL_TEMP, 18, 28);
+        List<CategoryClothDto> mockCloths = List.of(CLOTH_TOP, CLOTH_BOTTOM);
 
         when(weatherService.getWeatherInfo(anyDouble(), anyDouble(), any()))
-                .thenReturn(normalWeather);
-        when(clothService.findClothByWeather(NORMAL_TEMP))
-                .thenReturn(normalCloths);
+                .thenReturn(mockWeatherInfo);
+        when(clothService.findClothByWeather(mockWeatherInfo.getFeelsLikeTemperature()))
+                .thenReturn(mockCloths);
 
         // when
         WeatherClothResponseDto response = clothController.getClothDetails(LATITUDE, LONGITUDE);
@@ -87,13 +87,13 @@ class ClothControllerTest {
     @Test
     void getClothDetails_WithHeatWave_ReturnsCorrectClothes() {
         // given
-        WeatherInfo heatwaveWeather = createWeatherInfo(Weather.HEAT_WAVE, HEATWAVE_TEMP, 28, 36);
-        List<CategoryClothDto> heatwaveCloths = List.of(CLOTH_TOP, CLOTH_BOTTOM);
+        WeatherInfo mockWeatherInfo = createWeatherInfo(Weather.HEAT_WAVE, HEATWAVE_TEMP, 28, 36);
+        List<CategoryClothDto> mockCloths = List.of(CLOTH_TOP, CLOTH_BOTTOM);
 
         when(weatherService.getWeatherInfo(anyDouble(), anyDouble(), any()))
-                .thenReturn(heatwaveWeather);
-        when(clothService.findClothByWeather(HEATWAVE_TEMP))
-                .thenReturn(heatwaveCloths);
+                .thenReturn(mockWeatherInfo);
+        when(clothService.findClothByWeather(mockWeatherInfo.getFeelsLikeTemperature()))
+                .thenReturn(mockCloths);
 
         // when
         WeatherClothResponseDto response = clothController.getClothDetails(LATITUDE, LONGITUDE);

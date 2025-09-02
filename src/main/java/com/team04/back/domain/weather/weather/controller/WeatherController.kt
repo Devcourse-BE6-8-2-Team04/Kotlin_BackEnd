@@ -54,7 +54,7 @@ class WeatherController(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) start: LocalDate,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) end: LocalDate
     ): List<WeatherInfoDto> {
-        val weatherInfos: List<WeatherInfo> = weatherService.getWeatherInfos(location, lat, lon, start, end)
+        val weatherInfos: List<WeatherInfo> = weatherService.getWeatherInfos(lat, lon, start, end, location)
         return weatherInfos.map { WeatherInfoDto(it) }
     }
 }

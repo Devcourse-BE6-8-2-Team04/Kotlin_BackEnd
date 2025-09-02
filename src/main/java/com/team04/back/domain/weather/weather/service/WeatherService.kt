@@ -2,7 +2,6 @@ package com.team04.back.domain.weather.weather.service
 
 import com.team04.back.domain.weather.geo.service.GeoService
 import com.team04.back.domain.weather.weather.entity.WeatherInfo
-import com.team04.back.domain.weather.weather.enums.Weather
 import com.team04.back.domain.weather.weather.repository.WeatherRepository
 import com.team04.back.infra.weather.WeatherApiClient
 import com.team04.back.infra.weather.dto.DailyData
@@ -43,91 +42,76 @@ class WeatherService(
         } else {
             // 지역 이름 정규화
             val normalized = geoService.normalizeCityName(location, lat, lon)
-            return getWeatherInfos(normalized, lat, lon, date, date.plusDays(6))
+            return getWeatherInfos(lat, lon, date, date.plusDays(6), normalized)
         }
     }
 
     /**
-     * 좌표와 날짜를 이용하여 날씨 정보 단건을 조회합니다.
+     * 좌표, 날짜, (선택적) 지역 이름을 이용하여 날씨 정보 단건을 조회합니다.
      * @param lat 위도
      * @param lon 경도
      * @param date 조회할 날짜
+     * @param location (선택적) 지역 이름
      * @return 해당 좌표와 날짜에 대한 날씨 정보
      */
     @Transactional
-    fun getWeatherInfo(lat: Double, lon: Double, date: LocalDate): WeatherInfo {
-        val location = geoService.getLocationFromCoordinates(lat, lon)
-        return getWeatherInfo(location, lat, lon, date)
-    }
+    fun getWeatherInfo(
+        lat: Double,
+        lon: Double,
+        date: LocalDate,
+        location: String? = null
+    ): WeatherInfo {
+        // 지역 이름이 제공되지 않은 경우, 좌표로부터 지역 이름 조회
+        val resolvedLocation = location ?: geoService.getLocationFromCoordinates(lat, lon)
 
-    /**
-     * 지역 이름과 날짜를 이용하여 날씨 정보 단건을 조회합니다.
-     * @param location 지역 이름
-     * @param lat 위도
-     * @param lon 경도
-     * @param date 조회할 날짜
-     * @return 해당 지역과 날짜에 대한 날씨 정보
-     */
-    @Transactional
-    fun getWeatherInfo(location: String, lat: Double, lon: Double, date: LocalDate): WeatherInfo {
-        val weatherInfo = weatherRepository.findByLocationAndDate(location, date)
+        // 기존에 저장된 날씨 정보 조회
+        val weatherInfo = weatherRepository.findByLocationAndDate(resolvedLocation, date)
 
         // 조회 결과가 있고 유효한 경우
-        if (weatherInfo != null && isValid(weatherInfo)) {
+        if (weatherInfo != null && weatherInfo.isValid()) {
             return weatherInfo
         }
+
         // 조회 결과가 없거나 유효하지 않은 경우
         val info = weatherInfo ?: WeatherInfo()
-        return updateWeatherInfo(info, location, lat, lon, date)
+        return updateWeatherInfo(info, resolvedLocation, lat, lon, date)
     }
 
     /**
-     * 좌표와 날짜 범위를 이용하여 날씨 정보 리스트를 조회합니다.
+     * 좌표, 날짜 범위, (선택적) 지역 이름을 이용하여 날씨 정보 리스트를 조회합니다.
      * @param lat 위도
      * @param lon 경도
      * @param startDate 시작 날짜
      * @param endDate 종료 날짜
+     * @param location (선택적) 지역 이름
      * @return 해당 좌표와 날짜 범위에 대한 날씨 정보 리스트
      */
     @Transactional
-    fun getWeatherInfos(lat: Double, lon: Double, startDate: LocalDate, endDate: LocalDate): List<WeatherInfo> {
-        val location = geoService.getLocationFromCoordinates(lat, lon)
-        return getWeatherInfos(location, lat, lon, startDate, endDate)
-    }
-
-    /**
-     * 지역 이름과 날짜 범위를 이용하여 날씨 정보 리스트를 조회합니다.
-     * @param lat 위도
-     * @param lon 경도
-     * @param startDate 시작 날짜
-     * @param endDate 종료 날짜
-     * @return 해당 좌표와 날짜 범위에 대한 날씨 정보 리스트
-     */
-    @Transactional
-    fun getWeatherInfos(location: String, lat: Double, lon: Double, startDate: LocalDate, endDate: LocalDate): List<WeatherInfo> {
+    fun getWeatherInfos(
+        lat: Double,
+        lon: Double,
+        startDate: LocalDate,
+        endDate: LocalDate,
+        location: String? = null
+    ): List<WeatherInfo> {
         // 시작 날짜와 종료 날짜 유효성 검사
         require(!startDate.isAfter(endDate)) {
             "시작 날짜($startDate)는 종료 날짜($endDate)보다 이후일 수 없습니다."
         }
 
+        // 지역 이름이 제공되지 않은 경우, 좌표로부터 지역 이름 조회
+        val resolvedLocation = location ?: geoService.getLocationFromCoordinates(lat, lon)
+
         // 범위 내의 모든 날짜에 대해 날씨 정보 조회
-        val result = mutableListOf<WeatherInfo>()
-        var date = startDate
-        while (!date.isAfter(endDate)) {
-            val info = getWeatherInfo(location, lat, lon, date)
-            result.add(info)
-            date = date.plusDays(1)
+        return (0..endDate.toEpochDay() - startDate.toEpochDay()).map {
+            val date = startDate.plusDays(it)
+            getWeatherInfo(lat, lon, date, resolvedLocation)
         }
-        return result
     }
 
-    // 유효성 검사: 마지막 업데이트가 3시간 이내인지 확인
-    private fun isValid(weatherInfo: WeatherInfo): Boolean {
-        val lastUpdated = weatherInfo.modifyDate
-        return lastUpdated.isAfter(LocalDateTime.now().minusHours(3))
-    }
+    // ==================== Private Methods ====================
 
-    // 요청된 날짜에 따라 날씨 정보를 업데이트
+    // 요청된 날짜에 따라 날씨 정보 업데이트 함수 호출
     private fun updateWeatherInfo(info: WeatherInfo, location: String, lat: Double, lon: Double, date: LocalDate): WeatherInfo {
         val today = LocalDate.now()
 
@@ -159,27 +143,8 @@ class WeatherService(
         requireNotNull(matchedDaily) { "해당 날짜($date)에 대한 예보 데이터가 존재하지 않습니다." }
 
         // 날씨 정보 갱신 및 저장
-        mapDailyDataToWeatherInfo(info, matchedDaily, location, date)
+        info.applyDailyWeather(matchedDaily, location, date)
         return weatherRepository.save(info)
-    }
-
-    // DailyData를 WeatherInfo로 매핑
-    private fun mapDailyDataToWeatherInfo(info: WeatherInfo, data: DailyData, location: String, date: LocalDate) {
-        info.weather = Weather.fromCode(data.weather.first().id)
-        info.description = info.weather.description
-        info.dailyTemperatureGap = (data.temp?.max ?: 0.0) - (data.temp?.min ?: 0.0)
-        info.feelsLikeTemperature = data.feelsLike?.day ?: 0.0
-        info.maxTemperature = data.temp?.max ?: 0.0
-        info.minTemperature = data.temp?.min ?: 0.0
-        info.location = location
-        info.date = date
-        info.pop = data.pop
-        info.rain = data.rain
-        info.snow = data.snow
-        info.humidity = data.humidity
-        info.windSpeed = data.windSpeed
-        info.windDeg = data.windDeg
-        info.uvi = data.uvi
     }
 
     // Time Machine API를 통해 날씨 정보를 업데이트
@@ -200,32 +165,7 @@ class WeatherService(
         val maxTemp = hourlyData.maxOfOrNull { it.temp } ?: 0.0
         val data = hourlyData.first()
 
-        mapTimeMachineDataToWeatherInfo(info, data, location, date, minTemp, maxTemp)
+        info.applyHistoricalWeather(data, location, date, minTemp, maxTemp)
         return weatherRepository.save(info)
-    }
-
-    // TimeMachineData를 WeatherInfo로 매핑
-    private fun mapTimeMachineDataToWeatherInfo(info: WeatherInfo, data: TimeMachineData, location: String, date: LocalDate, minTemp: Double, maxTemp: Double) {
-        val weather = Weather.fromCode(data.weather.first().id)
-        var pop = 0.0
-        val weatherCode = weather.code
-
-        if ((weatherCode in 200 until 400) || (weatherCode in 500 until 700)) {
-            pop = 1.0
-        }
-
-        info.weather = weather
-        info.description = data.weather.first().description
-        info.dailyTemperatureGap = maxTemp - minTemp
-        info.feelsLikeTemperature = data.feelsLike
-        info.maxTemperature = maxTemp
-        info.minTemperature = minTemp
-        info.location = location
-        info.date = date
-        info.pop = pop
-        info.humidity = data.humidity
-        info.windSpeed = data.windSpeed
-        info.windDeg = data.windDeg
-        info.uvi = data.uvi
     }
 }

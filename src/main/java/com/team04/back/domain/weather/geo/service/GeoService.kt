@@ -1,18 +1,15 @@
 package com.team04.back.domain.weather.geo.service
 
 import com.team04.back.domain.weather.geo.dto.GeoLocationDto
+import com.team04.back.infra.cache.GeoCache
 import com.team04.back.infra.weather.WeatherApiClient
-import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Service
-import java.time.Duration
 
 @Service
 class GeoService(
     private val weatherApiClient: WeatherApiClient,
-    private val redisTemplate: RedisTemplate<String, Any>
+    private val geoCache: GeoCache
 ) {
-    private val cacheKeyPrefix = "geo:search:"
-    private val normalizedKeyPrefix = "geo:normalized:"
 
     /**
      * 주어진 도시 이름에 대한 지역 정보를 가져옵니다.
@@ -20,26 +17,18 @@ class GeoService(
      * @return 도시에 대한 지역 정보 리스트
      */
     fun getGeoLocations(location: String): List<GeoLocationDto> {
-        val key = cacheKeyPrefix + location
+        // 캐시에서 조회
+        geoCache.getGeoLocations(location)?.let { return it }
 
-        // Redis 조회
-        @Suppress("UNCHECKED_CAST")
-        val cached = redisTemplate.opsForValue().get(key) as? List<GeoLocationDto>
-        if (cached != null) {
-            println("Cache hit for key: $key: $cached")
-            redisTemplate.opsForValue().set(key, cached, Duration.ofHours(24))
-            return cached
-        }
-
-        // Redis에 없으면 외부 API 호출
+        // 캐시에 없으면 외부 API 호출
         val result = weatherApiClient.fetchCoordinatesByCity(location, null, 5)
             .blockOptional()
             .map { response -> response.map { GeoLocationDto(it) } }
             .orElse(emptyList())
 
-        // 결과 Redis에 저장 (TTL: 24시간)
+        // 결과를 캐시에 저장
         if (result.isNotEmpty()) {
-            redisTemplate.opsForValue().set(key, result, java.time.Duration.ofHours(24))
+            geoCache.putGeoLocations(location, result)
         }
 
         return result
@@ -77,22 +66,15 @@ class GeoService(
      * @return 정규화된 도시 이름
      */
     fun normalizeCityName(rawCityName: String, lat: Double, lon: Double): String {
-        val key = normalizedKeyPrefix + rawCityName
+        // 캐시에서 조회
+        geoCache.getNormalizedCity(rawCityName)?.let { return it }
 
-        // Redis 캐시 조회
-        val cached = redisTemplate.opsForValue().get(key) as? String
-        if (cached != null) {
-            println("Cache hit for key: $key: $cached")
-            redisTemplate.opsForValue().set(key, cached, Duration.ofDays(7))
-            return cached
-        }
-
-        // 외부 API 호출 → 좌표 기반 도시명 조회
+        // 캐시에 없으면 좌표로 지역 이름 조회
         val normalized = getLocationFromCoordinates(lat, lon)
 
-        // Redis에 캐싱 (TTL: 7일)
+        // 결과를 캐시에 저장
         if (normalized != "알 수 없음") {
-            redisTemplate.opsForValue().set(key, normalized, Duration.ofDays(7))
+            geoCache.putNormalizedCity(rawCityName, normalized)
         }
 
         return normalized

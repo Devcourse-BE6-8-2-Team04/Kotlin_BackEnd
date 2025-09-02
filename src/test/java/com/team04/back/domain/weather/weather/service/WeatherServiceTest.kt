@@ -89,7 +89,7 @@ class WeatherServiceTest {
         val expected = weatherInfoList.take(7)
 
         whenever(geoService.normalizeCityName(location, lat, lon)).thenReturn(normalized)
-        doReturn(expected).`when`(spyWeatherService).getWeatherInfos(normalized, lat, lon, startDate, endDate)
+        doReturn(expected).`when`(spyWeatherService).getWeatherInfos(lat, lon, startDate, endDate, normalized)
 
         val result = spyWeatherService.getWeeklyWeather(location, lat, lon)
 
@@ -184,8 +184,6 @@ class WeatherServiceTest {
     fun getWeatherInfos_InvalidDateRange_ThrowsException() {
         val startDate = today.plusDays(1)
         val endDate = today
-
-        whenever(geoService.getLocationFromCoordinates(lat, lon)).thenReturn(location)
 
         assertThrows<IllegalArgumentException> {
             weatherService.getWeatherInfos(lat, lon, startDate, endDate)
