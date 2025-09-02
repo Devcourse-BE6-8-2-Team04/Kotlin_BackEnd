@@ -45,8 +45,11 @@ class Rq(
         else response.setHeader(name, v)
     }
 
-    fun cookieValue(name: String, defaultValue: String = ""): String =
-        request.cookies?.firstOrNull { it.name == name && it.value.isNotBlank() }?.value ?: defaultValue
+    fun cookieValue(name: String, defaultValue: String = ""): String {
+        return request.cookies
+            ?.firstOrNull { it.name == name && it.value?.isNotBlank() == true }
+            ?.value ?: defaultValue
+    }
 
     fun setCookie(name: String, value: String?) {
         val v = value.orEmpty()
