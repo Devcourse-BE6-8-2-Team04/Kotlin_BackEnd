@@ -24,8 +24,20 @@ class ClothRecommendationHistoryTest {
             gender = Gender.MALE,
             tendency = Tendency.NEUTRAL
         )
-                val weatherInfos = listOf(
-            FixtureFactory.createWeatherInfo("서울", LocalDate.now(), Weather.CLEAR_SKY, 22.0)
+
+        // 파라미터 추가
+        val weatherInfos = listOf(
+            FixtureFactory.createWeatherInfo(
+                "서울",
+                LocalDate.now(),
+                Weather.CLEAR_SKY,
+                22.0,     // feelsLikeTemperature
+                10.0,     // dailyTemperatureGap
+                0.0,      // rain
+                0.0,      // snow
+                5.0,      // windSpeed
+                3.0       // uvi
+            )
         )
         val liked: ClothInfo = FixtureFactory.createClothInfo(Style.OUTDOOR, 15.0, 25.0)
         val unLiked: ClothInfo = FixtureFactory.createClothInfo(Style.CASUAL_DAILY, 5.0, 15.0)
@@ -44,7 +56,7 @@ class ClothRecommendationHistoryTest {
         Assertions.assertThat(history.location).isEqualTo("서울")
         Assertions.assertThat(history.weatherInfo).hasSize(1)
         Assertions.assertThat(history.likedClothings).contains(liked)
-        Assertions.assertThat(history.unLikedClothings).contains(unLiked)
+        Assertions.assertThat(history.dislikedClothings).contains(unLiked)
         Assertions.assertThat(history.feelsLike).isEqualTo(20.0)
         Assertions.assertThat(history.dailyTemperatureGap).isEqualTo(9.0)
     }
