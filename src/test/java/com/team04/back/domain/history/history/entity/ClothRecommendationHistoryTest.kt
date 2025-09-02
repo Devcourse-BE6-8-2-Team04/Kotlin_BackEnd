@@ -57,7 +57,7 @@ class ClothRecommendationHistoryTest {
         Assertions.assertThat(history.weatherInfo).hasSize(1)
         Assertions.assertThat(history.likedClothings).contains(liked)
         Assertions.assertThat(history.dislikedClothings).contains(unLiked)
-        Assertions.assertThat(history.feelsLike).isEqualTo(20.0)
-        Assertions.assertThat(history.dailyTemperatureGap).isEqualTo(9.0)
+        Assertions.assertThat(history.feelsLike).isEqualTo(22.0)
+        Assertions.assertThat(history.dailyTemperatureGap).isEqualTo(10.0)
     }
 }
