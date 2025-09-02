@@ -2,7 +2,6 @@ package com.team04.back.domain.weather.weather.service
 
 import com.team04.back.domain.weather.geo.service.GeoService
 import com.team04.back.domain.weather.weather.entity.WeatherInfo
-import com.team04.back.domain.weather.weather.enums.Weather
 import com.team04.back.domain.weather.weather.repository.WeatherRepository
 import com.team04.back.infra.weather.WeatherApiClient
 import com.team04.back.infra.weather.dto.DailyData
@@ -73,7 +72,7 @@ class WeatherService(
         val weatherInfo = weatherRepository.findByLocationAndDate(location, date)
 
         // 조회 결과가 있고 유효한 경우
-        if (weatherInfo != null && isValid(weatherInfo)) {
+        if (weatherInfo != null && weatherInfo.isValid()) {
             return weatherInfo
         }
         // 조회 결과가 없거나 유효하지 않은 경우
@@ -121,13 +120,7 @@ class WeatherService(
         return result
     }
 
-    // 유효성 검사: 마지막 업데이트가 3시간 이내인지 확인
-    private fun isValid(weatherInfo: WeatherInfo): Boolean {
-        val lastUpdated = weatherInfo.modifyDate
-        return lastUpdated.isAfter(LocalDateTime.now().minusHours(3))
-    }
-
-    // 요청된 날짜에 따라 날씨 정보를 업데이트
+    // 요청된 날짜에 따라 날씨 정보 업데이트 함수 호출
     private fun updateWeatherInfo(info: WeatherInfo, location: String, lat: Double, lon: Double, date: LocalDate): WeatherInfo {
         val today = LocalDate.now()
 
@@ -159,27 +152,8 @@ class WeatherService(
         requireNotNull(matchedDaily) { "해당 날짜($date)에 대한 예보 데이터가 존재하지 않습니다." }
 
         // 날씨 정보 갱신 및 저장
-        mapDailyDataToWeatherInfo(info, matchedDaily, location, date)
+        info.updateFromDailyData(matchedDaily, location, date)
         return weatherRepository.save(info)
-    }
-
-    // DailyData를 WeatherInfo로 매핑
-    private fun mapDailyDataToWeatherInfo(info: WeatherInfo, data: DailyData, location: String, date: LocalDate) {
-        info.weather = Weather.fromCode(data.weather.first().id)
-        info.description = info.weather.description
-        info.dailyTemperatureGap = (data.temp?.max ?: 0.0) - (data.temp?.min ?: 0.0)
-        info.feelsLikeTemperature = data.feelsLike?.day ?: 0.0
-        info.maxTemperature = data.temp?.max ?: 0.0
-        info.minTemperature = data.temp?.min ?: 0.0
-        info.location = location
-        info.date = date
-        info.pop = data.pop
-        info.rain = data.rain
-        info.snow = data.snow
-        info.humidity = data.humidity
-        info.windSpeed = data.windSpeed
-        info.windDeg = data.windDeg
-        info.uvi = data.uvi
     }
 
     // Time Machine API를 통해 날씨 정보를 업데이트
@@ -200,32 +174,7 @@ class WeatherService(
         val maxTemp = hourlyData.maxOfOrNull { it.temp } ?: 0.0
         val data = hourlyData.first()
 
-        mapTimeMachineDataToWeatherInfo(info, data, location, date, minTemp, maxTemp)
+        info.updateFromTimeMachineData(data, location, date, minTemp, maxTemp)
         return weatherRepository.save(info)
-    }
-
-    // TimeMachineData를 WeatherInfo로 매핑
-    private fun mapTimeMachineDataToWeatherInfo(info: WeatherInfo, data: TimeMachineData, location: String, date: LocalDate, minTemp: Double, maxTemp: Double) {
-        val weather = Weather.fromCode(data.weather.first().id)
-        var pop = 0.0
-        val weatherCode = weather.code
-
-        if ((weatherCode in 200 until 400) || (weatherCode in 500 until 700)) {
-            pop = 1.0
-        }
-
-        info.weather = weather
-        info.description = data.weather.first().description
-        info.dailyTemperatureGap = maxTemp - minTemp
-        info.feelsLikeTemperature = data.feelsLike
-        info.maxTemperature = maxTemp
-        info.minTemperature = minTemp
-        info.location = location
-        info.date = date
-        info.pop = pop
-        info.humidity = data.humidity
-        info.windSpeed = data.windSpeed
-        info.windDeg = data.windDeg
-        info.uvi = data.uvi
     }
 }
