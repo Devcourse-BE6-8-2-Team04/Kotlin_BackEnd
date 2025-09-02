@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Lazy
 import org.springframework.context.annotation.Profile
+import org.springframework.core.annotation.Order
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 
@@ -30,6 +31,7 @@ class BaseInitData(
     private lateinit var self: BaseInitData
 
     @Bean
+    @Order(2)
     fun baseInitDataApplicationRunner(): ApplicationRunner {
         return ApplicationRunner { args: ApplicationArguments? ->
             self.work1()

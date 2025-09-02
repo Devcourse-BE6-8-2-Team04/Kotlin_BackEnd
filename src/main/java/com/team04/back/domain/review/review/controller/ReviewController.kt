@@ -115,14 +115,13 @@ class ReviewController(
     @Transactional
     @Operation(summary = "리뷰 삭제", description = "리뷰를 삭제합니다.")
     fun deleteReview(
-        @PathVariable id: Int,
-        @RequestBody passwordReqBody: VerifyPasswordReqBody
+        @PathVariable id: Int
     ): RsData<ReviewDto> {
 //        val user: User? = rq.member
 
         val review = reviewService.findById(id).getOrThrow()
 
-//        reviewService.checkCanDelete(review, user, passwordReqBody.password)
+//        user?.let { reviewService.checkCanDelete(review, user) }
 
         reviewService.deleteReview(review)
 
@@ -178,14 +177,13 @@ class ReviewController(
     @Operation(summary = "리뷰 수정", description = "리뷰를 수정합니다.")
     fun modifyReview(
         @PathVariable id: Int,
-        @RequestBody @Valid modifyReviewReqBody: ModifyReviewReqBody,
-        @RequestBody passwordReqBody: VerifyPasswordReqBody
+        @RequestBody @Valid modifyReviewReqBody: ModifyReviewReqBody
     ): RsData<ReviewDto> {
 //        val user: User? = rq.member
 
         var review = reviewService.findById(id).getOrThrow()
 
-//        reviewService.checkCanModify(review, user, passwordReqBody.password)
+//        user?.let { reviewService.checkCanModify(review, user) }
 
         review = reviewService.modifyReview(
             review,

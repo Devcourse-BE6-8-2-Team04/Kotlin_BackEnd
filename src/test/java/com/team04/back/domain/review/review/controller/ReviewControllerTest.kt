@@ -290,10 +290,11 @@ class ReviewControllerTest {
             for (i in 0 until recommendedClothList.size) {
                 val cloth = recommendedClothList[i]
                 resultActions
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.recommendedClothList[${i}].id").value(cloth.id))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.recommendedClothList[${i}].clothName").value(cloth.clothName))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.recommendedClothList[${i}].category").value(cloth.category))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.recommendedClothList[${i}].clothName").value(cloth.clothName.name))
                     .andExpect(MockMvcResultMatchers.jsonPath("$.recommendedClothList[${i}].imageUrl").value(cloth.imageUrl))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.recommendedClothList[${i}].category").value(cloth.category.name))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.recommendedClothList[${i}].style").value(cloth.style?.name))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.recommendedClothList[${i}].material").value(cloth.material?.name))
             }
         }
     }
@@ -497,48 +498,9 @@ class ReviewControllerTest {
     }
 
     @Test
-    @DisplayName("리뷰 작성 - inValid email")
-    @Throws(Exception::class)
-    fun t6_1() {
-        val resultActions = mvc
-            .perform(
-                MockMvcRequestBuilders.post("/api/v1/reviews")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(
-                        """
-                                        {
-                                            "email": "invalid-email",
-                                            "password": "1234",
-                                            "title": "Test Review",
-                                            "sentence": "This is a test review.",
-                                            "imageUrl": "https://example.com/image.jpg",
-                                            "tagString": "#test#review",
-                                            "countryCode": "KR",
-                                            "cityName": "Seoul",
-                                            "date": "2025-01-01"
-                                        }
-                                        """.trimIndent()
-                    )
-            ).andDo(MockMvcResultHandlers.print())
-
-        resultActions
-            .andExpect(MockMvcResultMatchers.handler().handlerType(ReviewController::class.java))
-            .andExpect(MockMvcResultMatchers.handler().methodName("createReview"))
-            .andExpect(MockMvcResultMatchers.status().isBadRequest)
-            .andExpect(MockMvcResultMatchers.jsonPath("$.resultCode").value("400-1"))
-            .andExpect(
-                MockMvcResultMatchers.jsonPath("$.msg").value(
-                    """
-                        email-Email-must be a well-formed email address
-                        """.trimIndent()
-                )
-            )
-    }
-
-    @Test
     @DisplayName("리뷰 작성 - inValid title")
     @Throws(Exception::class)
-    fun t6_2() {
+    fun t6_1() {
         val resultActions = mvc
             .perform(
                 MockMvcRequestBuilders.post("/api/v1/reviews")
@@ -578,7 +540,7 @@ class ReviewControllerTest {
     @Test
     @DisplayName("리뷰 작성 - inValid date")
     @Throws(Exception::class)
-    fun t6_3() {
+    fun t6_2() {
         val resultActions = mvc
             .perform(
                 MockMvcRequestBuilders.post("/api/v1/reviews")

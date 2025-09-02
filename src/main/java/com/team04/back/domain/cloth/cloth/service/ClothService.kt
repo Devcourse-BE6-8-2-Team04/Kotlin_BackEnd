@@ -72,6 +72,6 @@ class ClothService(
     }
 
     fun findByClothNameAndStyle(clothName: ClothName, style: Style?) : ClothInfo? {
-        return clothRepository.findByClothNameAndStyle(clothName, style)
+        return clothRepository.findFirstByClothNameAndStyle(clothName, style)
     }
 }
