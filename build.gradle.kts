@@ -52,9 +52,15 @@ dependencies {
 	implementation("org.springframework:spring-aop")
 	testImplementation("org.mockito:mockito-inline:5.2.0")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
+	implementation("org.springframework.boot:spring-boot-starter-security")
+	testImplementation ("org.springframework.security:spring-security-test")
 
 	implementation("io.github.openfeign.querydsl:querydsl-jpa:7.0")
 	kapt("io.github.openfeign.querydsl:querydsl-apt:7.0:jpa")
+
+	implementation ("io.jsonwebtoken:jjwt-api:0.11.5")
+	runtimeOnly ("io.jsonwebtoken:jjwt-impl:0.11.5")
+	runtimeOnly ("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
 }
 
