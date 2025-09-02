@@ -4,6 +4,7 @@ import com.team04.back.domain.user.user.service.UserService
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Size
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -16,7 +17,7 @@ class UserController(
 ) {
     data class RegisterRequest(
         @field:Email @field:NotBlank val email: String,
-        @field:NotBlank val password: String,
+        @field:NotBlank @field:Size(min = 8, max = 72) val password: String,
     )
 
     @PostMapping
