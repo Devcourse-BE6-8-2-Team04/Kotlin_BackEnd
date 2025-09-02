@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 
 @Entity
+@Table(name = "users")
 class User(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Int = 0,
@@ -12,6 +13,6 @@ class User(
     val email: String,
 
     @JsonIgnore // 응답 serialization에서 password 제외
-    @Column(nullable = false)
+    @Column(nullable = false, length = 60)  // BCrypt 해시 길이(60) 고려 — 스키마 절약 및 명시성 향상
     val password: String,
 )

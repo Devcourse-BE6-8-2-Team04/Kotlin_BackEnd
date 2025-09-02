@@ -4,5 +4,5 @@ import com.team04.back.domain.user.user.entity.User
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface UserRepository : JpaRepository<User, Int> {
-    fun existsByEmail(email: String): Boolean
+    fun existsByEmailIgnoreCase(email: String): Boolean
 }
