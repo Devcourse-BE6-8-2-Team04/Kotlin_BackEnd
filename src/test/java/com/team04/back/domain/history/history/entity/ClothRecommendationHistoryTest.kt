@@ -17,7 +17,7 @@ class ClothRecommendationHistoryTest {
         // given
         val user = User()
         val weatherInfos = listOf(
-            FixtureFactory.createWeatherInfo("서울", LocalDate.now(), Weather.CLEAR_SKY, 22.0)
+            FixtureFactory.createWeatherInfo("서울", LocalDate.now(), Weather.CLEAR_SKY, 22.0, 10.0, 0.0, 0.0, 5.0, 3.0)
         )
         val liked: ClothInfo = FixtureFactory.createClothInfo(Style.OUTDOOR, 15.0, 25.0)
         val unLiked: ClothInfo = FixtureFactory.createClothInfo(Style.CASUAL_DAILY, 5.0, 15.0)

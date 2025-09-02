@@ -39,6 +39,7 @@ class ClothService(
         weatherPlan: List<WeatherInfo>,
         location: String
     ): OutfitRecommendationResponseDto {
+        //상태값 뎊스 너무 깊다, DTO로 빼던가
         val recommendedMap = mutableMapOf<Category, MutableMap<ClothInfo, Int>>() // 의류별 추천 횟수
         val notRecommendedMap = mutableMapOf<Category, MutableMap<ClothInfo, Int>>() // 의류별 비추천 횟수
 
@@ -68,11 +69,11 @@ class ClothService(
             // 3. 추천/비추천 의류 종합
             for (history in histories) {
                 history.likedClothings.forEach { cloth ->
-                    recommendedMap.getOrPut(cloth.category!!) { mutableMapOf() }
+                    recommendedMap.getOrPut(cloth.category) { mutableMapOf() }
                         .merge(cloth, 1, Int::plus)
                 }
                 history.dislikedClothings.forEach { cloth ->
-                    notRecommendedMap.getOrPut(cloth.category!!) { mutableMapOf() }
+                    notRecommendedMap.getOrPut(cloth.category) { mutableMapOf() }
                         .merge(cloth, 1, Int::plus)
                 }
             }
@@ -169,15 +170,15 @@ class ClothService(
 
     fun count(): Long = clothRepository.count()
 
-    fun isWeatherInfoSimilar(info1: WeatherInfo, info2: WeatherInfo): Boolean {
+    fun isWeatherInfoSimilar(weather: WeatherInfo, otherWeather: WeatherInfo): Boolean {
         fun closeEnough(a: Double?, b: Double?, tolerance: Double) =
             if (a != null && b != null) kotlin.math.abs(a - b) < tolerance else true
 
-        return kotlin.math.abs(info1.feelsLikeTemperature - info2.feelsLikeTemperature) <= 3.0 &&
-                closeEnough(info1.rain, info2.rain, 1.0) &&
-                closeEnough(info1.snow, info2.snow, 1.0) &&
-                closeEnough(info1.windSpeed, info2.windSpeed, 3.0) &&
-                closeEnough(info1.uvi, info2.uvi, 2.0) &&
-                kotlin.math.abs(info1.dailyTemperatureGap - info2.dailyTemperatureGap) < 5.0
+        return kotlin.math.abs(weather.feelsLikeTemperature - otherWeather.feelsLikeTemperature) <= 3.0 &&
+                closeEnough(weather.rain, otherWeather.rain, 1.0) &&
+                closeEnough(weather.snow, otherWeather.snow, 1.0) &&
+                closeEnough(weather.windSpeed, otherWeather.windSpeed, 3.0) &&
+                closeEnough(weather.uvi, otherWeather.uvi, 2.0) &&
+                kotlin.math.abs(weather.dailyTemperatureGap - otherWeather.dailyTemperatureGap) < 5.0
     }
 }
