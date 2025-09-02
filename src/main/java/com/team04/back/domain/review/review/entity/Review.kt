@@ -6,29 +6,48 @@ import jakarta.persistence.*
 
 @Entity
 class Review(
-    val email: String,
-    val password: String,
-    @field:Column(length = 100) var title: String,
-    @field:Column(columnDefinition = "TEXT") var sentence: String,
-    var tagString: String?,
-    @field:Column(length = 2048) var imageUrl: String?,
-
-    @field:JoinColumn(name = "weather_info_id")
-    @field:ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST])
-    var weatherInfo: WeatherInfo
+    email: String,
+    password: String,
+    title: String,
+    sentence: String,
+    tagString: String?,
+    imageUrl: String?,
+    weatherInfo: WeatherInfo
 ) : BaseEntity() {
+    @Column(nullable = false)
+    val email: String = email
+
+    @Column(nullable = false)
+    val password: String = password
+
+    @Column(length = 100, nullable = false)
+    var title: String = title
+
+    @Column(columnDefinition = "TEXT", nullable = false)
+    var sentence: String = sentence
+
+    var tagString: String? = tagString
+
+    @Column(length = 2048)
+    var imageUrl: String? = imageUrl
+
+    @JoinColumn(name = "weather_info_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST])
+    var weatherInfo: WeatherInfo = weatherInfo
+
+
     fun modify(
-        title: String,
-        sentence: String,
+        title: String?,
+        sentence: String?,
         tagString: String?,
         imageUrl: String?,
-        weatherInfo: WeatherInfo
+        weatherInfo: WeatherInfo?
     ): Review {
-        this.title = title
-        this.sentence = sentence
-        this.tagString = tagString
-        this.imageUrl = imageUrl
-        this.weatherInfo = weatherInfo
+        this.title = title ?: this.title
+        this.sentence = sentence ?: this.sentence
+        this.tagString = tagString ?: this.tagString
+        this.imageUrl = imageUrl ?: this.imageUrl
+        this.weatherInfo = weatherInfo ?: this.weatherInfo
 
         return this
     }

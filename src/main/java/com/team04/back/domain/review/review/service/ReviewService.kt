@@ -1,22 +1,38 @@
 package com.team04.back.domain.review.review.service
 
-import com.team04.back.standard.dto.ReviewSearchDto
+import com.team04.back.domain.cloth.cloth.entity.ClothInfo
+import com.team04.back.domain.cloth.cloth.service.ClothService
+import com.team04.back.domain.review.review.dto.ClothItemReqBody
 import com.team04.back.domain.review.review.entity.Review
+import com.team04.back.domain.review.review.entity.ReviewClothInfo
+import com.team04.back.domain.review.review.repository.ReviewClothInfoRepository
 import com.team04.back.domain.review.review.repository.ReviewRepository
+import com.team04.back.domain.weather.geo.service.GeoService
 import com.team04.back.domain.weather.weather.entity.WeatherInfo
+import com.team04.back.domain.weather.weather.service.WeatherService
+import com.team04.back.global.exception.ServiceException
+import com.team04.back.standard.dto.ReviewSearchDto
 import com.team04.back.standard.dto.ReviewSearchSortType
 import com.team04.back.standard.dto.ReviewSearchSortType.ID
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDate
 
 @Service
 class ReviewService(
-    private val reviewRepository: ReviewRepository
+    private val reviewRepository: ReviewRepository,
+    private val reviewClothInfoRepository: ReviewClothInfoRepository,
+    private val clothService: ClothService,
+    private val geoService: GeoService,
+    private val weatherService: WeatherService,
 ) {
     fun count(): Long = reviewRepository.count()
 
     fun findById(id: Int): Review? = reviewRepository.findById(id).orElse(null)
+
+    fun findLatest(): Review? = reviewRepository.findFirstByOrderByIdDesc()
 
     fun findBySearch(
         search: ReviewSearchDto,
@@ -32,8 +48,8 @@ class ReviewService(
 
     fun verifyPassword(review: Review, password: String): Boolean = review.password == password
 
-    fun delete(review: Review) = reviewRepository.delete(review)
 
+    @Transactional
     fun createReview(
         email: String,
         password: String,
@@ -41,20 +57,187 @@ class ReviewService(
         title: String,
         sentence: String,
         tagString: String?,
-        weatherInfo: WeatherInfo
+        cityName: String,
+        countryCode: String,
+        date: LocalDate,
+        clothList: List<ClothItemReqBody>?
     ): Review {
+        val weatherInfo = getWeatherInfo(cityName, countryCode, date)
         val review = Review(email, password, title, sentence, tagString, imageUrl, weatherInfo)
-        return reviewRepository.save(review)
+        val savedReview = reviewRepository.save(review)
+        createClothInfo(savedReview.id, clothList)
+
+        return savedReview
     }
 
-    fun findLatest(): Review? = reviewRepository.findFirstByOrderByIdDesc()
-
-    fun modify(
+    @Transactional
+    fun modifyReview(
         review: Review,
         title: String,
         sentence: String,
         tagString: String?,
         imageUrl: String?,
-        weatherInfo: WeatherInfo
-    ): Review = review.modify(title, sentence, tagString, imageUrl, weatherInfo)
+        cityName: String,
+        countryCode: String,
+        date: LocalDate,
+        clothList: List<ClothItemReqBody>?
+    ): Review {
+        val newTitle = title.takeIf { it != review.title }
+        val newSentence = sentence.takeIf { it != review.sentence }
+        val newTagString = tagString.takeIf { it != review.tagString }
+        val newImageUrl = imageUrl.takeIf { it != review.imageUrl }
+        val newWeatherInfo = getWeatherInfo(cityName, countryCode, date).takeIf { it != review.weatherInfo }
+
+        clothList?.let {
+            updateClothInfoEfficiently(review.id, clothList)
+        }
+
+        return review.modify(newTitle, newSentence, newTagString, newImageUrl, newWeatherInfo)
+    }
+
+    @Transactional
+    fun deleteReview(review: Review) {
+        reviewClothInfoRepository.deleteByReviewId(review.id)
+        reviewRepository.delete(review)
+    }
+
+
+    fun findReviewClothInfo(reviewId: Int): List<ReviewClothInfo> = reviewClothInfoRepository.findByReviewId(reviewId)
+
+    fun findRecommendedClothInfo(reviewId: Int): List<ClothInfo> {
+        val reviewClothList = findReviewClothInfo(reviewId)
+        val clothInfoIdList = reviewClothList
+            .filter { it.isRecommend }
+            .map { it.clothInfoId }
+
+        return clothService.findByIdList(clothInfoIdList)
+    }
+
+    fun findNonRecommendedClothInfo(reviewId: Int): List<ClothInfo> {
+        val reviewClothList = findReviewClothInfo(reviewId)
+        val clothInfoIdList = reviewClothList
+            .filter { !it.isRecommend }
+            .map { it.clothInfoId }
+
+        return clothService.findByIdList(clothInfoIdList)
+    }
+
+
+    private fun updateClothInfoEfficiently(reviewId: Int, newClothList: List<ClothItemReqBody>) {
+        // 기존 ClothInfo 조회
+        val existingReviewClothInfos = reviewClothInfoRepository.findByReviewId(reviewId)
+        val existingClothInfos = clothService.findByIdList(existingReviewClothInfos.map { it.clothInfoId })
+
+        // 새로운 cloth 정보를 처리하기 위한 맵 생성 (중복 제거 포함)
+        val newClothMap = newClothList.distinctBy {
+            Triple(it.clothName, it.category, it.style)
+        }.associateBy {
+            Triple(it.clothName, it.category, it.style)
+        }.toMutableMap()
+
+        // 기존 항목들 검사
+        for (existingReviewClothInfo in existingReviewClothInfos) {
+            val existingClothInfo = existingClothInfos.find { it.id == existingReviewClothInfo.clothInfoId }
+
+            if (existingClothInfo != null) {
+                val key = Triple(existingClothInfo.clothName, existingClothInfo.category, existingClothInfo.style)
+                val newClothItem = newClothMap[key]
+
+                if (newClothItem != null) {
+                    // 추천 상태가 다르면 업데이트
+                    if (existingReviewClothInfo.isRecommend != newClothItem.isRecommend) {
+                        existingReviewClothInfo.isRecommend = newClothItem.isRecommend
+                        reviewClothInfoRepository.save(existingReviewClothInfo)
+                    }
+                    // 처리된 항목은 newClothMap에서 제거
+                    newClothMap.remove(key)
+                } else {
+                    // 새 목록에 없으면 삭제
+                    reviewClothInfoRepository.delete(existingReviewClothInfo)
+                }
+            } else {
+                // ClothInfo가 없으면 삭제 (데이터 무결성 문제)
+                reviewClothInfoRepository.delete(existingReviewClothInfo)
+            }
+        }
+
+        // 새로운 항목들 생성
+        createClothInfo(reviewId, newClothMap.values.toList())
+    }
+
+    private fun addReviewClothInfo(reviewId: Int, clothInfoId: Int, isRecommend: Boolean) {
+        val reviewClothInfo = ReviewClothInfo(reviewId, clothInfoId, isRecommend)
+        reviewClothInfoRepository.save(reviewClothInfo)
+    }
+
+    private fun createClothInfo(reviewId: Int, clothList: List<ClothItemReqBody>?) {
+        clothList?.forEach { clothItem ->
+            // ClothName을 이용해 대표 ClothInfo 조회 (이미지 사용 위해)
+            val defaultClothInfo = clothService.findByClothNameAndStyle(clothItem.clothName, null)
+                ?: throw ServiceException("404-1","옷 정보를 찾을 수 없습니다.")
+
+            val clothInfo = ClothInfo.create(
+                clothName = clothItem.clothName,
+                imageUrl = defaultClothInfo.imageUrl,
+                category = clothItem.category,
+                style = clothItem.style,
+                material = clothItem.material,
+                minFeelsLike = null,
+                maxFeelsLike = null
+            )
+            val savedClothInfo = clothService.save(clothInfo)
+            addReviewClothInfo(reviewId, savedClothInfo.id, clothItem.isRecommend)
+        }
+    }
+
+    private fun getWeatherInfo(cityName: String, countryCode: String, date: LocalDate): WeatherInfo {
+        val coordinates = geoService.getCoordinatesFromLocation(cityName, countryCode)
+        return weatherService.getWeatherInfo(
+            cityName,
+            coordinates[0],
+            coordinates[1],
+            date
+        )
+    }
+
+    @Transactional
+    fun createReview(
+        email: String,
+        password: String,
+        imageUrl: String?,
+        title: String,
+        sentence: String,
+        tagString: String?,
+        weatherInfo: WeatherInfo,
+        clothList: List<ClothItemReqBody>?
+    ): Review {
+        val review = Review(email, password, title, sentence, tagString, imageUrl, weatherInfo)
+        val savedReview = reviewRepository.save(review)
+        createClothInfo(savedReview.id, clothList)
+
+        return savedReview
+    }
+
+    @Transactional
+    fun modifyReview(
+        review: Review,
+        title: String,
+        sentence: String,
+        tagString: String?,
+        imageUrl: String?,
+        weatherInfo: WeatherInfo,
+        clothList: List<ClothItemReqBody>?
+    ): Review {
+        val newTitle = title.takeIf { it != review.title }
+        val newSentence = sentence.takeIf { it != review.sentence }
+        val newTagString = tagString.takeIf { it != review.tagString }
+        val newImageUrl = imageUrl.takeIf { it != review.imageUrl }
+        val newWeatherInfo = weatherInfo.takeIf { it != review.weatherInfo }
+
+        clothList?.let {
+            updateClothInfoEfficiently(review.id, clothList)
+        }
+
+        return review.modify(newTitle, newSentence, newTagString, newImageUrl, newWeatherInfo)
+    }
 }
