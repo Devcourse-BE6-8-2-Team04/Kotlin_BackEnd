@@ -1,10 +1,9 @@
 package com.team04.back.domain.review.review.controller
 
-import com.team04.back.domain.review.review.dto.ReviewDto
+import com.team04.back.domain.cloth.cloth.entity.ClothInfo
+import com.team04.back.domain.review.review.dto.*
 import com.team04.back.domain.review.review.entity.Review
 import com.team04.back.domain.review.review.service.ReviewService
-import com.team04.back.domain.weather.geo.service.GeoService
-import com.team04.back.domain.weather.weather.service.WeatherService
 import com.team04.back.global.rsData.RsData
 import com.team04.back.standard.dto.PageDto
 import com.team04.back.standard.dto.ReviewSearchDto
@@ -13,9 +12,6 @@ import com.team04.back.standard.extensions.getOrThrow
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
-import jakarta.validation.constraints.Email
-import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.Size
 import org.springframework.data.domain.Page
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.transaction.annotation.Transactional
@@ -27,8 +23,6 @@ import java.time.LocalDate
 @Tag(name = "ReviewController", description = "리뷰 API")
 class ReviewController(
     private val reviewService: ReviewService,
-    private val weatherService: WeatherService,
-    private val geoService: GeoService,
 ) {
     /**
      * 이 API는 location, date, feelsLikeTemperature, month 파라미터를 사용하여 필터링된 리뷰 목록을 조회합니다.
@@ -66,26 +60,24 @@ class ReviewController(
         )
 
         val items: Page<Review> = reviewService.findBySearch(search, page, pageSize, sort)
-        return PageDto(items.map { ReviewDto(it) })
+        return PageDto(items.map { ReviewDto.from(it) })
     }
 
     /**
      * ID로 리뷰를 조회합니다.
      * @param id 리뷰 ID
-     * @return 리뷰 DTO
+     * @return 리뷰 상세 DTO
      */
     @GetMapping("/{id}")
     @Transactional(readOnly = true)
     @Operation(summary = "리뷰 단건 조회", description = "ID로 리뷰를 조회합니다.")
-    fun getReview(@PathVariable id: Int): ReviewDto {
+    fun getReview(@PathVariable id: Int): ReviewDetailDto {
         val review = reviewService.findById(id).getOrThrow()
-        return ReviewDto(review)
+        val recommendedClothInfo: List<ClothInfo> = reviewService.findRecommendedClothInfo(id)
+        val nonRecommendedClothInfo: List<ClothInfo> = reviewService.findNonRecommendedClothInfo(id)
+
+        return ReviewDetailDto.from(review, recommendedClothInfo, nonRecommendedClothInfo)
     }
-
-
-    data class VerifyPasswordReqBody(
-        @field:NotBlank val password: String
-    )
 
     /**
      * 리뷰의 비밀번호를 검증합니다.
@@ -98,11 +90,11 @@ class ReviewController(
     @Operation(summary = "리뷰 비밀번호 검증", description = "리뷰의 비밀번호를 검증합니다.")
     fun verifyPassword(
         @PathVariable id: Int,
-        @RequestBody passwordReqBody: VerifyPasswordReqBody
+        @RequestBody @Valid passwordReqBody: VerifyPasswordReqBody
     ): RsData<Boolean> {
         val review = reviewService.findById(id).getOrThrow()
 
-        val isVerified = reviewService.verifyPassword(review, passwordReqBody.password)
+        val isVerified = reviewService.verifyPassword(review, passwordReqBody.password!!)
         if (!isVerified) {
             return RsData("400-1", "비밀번호가 일치하지 않습니다.", false)
         }
@@ -122,30 +114,23 @@ class ReviewController(
     @DeleteMapping("/{id}")
     @Transactional
     @Operation(summary = "리뷰 삭제", description = "리뷰를 삭제합니다.")
-    fun deleteReview(@PathVariable id: Int): RsData<ReviewDto> {
+    fun deleteReview(
+        @PathVariable id: Int
+    ): RsData<ReviewDto> {
+//        val user: User? = rq.member
+
         val review = reviewService.findById(id).getOrThrow()
 
-        reviewService.delete(review)
+//        user?.let { reviewService.checkCanDelete(review, user) }
+
+        reviewService.deleteReview(review)
 
         return RsData(
             "200-1",
             "${id}번 리뷰가 삭제되었습니다.",
-            ReviewDto(review)
+            ReviewDto.from(review)
         )
     }
-
-
-    data class CreateReviewReqBody(
-        @field:NotBlank @field:Email val email: String,
-        @field:NotBlank @field:Size(min = 4) val password: String,
-        @field:NotBlank @field:Size(min = 2, max = 100) val title: String,
-        @field:NotBlank @field:Size(min = 2, max = 500) val sentence: String,
-        val tagString: String?,
-        val imageUrl: String?,
-        @field:NotBlank val countryCode: String,
-        @field:NotBlank val cityName: String,
-        @field:DateTimeFormat(iso = DateTimeFormat.ISO.DATE) val date: LocalDate
-    )
 
     /**
      * 리뷰를 작성합니다.
@@ -158,44 +143,28 @@ class ReviewController(
     fun createReview(
         @RequestBody @Valid createReviewReqBody: CreateReviewReqBody
     ): RsData<ReviewDto> {
-        val coordinates = geoService.getCoordinatesFromLocation(
-            createReviewReqBody.cityName,
-            createReviewReqBody.countryCode
-        )
-        val weatherInfo = weatherService.getWeatherInfo(
-            createReviewReqBody.cityName,
-            coordinates[0],
-            coordinates[1],
-            createReviewReqBody.date
-        )
+//        val user: User? = rq.member
 
         val review = reviewService.createReview(
-            createReviewReqBody.email,
-            createReviewReqBody.password,
-            createReviewReqBody.imageUrl,
-            createReviewReqBody.title,
-            createReviewReqBody.sentence,
-            createReviewReqBody.tagString,
-            weatherInfo
+//            user,
+            email = createReviewReqBody.email,
+            password = createReviewReqBody.password,
+            imageUrl = createReviewReqBody.imageUrl,
+            title = createReviewReqBody.title,
+            sentence = createReviewReqBody.sentence,
+            tagString = createReviewReqBody.tagString,
+            cityName = createReviewReqBody.cityName,
+            countryCode = createReviewReqBody.countryCode,
+            date = createReviewReqBody.date,
+            clothList = createReviewReqBody.clothList
         )
 
         return RsData(
             "201-1",
             "${review.id}번 리뷰가 작성되었습니다.",
-            ReviewDto(review)
+            ReviewDto.from(review)
         )
     }
-
-
-    data class ModifyReviewReqBody(
-        @field:NotBlank @field:Size(min = 2, max = 100) val title: String,
-        @field:NotBlank @field:Size(min = 2, max = 500) val sentence: String,
-        val tagString: @NotBlank String?,
-        val imageUrl: String?,
-        @field:NotBlank val countryCode: String,
-        @field:NotBlank val cityName: String,
-        @field:DateTimeFormat(iso = DateTimeFormat.ISO.DATE) val date: LocalDate
-    )
 
     /**
      * 리뷰를 수정합니다.
@@ -210,32 +179,28 @@ class ReviewController(
         @PathVariable id: Int,
         @RequestBody @Valid modifyReviewReqBody: ModifyReviewReqBody
     ): RsData<ReviewDto> {
+//        val user: User? = rq.member
+
         var review = reviewService.findById(id).getOrThrow()
 
-        val coordinates = geoService.getCoordinatesFromLocation(
-            modifyReviewReqBody.cityName,
-            modifyReviewReqBody.countryCode
-        )
-        val weatherInfo = weatherService.getWeatherInfo(
-            modifyReviewReqBody.cityName,
-            coordinates[0],
-            coordinates[1],
-            modifyReviewReqBody.date
-        )
+//        user?.let { reviewService.checkCanModify(review, user) }
 
-        review = reviewService.modify(
+        review = reviewService.modifyReview(
             review,
             modifyReviewReqBody.title,
             modifyReviewReqBody.sentence,
             modifyReviewReqBody.tagString,
             modifyReviewReqBody.imageUrl,
-            weatherInfo
+            modifyReviewReqBody.cityName,
+            modifyReviewReqBody.countryCode,
+            modifyReviewReqBody.date,
+            clothList = modifyReviewReqBody.clothList
         )
 
         return RsData(
             "200-1",
             "${review.id}번 리뷰가 수정되었습니다.",
-            ReviewDto(review)
+            ReviewDto.from(review)
         )
     }
 }

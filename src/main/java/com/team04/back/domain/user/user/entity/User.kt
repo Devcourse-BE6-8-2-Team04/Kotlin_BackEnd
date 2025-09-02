@@ -2,6 +2,7 @@ package com.team04.back.domain.user.user.entity
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 
+
 @Entity
 @Table(name = "users")
 class User(
