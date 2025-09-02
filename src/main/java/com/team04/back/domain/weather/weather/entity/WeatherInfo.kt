@@ -91,7 +91,7 @@ class WeatherInfo(
     }
 
     // DailyData를 WeatherInfo로 매핑
-    fun updateFromDailyData(data: DailyData, location: String, date: LocalDate) {
+    fun applyDailyWeather(data: DailyData, location: String, date: LocalDate) {
         this.weather = Weather.fromCode(data.weather.first().id)
         this.description = this.weather.description
         this.dailyTemperatureGap = (data.temp?.max ?: 0.0) - (data.temp?.min ?: 0.0)
@@ -110,7 +110,7 @@ class WeatherInfo(
     }
 
     // TimeMachineData를 WeatherInfo로 매핑
-    fun updateFromTimeMachineData(data: TimeMachineData, location: String, date: LocalDate, minTemp: Double, maxTemp: Double) {
+    fun applyHistoricalWeather(data: TimeMachineData, location: String, date: LocalDate, minTemp: Double, maxTemp: Double) {
         val weather = Weather.fromCode(data.weather.first().id)
         val pop = if ((weather.code in 200 until 400) || (weather.code in 500 until 700)) 1.0 else 0.0
 

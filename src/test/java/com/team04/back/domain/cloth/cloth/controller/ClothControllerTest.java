@@ -61,7 +61,7 @@ class ClothControllerTest {
 
         List<CategoryClothDto> mockCloths = List.of(CLOTH_1, CLOTH_2);
 
-        when(weatherService.getWeatherInfo(anyDouble(), anyDouble(), any()))
+        when(weatherService.getWeatherInfo(anyDouble(), anyDouble(), any(), any()))
                 .thenReturn(mockWeatherInfo);
 
         //현재 체감온도 기준으로
@@ -89,7 +89,7 @@ class ClothControllerTest {
         List<CategoryClothDto> mockCloths = List.of(CLOTH_1, CLOTH_2);
 
 
-        when(weatherService.getWeatherInfo(anyDouble(), anyDouble(), any()))
+        when(weatherService.getWeatherInfo(anyDouble(), anyDouble(), any(), any()))
                 .thenReturn(mockWeatherInfo);
 
         when(clothService.findClothByWeather(mockWeatherInfo.getFeelsLikeTemperature()))
