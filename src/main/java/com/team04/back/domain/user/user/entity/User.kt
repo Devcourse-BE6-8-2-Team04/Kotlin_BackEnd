@@ -12,7 +12,4 @@ class User(
 
     @Column(nullable = false)
     val password: String,
-
-    @Column(nullable = false, length = 50)
-    val nickname: String
 )
