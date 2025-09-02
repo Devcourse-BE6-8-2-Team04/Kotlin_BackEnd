@@ -7,8 +7,6 @@ import com.team04.back.domain.review.review.dto.ReviewDetailDto
 import com.team04.back.domain.review.review.dto.ReviewDto
 import com.team04.back.domain.review.review.entity.Review
 import com.team04.back.domain.review.review.service.ReviewService
-import com.team04.back.domain.weather.geo.service.GeoService
-import com.team04.back.domain.weather.weather.service.WeatherService
 import com.team04.back.global.rsData.RsData
 import com.team04.back.standard.dto.PageDto
 import com.team04.back.standard.dto.ReviewSearchDto
@@ -29,8 +27,6 @@ import java.time.LocalDate
 @Tag(name = "ReviewController", description = "리뷰 API")
 class ReviewController(
     private val reviewService: ReviewService,
-    private val weatherService: WeatherService,
-    private val geoService: GeoService,
 ) {
     /**
      * 이 API는 location, date, feelsLikeTemperature, month 파라미터를 사용하여 필터링된 리뷰 목록을 조회합니다.
@@ -160,7 +156,7 @@ class ReviewController(
             createReviewReqBody.cityName,
             createReviewReqBody.countryCode,
             createReviewReqBody.date,
-            createReviewReqBody.clothList
+            clothList = createReviewReqBody.clothList
         )
 
         return RsData(
@@ -194,7 +190,7 @@ class ReviewController(
             modifyReviewReqBody.cityName,
             modifyReviewReqBody.countryCode,
             modifyReviewReqBody.date,
-            modifyReviewReqBody.clothList
+            clothList = modifyReviewReqBody.clothList
         )
 
         return RsData(

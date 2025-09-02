@@ -57,13 +57,15 @@ class ReviewService(
         title: String,
         sentence: String,
         tagString: String?,
-        cityName: String,
-        countryCode: String,
-        date: LocalDate,
+        cityName: String? = null,
+        countryCode: String? = null,
+        date: LocalDate? = null,
+        weatherInfo: WeatherInfo? = null,
         clothList: List<ClothItemReqBody>?
     ): Review {
-        val weatherInfo = getWeatherInfo(cityName, countryCode, date)
-        val review = Review(email, password, title, sentence, tagString, imageUrl, weatherInfo)
+        val weatherInfo = weatherInfo ?: getWeatherInfo(cityName, countryCode, date)
+
+        val review = Review(null, email, password, title, sentence, tagString, imageUrl, weatherInfo)
         val savedReview = reviewRepository.save(review)
         createClothInfo(savedReview.id, clothList)
 
@@ -77,16 +79,18 @@ class ReviewService(
         sentence: String,
         tagString: String?,
         imageUrl: String?,
-        cityName: String,
-        countryCode: String,
-        date: LocalDate,
+        cityName: String? = null,
+        countryCode: String? = null,
+        date: LocalDate? = null,
+        weatherInfo: WeatherInfo? = null,
         clothList: List<ClothItemReqBody>?
     ): Review {
         val newTitle = title.takeIf { it != review.title }
         val newSentence = sentence.takeIf { it != review.sentence }
         val newTagString = tagString.takeIf { it != review.tagString }
         val newImageUrl = imageUrl.takeIf { it != review.imageUrl }
-        val newWeatherInfo = getWeatherInfo(cityName, countryCode, date).takeIf { it != review.weatherInfo }
+        val weatherInfo = weatherInfo ?: getWeatherInfo(cityName, countryCode, date)
+        val newWeatherInfo = weatherInfo.takeIf { it != review.weatherInfo }
 
         clothList?.let {
             updateClothInfoEfficiently(review.id, clothList)
@@ -190,7 +194,11 @@ class ReviewService(
         }
     }
 
-    private fun getWeatherInfo(cityName: String, countryCode: String, date: LocalDate): WeatherInfo {
+    private fun getWeatherInfo(cityName: String?, countryCode: String?, date: LocalDate?): WeatherInfo {
+        requireNotNull(cityName) { "City name must not be null" }
+        requireNotNull(countryCode) { "Country code must not be null" }
+        requireNotNull(date) { "Date must not be null" }
+
         val coordinates = geoService.getCoordinatesFromLocation(cityName, countryCode)
         return weatherService.getWeatherInfo(
             coordinates[0],
@@ -198,46 +206,5 @@ class ReviewService(
             date,
             cityName
         )
-    }
-
-    @Transactional
-    fun createReview(
-        email: String,
-        password: String,
-        imageUrl: String?,
-        title: String,
-        sentence: String,
-        tagString: String?,
-        weatherInfo: WeatherInfo,
-        clothList: List<ClothItemReqBody>?
-    ): Review {
-        val review = Review(email, password, title, sentence, tagString, imageUrl, weatherInfo)
-        val savedReview = reviewRepository.save(review)
-        createClothInfo(savedReview.id, clothList)
-
-        return savedReview
-    }
-
-    @Transactional
-    fun modifyReview(
-        review: Review,
-        title: String,
-        sentence: String,
-        tagString: String?,
-        imageUrl: String?,
-        weatherInfo: WeatherInfo,
-        clothList: List<ClothItemReqBody>?
-    ): Review {
-        val newTitle = title.takeIf { it != review.title }
-        val newSentence = sentence.takeIf { it != review.sentence }
-        val newTagString = tagString.takeIf { it != review.tagString }
-        val newImageUrl = imageUrl.takeIf { it != review.imageUrl }
-        val newWeatherInfo = weatherInfo.takeIf { it != review.weatherInfo }
-
-        clothList?.let {
-            updateClothInfoEfficiently(review.id, clothList)
-        }
-
-        return review.modify(newTitle, newSentence, newTagString, newImageUrl, newWeatherInfo)
     }
 }
