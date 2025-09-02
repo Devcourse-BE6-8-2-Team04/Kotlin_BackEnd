@@ -146,16 +146,19 @@ class ReviewController(
     fun createReview(
         @RequestBody @Valid createReviewReqBody: CreateReviewReqBody
     ): RsData<ReviewDto> {
+//        val user: User? = rq.member
+
         val review = reviewService.createReview(
-            createReviewReqBody.email,
-            createReviewReqBody.password,
-            createReviewReqBody.imageUrl,
-            createReviewReqBody.title,
-            createReviewReqBody.sentence,
-            createReviewReqBody.tagString,
-            createReviewReqBody.cityName,
-            createReviewReqBody.countryCode,
-            createReviewReqBody.date,
+//            user,
+            email = createReviewReqBody.email,
+            password = createReviewReqBody.password,
+            imageUrl = createReviewReqBody.imageUrl,
+            title = createReviewReqBody.title,
+            sentence = createReviewReqBody.sentence,
+            tagString = createReviewReqBody.tagString,
+            cityName = createReviewReqBody.cityName,
+            countryCode = createReviewReqBody.countryCode,
+            date = createReviewReqBody.date,
             clothList = createReviewReqBody.clothList
         )
 

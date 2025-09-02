@@ -129,8 +129,9 @@ class ReviewServiceTest {
 
         // When
         val result = reviewService.createReview(
-            "test@email.com", "password", "image_url",
-            "제목", "내용", "태그", weatherInfo = weatherInfo, clothList = listOf(clothItem)
+            email = "test@email.com", password = "password", imageUrl = "image_url",
+            title = "제목", sentence = "내용", tagString = "태그",
+            weatherInfo = weatherInfo, clothList = listOf(clothItem)
         )
 
         // Then
@@ -160,8 +161,9 @@ class ReviewServiceTest {
         // When & Then
         assertThatThrownBy {
             reviewService.createReview(
-                "test@email.com", "password", "image_url",
-                "제목", "내용", "태그", weatherInfo = weatherInfo, clothList = listOf(clothItem)
+                email = "test@email.com", password = "password", imageUrl = "image_url",
+                title = "제목", sentence = "내용", tagString = "태그",
+                weatherInfo = weatherInfo, clothList = listOf(clothItem)
             )
         }.isInstanceOf(ServiceException::class.java)
             .hasMessageContaining("옷 정보를 찾을 수 없습니다.")

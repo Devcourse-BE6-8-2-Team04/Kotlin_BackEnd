@@ -7,6 +7,7 @@ import com.team04.back.domain.review.review.entity.Review
 import com.team04.back.domain.review.review.entity.ReviewClothInfo
 import com.team04.back.domain.review.review.repository.ReviewClothInfoRepository
 import com.team04.back.domain.review.review.repository.ReviewRepository
+import com.team04.back.domain.user.user.entity.User
 import com.team04.back.domain.weather.geo.service.GeoService
 import com.team04.back.domain.weather.weather.entity.WeatherInfo
 import com.team04.back.domain.weather.weather.service.WeatherService
@@ -51,8 +52,9 @@ class ReviewService(
 
     @Transactional
     fun createReview(
-        email: String,
-        password: String,
+        user: User? = null,
+        email: String? = null,
+        password: String? = null,
         imageUrl: String?,
         title: String,
         sentence: String,
@@ -63,6 +65,8 @@ class ReviewService(
         weatherInfo: WeatherInfo? = null,
         clothList: List<ClothItemReqBody>?
     ): Review {
+        require((user != null) xor (email != null && password != null)) { "Either user or (email and password) must be provided, but not both" }
+
         val weatherInfo = weatherInfo ?: getWeatherInfo(cityName, countryCode, date)
 
         val review = Review(null, email, password, title, sentence, tagString, imageUrl, weatherInfo)
