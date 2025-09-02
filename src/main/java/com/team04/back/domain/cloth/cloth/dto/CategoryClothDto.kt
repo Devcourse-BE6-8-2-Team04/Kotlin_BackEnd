@@ -13,11 +13,15 @@ data class CategoryClothDto(
     val style: Style?,
     val material: Material?,
 )  {
-    constructor(clothInfo: ClothInfo) : this(
-        clothInfo.clothName,
-        clothInfo.imageUrl,
-        clothInfo.category,
-        clothInfo.style,
-        clothInfo.material
-    )
+    companion object {
+        fun from(clothInfo: ClothInfo): CategoryClothDto {
+            return CategoryClothDto(
+                clothInfo.clothName,
+                clothInfo.imageUrl,
+                clothInfo.category,
+                clothInfo.style,
+                clothInfo.material
+            )
+        }
+    }
 }

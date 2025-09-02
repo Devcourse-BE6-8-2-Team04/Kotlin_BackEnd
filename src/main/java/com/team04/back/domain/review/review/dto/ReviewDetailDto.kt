@@ -16,19 +16,23 @@ data class ReviewDetailDto(
     val recommendedClothList: List<CategoryClothDto>,
     val nonRecommendedClothList: List<CategoryClothDto>
 ) {
-    constructor(
-        review: Review,
-        recommendedClothList: List<ClothInfo>,
-        nonRecommendedClothList: List<ClothInfo>
-    ) : this(
-        review.id,
-        review.email,
-        review.imageUrl,
-        review.title,
-        review.sentence,
-        review.tagString,
-        WeatherInfoDto(review.weatherInfo),
-        recommendedClothList.map { CategoryClothDto(it) },
-        nonRecommendedClothList.map { CategoryClothDto(it) }
-    )
+    companion object {
+        fun from(
+            review: Review,
+            recommendedClothList: List<ClothInfo>,
+            nonRecommendedClothList: List<ClothInfo>
+        ): ReviewDetailDto {
+            return ReviewDetailDto(
+                review.id,
+                review.email,
+                review.imageUrl,
+                review.title,
+                review.sentence,
+                review.tagString,
+                WeatherInfoDto(review.weatherInfo),
+                recommendedClothList.map { CategoryClothDto.from(it) },
+                nonRecommendedClothList.map { CategoryClothDto.from(it) }
+            )
+        }
+    }
 }

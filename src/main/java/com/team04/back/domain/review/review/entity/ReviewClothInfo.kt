@@ -20,10 +20,4 @@ class ReviewClothInfo(
 
     @Column(name = "is_recommend", nullable = false)
     var isRecommend: Boolean = isRecommend
-
-
-    fun toggleRecommend(isRecommend: Boolean): ReviewClothInfo {
-        this.isRecommend = !isRecommend
-        return this
-    }
 }

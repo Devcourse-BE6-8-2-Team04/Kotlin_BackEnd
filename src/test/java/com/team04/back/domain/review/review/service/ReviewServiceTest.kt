@@ -11,8 +11,10 @@ import com.team04.back.domain.review.review.entity.Review
 import com.team04.back.domain.review.review.entity.ReviewClothInfo
 import com.team04.back.domain.review.review.repository.ReviewClothInfoRepository
 import com.team04.back.domain.review.review.repository.ReviewRepository
+import com.team04.back.domain.weather.geo.service.GeoService
 import com.team04.back.domain.weather.weather.entity.WeatherInfo
 import com.team04.back.domain.weather.weather.enums.Weather
+import com.team04.back.domain.weather.weather.service.WeatherService
 import com.team04.back.global.exception.ServiceException
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -40,6 +42,12 @@ class ReviewServiceTest {
 
     @Mock
     private lateinit var clothService: ClothService
+
+    @Mock
+    private lateinit var geoService: GeoService
+
+    @Mock
+    private lateinit var weatherService: WeatherService
 
     @InjectMocks
     private lateinit var reviewService: ReviewService
@@ -93,7 +101,7 @@ class ReviewServiceTest {
         val review = createReviewWithId(1)
 
         // When
-        reviewService.delete(review)
+        reviewService.deleteReview(review)
 
         // Then
         verify(reviewClothInfoRepository).deleteByReviewId(1)
@@ -160,40 +168,124 @@ class ReviewServiceTest {
     }
 
     @Test
-    @DisplayName("리뷰 수정 시 기존 옷 정보를 삭제하고 새로운 옷 정보를 저장한다")
-    fun `modify replaces old cloth info with new cloth info`() {
+    @DisplayName("리뷰 수정 시 옷 정보를 효율적으로 업데이트한다")
+    fun `modify updates cloth info efficiently`() {
         // Given
         val review = createReviewWithId(1)
-        val newClothItem = ClothItemReqBody(
-            ClothName.DENIM_JACKET,
-            Category.TOP,
-            Style.CASUAL_DAILY,
-            Material.DENIM,
-            true
+
+        // 기존 옷 정보들 (T_SHIRT만 있고, DENIM_JACKET은 새로 추가될 예정)
+        val existingClothInfo1 = createClothInfoWithId(10).apply {
+            // T_SHIRT 정보 설정
+            setPrivateField(this, "clothName", ClothName.T_SHIRT)
+            setPrivateField(this, "category", Category.TOP)
+            setPrivateField(this, "style", Style.CASUAL_DAILY)
+        }
+
+        val existingReviewClothInfos = listOf(
+            ReviewClothInfo(1, 10, true)   // 추천 상태가 false로 변경될 예정
         )
 
-        val defaultClothInfo = createClothInfoWithId(200)
+        // 새로운 옷 정보 (기존 T_SHIRT는 추천상태만 변경, 새로운 DENIM_JACKET 추가)
+        val newClothItems = listOf(
+            ClothItemReqBody(ClothName.T_SHIRT, Category.TOP, Style.CASUAL_DAILY, Material.COTTON, false), // 추천상태 변경
+            ClothItemReqBody(ClothName.DENIM_JACKET, Category.TOP, Style.CASUAL_DAILY, Material.DENIM, true) // 새로 추가
+        )
 
-        whenever(clothService.findByClothNameAndStyle(ClothName.DENIM_JACKET, null))
-            .thenReturn(defaultClothInfo)
-        whenever(clothService.save(any())).thenAnswer {
-            it.arguments[0] as ClothInfo
-        }
-        whenever(reviewClothInfoRepository.save(any<ReviewClothInfo>())).thenAnswer {
-            it.arguments[0] as ReviewClothInfo
-        }
+        val defaultClothInfoForDenimJacket = createClothInfoWithId(200)
+
+        // Mock 설정
+        whenever(reviewClothInfoRepository.findByReviewId(1)).thenReturn(existingReviewClothInfos)
+        whenever(clothService.findByIdList(listOf(10))).thenReturn(listOf(existingClothInfo1))
+        whenever(clothService.findByClothNameAndStyle(ClothName.DENIM_JACKET, null)).thenReturn(defaultClothInfoForDenimJacket)
+        whenever(clothService.save(any())).thenAnswer { it.arguments[0] as ClothInfo }
+        whenever(reviewClothInfoRepository.save(any<ReviewClothInfo>())).thenAnswer { it.arguments[0] as ReviewClothInfo }
 
         // When
-        val modifiedReview = reviewService.modify(
-            review, "새 제목", "새 내용", null, null, weatherInfo, listOf(newClothItem)
+        val modifiedReview = reviewService.modifyReview(
+            review, "새 제목", "새 내용", null, null, weatherInfo, newClothItems
         )
 
         // Then
         assertThat(modifiedReview.title).isEqualTo("새 제목")
         assertThat(modifiedReview.sentence).isEqualTo("새 내용")
-        verify(reviewClothInfoRepository).deleteByReviewId(1)
-        verify(clothService).save(any())
-        verify(reviewClothInfoRepository).save(any())
+
+        // 기존 T_SHIRT의 추천 상태가 업데이트되었는지 확인
+        verify(reviewClothInfoRepository).save(argThat<ReviewClothInfo> {
+            this.reviewId == 1 && this.clothInfoId == 10 && this.isRecommend == false
+        })
+
+        // 새로운 DENIM_JACKET이 생성되었는지 확인
+        verify(clothService).save(argThat<ClothInfo> {
+            this.clothName == ClothName.DENIM_JACKET
+        })
+        verify(reviewClothInfoRepository).save(argThat<ReviewClothInfo> {
+            this.reviewId == 1 && this.isRecommend == true
+        })
+    }
+
+    @Test
+    @DisplayName("리뷰 수정 시 중복된 옷 정보는 제거된다")
+    fun `modify removes duplicate cloth items`() {
+        // Given
+        val review = createReviewWithId(1)
+
+        // 중복된 옷 정보 (동일한 clothName, category, style)
+        val duplicateClothItems = listOf(
+            ClothItemReqBody(ClothName.T_SHIRT, Category.TOP, Style.CASUAL_DAILY, Material.COTTON, true),
+            ClothItemReqBody(ClothName.T_SHIRT, Category.TOP, Style.CASUAL_DAILY, Material.POLYESTER, false) // 중복
+        )
+
+        val defaultClothInfo = createClothInfoWithId(100)
+
+        whenever(reviewClothInfoRepository.findByReviewId(1)).thenReturn(emptyList())
+        whenever(clothService.findByIdList(emptyList())).thenReturn(emptyList())
+        whenever(clothService.findByClothNameAndStyle(ClothName.T_SHIRT, null)).thenReturn(defaultClothInfo)
+        whenever(clothService.save(any())).thenAnswer { it.arguments[0] as ClothInfo }
+        whenever(reviewClothInfoRepository.save(any<ReviewClothInfo>())).thenAnswer { it.arguments[0] as ReviewClothInfo }
+
+        // When
+        reviewService.modifyReview(
+            review, "새 제목", "새 내용", null, null, weatherInfo, duplicateClothItems
+        )
+
+        // Then
+        // ClothInfo가 한 번만 저장되어야 함 (중복 제거됨)
+        verify(clothService, times(1)).save(any())
+        verify(reviewClothInfoRepository, times(1)).save(any<ReviewClothInfo>())
+    }
+
+    @Test
+    @DisplayName("리뷰 수정 시 기존 옷 정보의 ClothInfo가 없으면 해당 ReviewClothInfo를 삭제한다")
+    fun `modify deletes ReviewClothInfo when corresponding ClothInfo not found`() {
+        // Given
+        val review = createReviewWithId(1)
+
+        val existingReviewClothInfos = listOf(
+            ReviewClothInfo(1, 999, true) // 존재하지 않는 clothInfoId
+        )
+
+        val newClothItems = listOf(
+            ClothItemReqBody(ClothName.T_SHIRT, Category.TOP, Style.CASUAL_DAILY, Material.COTTON, true)
+        )
+
+        val defaultClothInfo = createClothInfoWithId(100)
+
+        whenever(reviewClothInfoRepository.findByReviewId(1)).thenReturn(existingReviewClothInfos)
+        whenever(clothService.findByIdList(listOf(999))).thenReturn(emptyList()) // ClothInfo가 없음
+        whenever(clothService.findByClothNameAndStyle(ClothName.T_SHIRT, null)).thenReturn(defaultClothInfo)
+        whenever(clothService.save(any())).thenAnswer { it.arguments[0] as ClothInfo }
+        whenever(reviewClothInfoRepository.save(any<ReviewClothInfo>())).thenAnswer { it.arguments[0] as ReviewClothInfo }
+
+        // When
+        reviewService.modifyReview(
+            review, "새 제목", "새 내용", null, null, weatherInfo, newClothItems
+        )
+
+        // Then
+        // 존재하지 않는 ClothInfo에 대한 ReviewClothInfo가 삭제되어야 함
+        verify(reviewClothInfoRepository).delete(argThat<ReviewClothInfo> {
+            this.reviewId == 1 && this.clothInfoId == 999
+        })
     }
 
     @Test
@@ -203,7 +295,7 @@ class ReviewServiceTest {
         val review = createReviewWithId(1)
 
         // When
-        val modifiedReview = reviewService.modify(
+        val modifiedReview = reviewService.modifyReview(
             review, "새 제목", "새 내용", null, null, weatherInfo, null
         )
 

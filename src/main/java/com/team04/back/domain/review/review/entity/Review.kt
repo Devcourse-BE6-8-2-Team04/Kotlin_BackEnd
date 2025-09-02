@@ -37,17 +37,17 @@ class Review(
 
 
     fun modify(
-        title: String,
-        sentence: String,
+        title: String?,
+        sentence: String?,
         tagString: String?,
         imageUrl: String?,
-        weatherInfo: WeatherInfo
+        weatherInfo: WeatherInfo?
     ): Review {
-        this.title = title
-        this.sentence = sentence
-        this.tagString = tagString
-        this.imageUrl = imageUrl
-        this.weatherInfo = weatherInfo
+        this.title = title ?: this.title
+        this.sentence = sentence ?: this.sentence
+        this.tagString = tagString ?: this.tagString
+        this.imageUrl = imageUrl ?: this.imageUrl
+        this.weatherInfo = weatherInfo ?: this.weatherInfo
 
         return this
     }

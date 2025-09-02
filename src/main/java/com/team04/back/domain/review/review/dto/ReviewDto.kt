@@ -10,11 +10,15 @@ data class ReviewDto(
     val title: String,
     val weatherInfoDto: WeatherInfoDto
 ) {
-    constructor(review: Review) : this(
-        review.id,
-        review.email,
-        review.imageUrl,
-        review.title,
-        WeatherInfoDto(review.weatherInfo)
-    )
+    companion object {
+        fun from(review: Review): ReviewDto {
+            return ReviewDto(
+                review.id,
+                review.email,
+                review.imageUrl,
+                review.title,
+                WeatherInfoDto(review.weatherInfo)
+            )
+        }
+    }
 }

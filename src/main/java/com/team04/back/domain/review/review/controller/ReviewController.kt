@@ -1,7 +1,8 @@
 package com.team04.back.domain.review.review.controller
 
 import com.team04.back.domain.cloth.cloth.entity.ClothInfo
-import com.team04.back.domain.review.review.dto.ClothItemReqBody
+import com.team04.back.domain.review.review.dto.CreateReviewReqBody
+import com.team04.back.domain.review.review.dto.ModifyReviewReqBody
 import com.team04.back.domain.review.review.dto.ReviewDetailDto
 import com.team04.back.domain.review.review.dto.ReviewDto
 import com.team04.back.domain.review.review.entity.Review
@@ -16,9 +17,7 @@ import com.team04.back.standard.extensions.getOrThrow
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
-import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.Size
 import org.springframework.data.domain.Page
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.transaction.annotation.Transactional
@@ -69,7 +68,7 @@ class ReviewController(
         )
 
         val items: Page<Review> = reviewService.findBySearch(search, page, pageSize, sort)
-        return PageDto(items.map { ReviewDto(it) })
+        return PageDto(items.map { ReviewDto.from(it) })
     }
 
     /**
@@ -85,7 +84,7 @@ class ReviewController(
         val recommendedClothInfo: List<ClothInfo> = reviewService.findRecommendedClothInfo(id)
         val nonRecommendedClothInfo: List<ClothInfo> = reviewService.findNonRecommendedClothInfo(id)
 
-        return ReviewDetailDto(review, recommendedClothInfo, nonRecommendedClothInfo)
+        return ReviewDetailDto.from(review, recommendedClothInfo, nonRecommendedClothInfo)
     }
 
 
@@ -131,28 +130,14 @@ class ReviewController(
     fun deleteReview(@PathVariable id: Int): RsData<ReviewDto> {
         val review = reviewService.findById(id).getOrThrow()
 
-        reviewService.delete(review)
+        reviewService.deleteReview(review)
 
         return RsData(
             "200-1",
             "${id}번 리뷰가 삭제되었습니다.",
-            ReviewDto(review)
+            ReviewDto.from(review)
         )
     }
-
-
-    data class CreateReviewReqBody(
-        @field:NotBlank @field:Email val email: String,
-        @field:NotBlank @field:Size(min = 4) val password: String,
-        @field:NotBlank @field:Size(min = 2, max = 100) val title: String,
-        @field:NotBlank @field:Size(min = 2, max = 500) val sentence: String,
-        val tagString: String?,
-        val imageUrl: String?,
-        @field:NotBlank val countryCode: String,
-        @field:NotBlank val cityName: String,
-        @field:DateTimeFormat(iso = DateTimeFormat.ISO.DATE) val date: LocalDate,
-        @field:Valid val clothList: List<ClothItemReqBody>?
-    )
 
     /**
      * 리뷰를 작성합니다.
@@ -165,17 +150,6 @@ class ReviewController(
     fun createReview(
         @RequestBody @Valid createReviewReqBody: CreateReviewReqBody
     ): RsData<ReviewDto> {
-        val coordinates = geoService.getCoordinatesFromLocation(
-            createReviewReqBody.cityName,
-            createReviewReqBody.countryCode
-        )
-        val weatherInfo = weatherService.getWeatherInfo(
-            createReviewReqBody.cityName,
-            coordinates[0],
-            coordinates[1],
-            createReviewReqBody.date
-        )
-
         val review = reviewService.createReview(
             createReviewReqBody.email,
             createReviewReqBody.password,
@@ -183,28 +157,18 @@ class ReviewController(
             createReviewReqBody.title,
             createReviewReqBody.sentence,
             createReviewReqBody.tagString,
-            weatherInfo,
+            createReviewReqBody.cityName,
+            createReviewReqBody.countryCode,
+            createReviewReqBody.date,
             createReviewReqBody.clothList
         )
 
         return RsData(
             "201-1",
             "${review.id}번 리뷰가 작성되었습니다.",
-            ReviewDto(review)
+            ReviewDto.from(review)
         )
     }
-
-
-    data class ModifyReviewReqBody(
-        @field:NotBlank @field:Size(min = 2, max = 100) val title: String,
-        @field:NotBlank @field:Size(min = 2, max = 500) val sentence: String,
-        val tagString: @NotBlank String?,
-        val imageUrl: String?,
-        @field:NotBlank val countryCode: String,
-        @field:NotBlank val cityName: String,
-        @field:DateTimeFormat(iso = DateTimeFormat.ISO.DATE) val date: LocalDate,
-        @field:Valid val clothList: List<ClothItemReqBody>?
-    )
 
     /**
      * 리뷰를 수정합니다.
@@ -221,31 +185,22 @@ class ReviewController(
     ): RsData<ReviewDto> {
         var review = reviewService.findById(id).getOrThrow()
 
-        val coordinates = geoService.getCoordinatesFromLocation(
-            modifyReviewReqBody.cityName,
-            modifyReviewReqBody.countryCode
-        )
-        val weatherInfo = weatherService.getWeatherInfo(
-            modifyReviewReqBody.cityName,
-            coordinates[0],
-            coordinates[1],
-            modifyReviewReqBody.date
-        )
-
-        review = reviewService.modify(
+        review = reviewService.modifyReview(
             review,
             modifyReviewReqBody.title,
             modifyReviewReqBody.sentence,
             modifyReviewReqBody.tagString,
             modifyReviewReqBody.imageUrl,
-            weatherInfo,
+            modifyReviewReqBody.cityName,
+            modifyReviewReqBody.countryCode,
+            modifyReviewReqBody.date,
             modifyReviewReqBody.clothList
         )
 
         return RsData(
             "200-1",
             "${review.id}번 리뷰가 수정되었습니다.",
-            ReviewDto(review)
+            ReviewDto.from(review)
         )
     }
 }
