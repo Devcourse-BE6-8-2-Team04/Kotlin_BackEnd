@@ -26,16 +26,27 @@ class SecurityConfig(
         http
             .authorizeHttpRequests { auth ->
                 auth
-                    .requestMatchers("/favicon.ico", "/h2-console/**").permitAll()
+                    .requestMatchers(
+                        "/favicon.ico",
+                        "/h2-console/**",
+                        "/swagger-ui/**",
+                        "/v3/api-docs/**",
+                    ).permitAll()
                     .requestMatchers(
                         HttpMethod.GET,
-                        "/api/*/posts/{id:\\d+}",
-                        "/api/*/posts",
-                        "/api/*/posts/{postId:\\d+}/comments",
-                        "/api/*/posts/{postId:\\d+}/comments/{id:\\d+}"
+                        "/api/v1/geos",
+                        "/api/v1/weathers",
+                        "/api/v1/weathers/location",
+//                        "/api/v1/cloth",
+//                        "/api/v1/cloth/details",
+//                        "/api/v1/reviews",
+//                        "/api/v1/reviews/{id:\\d+}"
                     ).permitAll()
-                    .requestMatchers("/api/*/members/login", "/api/*/members/logout").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/api/*/members").permitAll()
+                    .requestMatchers(
+                        "/api/v1/auth/login",
+                        "/api/v1/auth/logout"
+                    ).permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/v1/members").permitAll()
                     .requestMatchers("/api/*/adm/**").hasRole("ADMIN")
                     .requestMatchers("/api/*/**").authenticated()
                     .anyRequest().permitAll()

@@ -8,6 +8,7 @@ import com.team04.back.global.exception.ServiceException
 import com.team04.back.global.rq.Rq
 import com.team04.back.standard.util.Ut
 import jakarta.servlet.FilterChain
+import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.context.annotation.Lazy
@@ -46,51 +47,81 @@ class CustomAuthenticationFilter(
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        // API 요청 아닌 경우 패스
-        if (!request.requestURI.startsWith("/api/")) {
-            filterChain.doFilter(request, response)
-            return
-        }
+        val uri = request.requestURI
 
-        // 인증 필요 없는 API
-        val openApis = setOf(
-            "/api/v1/members/login",
-            "/api/v1/members/logout",
-            "/api/v1/members/join"
+        // Swagger & 공개 API 패스
+        val openApiPrefixes = listOf(
+            "/swagger-ui",
+            "/v3/api-docs",
+            "/api/v1/geos",
+            "/api/v1/weathers",
+            "/api/v1/weathers/location",
+//            "/api/v1/cloth",
+//            "/api/v1/cloth/details",
+//            "/api/v1/reviews",
+//            "/api/v1/reviews/",
+            "/api/v1/auth/login",
+            "/api/v1/auth/logout"
         )
-        if (request.requestURI in openApis) {
+
+        if (!uri.startsWith("/api/") || openApiPrefixes.any { uri.startsWith(it) }) {
             filterChain.doFilter(request, response)
             return
         }
 
-        // Authorization 헤더 또는 쿠키 가져오기
         val (apiKey, accessToken) = run {
             val header = rq.header("Authorization", "")
             if (header.isNotBlank()) {
                 if (!header.startsWith("Bearer ")) throw ServiceException(
                     "401-2", "Authorization 헤더가 Bearer 형식이 아닙니다."
                 )
-                val parts = header.split(" ", limit = 3)
-                parts[1] to if (parts.size == 3) parts[2] else ""
+                val token = header.removePrefix("Bearer ").trim()
+                rq.cookieValue("apiKey", "") to token
             } else {
                 rq.cookieValue("apiKey", "") to rq.cookieValue("accessToken", "")
             }
         }
 
+
         val member: Member = when {
             accessToken.isNotBlank() -> {
                 val payload = memberService.payload(accessToken)
-                    ?: throw ServiceException("401-4", "액세스 토큰이 유효하지 않습니다.")
+                if (payload == null) {
+                    // accessToken이 유효하지 않으면 apiKey가 유효한지 검사 후 재발급
+                    if (apiKey.isNotBlank()) {
+                        val memberFromApiKey = memberService.findByApiKey(apiKey)
+                            ?: throw ServiceException("401-3", "API 키가 유효하지 않습니다.")
 
-                Member(
-                    userId = payload["userId"] as? String ?: "",
-                    password = "",
-                    email = payload["email"] as? String ?: "",
-                    age = 0,
-                    gender = Gender.MALE,
-                    tendency = Tendency.NEUTRAL,
-                    apiKey = apiKey
-                )
+                        // 새 accessToken 생성
+                        val newAccessToken = memberService.genAccessToken(memberFromApiKey)
+
+                        // 쿠키에 새 accessToken 세팅
+                        val cookie = Cookie("accessToken", newAccessToken).apply {
+                            path = "/"
+                            isHttpOnly = true
+                            maxAge = 3600 // 필요한 경우 설정
+                        }
+                        response.addCookie(cookie)
+
+                        // Authorization 헤더에도 새 토큰 추가
+                        response.setHeader("Authorization", "Bearer $newAccessToken")
+
+                        memberFromApiKey
+                    } else {
+                        throw ServiceException("401-4", "액세스 토큰이 유효하지 않습니다.")
+                    }
+                } else {
+                    // 정상적인 경우
+                    Member(
+                        userId = payload["userId"] as? String ?: "",
+                        password = "",
+                        email = payload["email"] as? String ?: "",
+                        age = 0,
+                        gender = Gender.MALE,
+                        tendency = Tendency.NEUTRAL,
+                        apiKey = apiKey
+                    )
+                }
             }
 
             apiKey.isNotBlank() -> memberService.findByApiKey(apiKey)
