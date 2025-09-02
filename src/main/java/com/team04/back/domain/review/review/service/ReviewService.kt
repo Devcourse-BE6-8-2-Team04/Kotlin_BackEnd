@@ -85,7 +85,7 @@ class ReviewService(
 
         val review = Review(null, email, password, title, sentence, tagString, imageUrl, weatherInfo)
         val savedReview = reviewRepository.save(review)
-        createClothInfo(savedReview.id!!, clothList)
+        createClothInfo(savedReview.id, clothList)
 
         return savedReview
     }
@@ -111,7 +111,7 @@ class ReviewService(
         val newWeatherInfo = weatherInfo.takeIf { it != review.weatherInfo }
 
         clothList?.let {
-            updateClothInfoEfficiently(review.id!!, clothList)
+            updateClothInfoEfficiently(review.id, clothList)
         }
 
         return review.modify(newTitle, newSentence, newTagString, newImageUrl, newWeatherInfo)
@@ -119,7 +119,7 @@ class ReviewService(
 
     @Transactional
     fun deleteReview(review: Review) {
-        reviewClothInfoRepository.deleteByReviewId(review.id!!)
+        reviewClothInfoRepository.deleteByReviewId(review.id)
         reviewRepository.delete(review)
     }
 
@@ -208,7 +208,7 @@ class ReviewService(
                 maxFeelsLike = null
             )
             val savedClothInfo = clothService.save(clothInfo)
-            addReviewClothInfo(reviewId, savedClothInfo.id!!, clothItem.isRecommend)
+            addReviewClothInfo(reviewId, savedClothInfo.id, clothItem.isRecommend)
         }
     }
 
