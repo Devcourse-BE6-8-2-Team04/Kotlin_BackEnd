@@ -20,10 +20,8 @@ class Review(
     @JoinColumn(name = "user_id")
     val user: User? = user  // 회원일 경우
 
-    @Column(nullable = false)
     val email: String? = email  // 비회원일 경우
 
-    @Column(nullable = false)
     val password: String? = password  // 비회원일 경우
 
     @Column(length = 100, nullable = false)

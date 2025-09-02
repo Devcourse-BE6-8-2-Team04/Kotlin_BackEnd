@@ -90,7 +90,7 @@ class ReviewController(
     @Operation(summary = "리뷰 비밀번호 검증", description = "리뷰의 비밀번호를 검증합니다.")
     fun verifyPassword(
         @PathVariable id: Int,
-        @RequestBody passwordReqBody: VerifyPasswordReqBody
+        @RequestBody @Valid passwordReqBody: VerifyPasswordReqBody
     ): RsData<Boolean> {
         val review = reviewService.findById(id).getOrThrow()
 
