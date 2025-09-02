@@ -69,7 +69,7 @@ class ClothControllerTest {
         WeatherInfo mockWeatherInfo = createWeatherInfo(Weather.CLEAR_SKY, NORMAL_TEMP, 18, 28);
         List<CategoryClothDto> mockCloths = List.of(CLOTH_TOP, CLOTH_BOTTOM);
 
-        when(weatherService.getWeatherInfo(anyDouble(), anyDouble(), any()))
+        when(weatherService.getWeatherInfo(anyDouble(), anyDouble(), any(), any()))
                 .thenReturn(mockWeatherInfo);
         when(clothService.findClothByWeather(mockWeatherInfo.getFeelsLikeTemperature()))
                 .thenReturn(mockCloths);
@@ -90,7 +90,7 @@ class ClothControllerTest {
         WeatherInfo mockWeatherInfo = createWeatherInfo(Weather.HEAT_WAVE, HEATWAVE_TEMP, 28, 36);
         List<CategoryClothDto> mockCloths = List.of(CLOTH_TOP, CLOTH_BOTTOM);
 
-        when(weatherService.getWeatherInfo(anyDouble(), anyDouble(), any()))
+        when(weatherService.getWeatherInfo(anyDouble(), anyDouble(), any(), any()))
                 .thenReturn(mockWeatherInfo);
         when(clothService.findClothByWeather(mockWeatherInfo.getFeelsLikeTemperature()))
                 .thenReturn(mockCloths);
