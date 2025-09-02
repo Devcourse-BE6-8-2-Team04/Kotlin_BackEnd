@@ -441,7 +441,7 @@ class ReviewControllerTest {
         val saved = weatherRepository.save(mockWeatherInfo)
 
         every { geoService.getCoordinatesFromLocation("Seoul", "KR") } returns listOf(37.5665, 126.9780)
-        every { weatherService.getWeatherInfo("Seoul", any(), any(), any()) } returns saved
+        every { weatherService.getWeatherInfo(any(), any(), any(), "Seoul") } returns saved
     }
 
 
