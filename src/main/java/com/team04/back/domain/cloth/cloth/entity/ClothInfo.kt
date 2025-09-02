@@ -13,9 +13,12 @@ import jakarta.persistence.Enumerated
 @Entity
 class ClothInfo(
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     var clothName: ClothName,
+
     @Column(nullable = false)
     var imageUrl: String,
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     var category: Category,
