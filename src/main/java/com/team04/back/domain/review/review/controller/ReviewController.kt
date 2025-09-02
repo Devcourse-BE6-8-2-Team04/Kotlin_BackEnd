@@ -1,10 +1,7 @@
 package com.team04.back.domain.review.review.controller
 
 import com.team04.back.domain.cloth.cloth.entity.ClothInfo
-import com.team04.back.domain.review.review.dto.CreateReviewReqBody
-import com.team04.back.domain.review.review.dto.ModifyReviewReqBody
-import com.team04.back.domain.review.review.dto.ReviewDetailDto
-import com.team04.back.domain.review.review.dto.ReviewDto
+import com.team04.back.domain.review.review.dto.*
 import com.team04.back.domain.review.review.entity.Review
 import com.team04.back.domain.review.review.service.ReviewService
 import com.team04.back.global.rsData.RsData
@@ -15,7 +12,6 @@ import com.team04.back.standard.extensions.getOrThrow
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
-import jakarta.validation.constraints.NotBlank
 import org.springframework.data.domain.Page
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.transaction.annotation.Transactional
@@ -83,11 +79,6 @@ class ReviewController(
         return ReviewDetailDto.from(review, recommendedClothInfo, nonRecommendedClothInfo)
     }
 
-
-    data class VerifyPasswordReqBody(
-        @field:NotBlank val password: String
-    )
-
     /**
      * 리뷰의 비밀번호를 검증합니다.
      * @param id 리뷰 ID
@@ -103,7 +94,7 @@ class ReviewController(
     ): RsData<Boolean> {
         val review = reviewService.findById(id).getOrThrow()
 
-        val isVerified = reviewService.verifyPassword(review, passwordReqBody.password)
+        val isVerified = reviewService.verifyPassword(review, passwordReqBody.password!!)
         if (!isVerified) {
             return RsData("400-1", "비밀번호가 일치하지 않습니다.", false)
         }
@@ -123,8 +114,15 @@ class ReviewController(
     @DeleteMapping("/{id}")
     @Transactional
     @Operation(summary = "리뷰 삭제", description = "리뷰를 삭제합니다.")
-    fun deleteReview(@PathVariable id: Int): RsData<ReviewDto> {
+    fun deleteReview(
+        @PathVariable id: Int,
+        @RequestBody passwordReqBody: VerifyPasswordReqBody
+    ): RsData<ReviewDto> {
+//        val user: User? = rq.member
+
         val review = reviewService.findById(id).getOrThrow()
+
+//        reviewService.checkCanDelete(review, user, passwordReqBody.password)
 
         reviewService.deleteReview(review)
 
@@ -180,9 +178,14 @@ class ReviewController(
     @Operation(summary = "리뷰 수정", description = "리뷰를 수정합니다.")
     fun modifyReview(
         @PathVariable id: Int,
-        @RequestBody @Valid modifyReviewReqBody: ModifyReviewReqBody
+        @RequestBody @Valid modifyReviewReqBody: ModifyReviewReqBody,
+        @RequestBody passwordReqBody: VerifyPasswordReqBody
     ): RsData<ReviewDto> {
+//        val user: User? = rq.member
+
         var review = reviewService.findById(id).getOrThrow()
+
+//        reviewService.checkCanModify(review, user, passwordReqBody.password)
 
         review = reviewService.modifyReview(
             review,

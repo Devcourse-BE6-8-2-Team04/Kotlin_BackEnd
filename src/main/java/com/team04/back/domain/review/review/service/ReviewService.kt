@@ -49,6 +49,42 @@ class ReviewService(
 
     fun verifyPassword(review: Review, password: String): Boolean = review.password == password
 
+    fun checkCanDelete(review: Review, user: User?, password: String?) {
+        require((user != null) xor (password != null)) { "Either user or password must be provided, but not both" }
+
+        user?.let {
+            val reviewUser = review.user
+                ?: throw ServiceException("403-2", "회원 리뷰가 아니므로 회원 권한으로 삭제할 수 없습니다.")
+            if (it.id != reviewUser.id)
+                throw ServiceException("403-1", "${review.id}번 리뷰 삭제 권한이 없습니다.")
+        }
+
+        password?.let {
+            if (review.user != null)
+                throw ServiceException("403-3", "회원이 작성한 리뷰는 비밀번호로 삭제할 수 없습니다.")
+            if (review.password != it)
+                throw ServiceException("400-1", "비밀번호가 일치하지 않습니다.")
+        }
+    }
+
+    fun checkCanModify(review: Review, user: User?, password: String?) {
+        require((user != null) xor (password != null)) { "Either user or password must be provided, but not both" }
+
+        user?.let {
+            val reviewUser = review.user
+                ?: throw ServiceException("403-5", "회원 리뷰가 아니므로 회원 권한으로 수정할 수 없습니다.")
+            if (it.id != reviewUser.id)
+                throw ServiceException("403-4", "${review.id}번 리뷰 수정 권한이 없습니다.")
+        }
+
+        password?.let {
+            if (review.user != null)
+                throw ServiceException("403-6", "회원이 작성한 리뷰는 비밀번호로 수정할 수 없습니다.")
+            if (review.password != it)
+                throw ServiceException("400-1", "비밀번호가 일치하지 않습니다.")
+        }
+    }
+
 
     @Transactional
     fun createReview(
