@@ -20,13 +20,4 @@ class User(
     @Column(nullable = true)
     var dummy: Long? = null
 
-) : BaseEntity() {
-    // Java getter/setter 유지
-    fun setDummy(dummy: Long?) {
-        this.dummy = dummy
-    }
-
-    fun getDummy(): Long? {
-        return this.dummy
-    }
-}
+) : BaseEntity()
