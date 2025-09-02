@@ -18,11 +18,11 @@ import java.util.stream.IntStream;
 
 public class FixtureFactory {
 
-    public static ClothInfo createClothInfo(Style style, double minTemp, double maxTemp) {
+    public static ClothInfo createClothInfo(ClothName clothName, Category category, Style style, double minTemp, double maxTemp) {
         return ClothInfo.create(
-                ClothName.T_SHIRT,
+                clothName,
                 "test_image.jpg",
-                Category.TOP,
+                category,
                 style,
                 null,
                 minTemp,
@@ -30,13 +30,22 @@ public class FixtureFactory {
         );
     }
 
+    public static ClothInfo createClothInfo(Style style, double minTemp, double maxTemp) {
+        return createClothInfo(ClothName.T_SHIRT, Category.TOP, style, minTemp, maxTemp);
+    }
 
-    public static WeatherInfo createWeatherInfo(String location, LocalDate date, Weather weather, Double feelsLikeTemperature) {
+
+    public static WeatherInfo createWeatherInfo(String location, LocalDate date, Weather weather, Double feelsLikeTemperature, Double dailyTemperatureGap, Double rain, Double snow, Double windSpeed, Double uvi) {
         WeatherInfo weatherInfo = new WeatherInfo();
         weatherInfo.setLocation(location);
         weatherInfo.setDate(date);
         weatherInfo.setWeather(weather);
         weatherInfo.setFeelsLikeTemperature(feelsLikeTemperature);
+        weatherInfo.setDailyTemperatureGap(dailyTemperatureGap);
+        weatherInfo.setRain(rain);
+        weatherInfo.setSnow(snow);
+        weatherInfo.setWindSpeed(windSpeed);
+        weatherInfo.setUvi(uvi);
 
         LocalDateTime now = LocalDateTime.now();
         weatherInfo.setCreateDate(now);
@@ -46,7 +55,7 @@ public class FixtureFactory {
     }
 
     public static WeatherInfo createDefaultWeatherInfo(String location, LocalDate date) {
-        return createWeatherInfo(location, date, Weather.CLEAR_SKY, 20.0);
+        return createWeatherInfo(location, date, Weather.CLEAR_SKY, 20.0, 10.0, 0.0, 0.0, 5.0, 3.0);
     }
 
     public static List<WeatherInfo> createWeatherInfoList(String location, int futureDays) {
@@ -56,9 +65,13 @@ public class FixtureFactory {
                 .mapToObj(i -> {
                     LocalDate date = today.plusDays(i);
                     Weather weather = Weather.values()[i % Weather.values().length];
-                    double minTemp = 15.0 + i * 0.1;
-                    double maxTemp = 25.0 + i * 0.3;
-                    return createWeatherInfo(location, date, weather, (minTemp + maxTemp) / 2);
+                    double feelsLikeTemperature = 15.0 + i * 0.5;
+                    double dailyTemperatureGap = 8.0 + i * 0.1;
+                    double rain = (i % 3 == 0) ? 5.0 : 0.0;
+                    double snow = (i % 5 == 0) ? 2.0 : 0.0;
+                    double windSpeed = 3.0 + i * 0.2;
+                    double uvi = 4.0 + i * 0.1;
+                    return createWeatherInfo(location, date, weather, feelsLikeTemperature, dailyTemperatureGap, rain, snow, windSpeed, uvi);
                 })
                 .collect(Collectors.toList());
     }
@@ -68,23 +81,27 @@ public class FixtureFactory {
             String location,
             List<WeatherInfo> weatherInfos,
             List<ClothInfo> likedClothings,
-            List<ClothInfo> unLikedClothings
+            List<ClothInfo> dislikedClothings
     ) {
+        LocalDate date = weatherInfos.isEmpty() ? LocalDate.now() : weatherInfos.get(0).getDate();
+        WeatherInfo mainWeatherInfo = weatherInfos.isEmpty() ? createDefaultWeatherInfo(location, date) : weatherInfos.get(0);
+
         return new ClothRecommendationHistory(
                 user,
                 location,
+                date,
                 weatherInfos,
                 likedClothings,
-                unLikedClothings,
-                20.0,   // feelsLike
-                5.0,    // uvi
-                0.1,    // rain
-                0.0,    // snow
-                60,     // humidity
-                3.5,    // windSpeed
-                18.0,   // tempMin
-                27.0,   // tempMax
-                9.0,    // dailyTemperatureGap
+                dislikedClothings,
+                mainWeatherInfo.getFeelsLikeTemperature(),
+                mainWeatherInfo.getUvi() != null ? mainWeatherInfo.getUvi() : 0.0,
+                mainWeatherInfo.getRain() != null ? mainWeatherInfo.getRain() : 0.0,
+                mainWeatherInfo.getSnow() != null ? mainWeatherInfo.getSnow() : 0.0,
+                mainWeatherInfo.getHumidity() != null ? mainWeatherInfo.getHumidity() : 0,
+                mainWeatherInfo.getWindSpeed() != null ? mainWeatherInfo.getWindSpeed() : 0.0,
+                mainWeatherInfo.getMinTemperature(),
+                mainWeatherInfo.getMaxTemperature(),
+                mainWeatherInfo.getDailyTemperatureGap(),
                 LocalDateTime.now()
         );
     }
@@ -95,14 +112,14 @@ public class FixtureFactory {
             String location,
             List<WeatherInfo> weatherInfos,
             List<ClothInfo> likedClothings,
-            List<ClothInfo> unLikedClothings
+            List<ClothInfo> dislikedClothings
     ) {
         ClothRecommendationHistory history = createClothRecommendationHistory(
                 user,
                 location,
                 weatherInfos,
                 likedClothings,
-                unLikedClothings
+                dislikedClothings
         );
         try {
             Field idField = history.getClass().getSuperclass().getDeclaredField("id");
