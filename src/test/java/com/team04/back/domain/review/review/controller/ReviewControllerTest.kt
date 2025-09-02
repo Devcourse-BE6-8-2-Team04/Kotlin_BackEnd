@@ -259,7 +259,7 @@ class ReviewControllerTest {
                 MockMvcRequestBuilders.get("/api/v1/reviews/${id}")
             ).andDo(MockMvcResultHandlers.print())
 
-        val review = reviewService.findById(id).getOrThrow()
+        val review = reviewService.findById(id!!).getOrThrow()
         val recommendedClothList = reviewService.findRecommendedClothInfo(id)
         val nonRecommendedClothList = reviewService.findNonRecommendedClothInfo(id)
 
@@ -406,7 +406,7 @@ class ReviewControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$.msg").value("${id}번 리뷰가 삭제되었습니다."))
             .andExpect(MockMvcResultMatchers.jsonPath("$.data.id").value(id))
 
-        val reviewClothInfo = reviewService.findReviewClothInfo(id)
+        val reviewClothInfo = reviewService.findReviewClothInfo(id!!)
         assertThat(reviewClothInfo.size).isEqualTo(0)
     }
 
