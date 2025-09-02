@@ -62,7 +62,7 @@ class ReviewServiceTest {
 
     // 테스트용 Review 실제 엔티티를 만들고, 상위 클래스까지 탐색해 id를 리플렉션으로 주입한다.
     private fun createReviewWithId(id: Int = 1): Review {
-        val review = Review("test@email.com", "password", "제목", "내용", "태그", "image_url", weatherInfo)
+        val review = Review(null, "test@email.com", "password", "제목", "내용", "태그", "image_url", weatherInfo)
         setPrivateField(review, "id", id)
         return review
     }
@@ -129,8 +129,9 @@ class ReviewServiceTest {
 
         // When
         val result = reviewService.createReview(
-            "test@email.com", "password", "image_url",
-            "제목", "내용", "태그", weatherInfo, listOf(clothItem)
+            email = "test@email.com", password = "password", imageUrl = "image_url",
+            title = "제목", sentence = "내용", tagString = "태그",
+            weatherInfo = weatherInfo, clothList = listOf(clothItem)
         )
 
         // Then
@@ -160,8 +161,9 @@ class ReviewServiceTest {
         // When & Then
         assertThatThrownBy {
             reviewService.createReview(
-                "test@email.com", "password", "image_url",
-                "제목", "내용", "태그", weatherInfo, listOf(clothItem)
+                email = "test@email.com", password = "password", imageUrl = "image_url",
+                title = "제목", sentence = "내용", tagString = "태그",
+                weatherInfo = weatherInfo, clothList = listOf(clothItem)
             )
         }.isInstanceOf(ServiceException::class.java)
             .hasMessageContaining("옷 정보를 찾을 수 없습니다.")
@@ -202,7 +204,7 @@ class ReviewServiceTest {
 
         // When
         val modifiedReview = reviewService.modifyReview(
-            review, "새 제목", "새 내용", null, null, weatherInfo, newClothItems
+            review, "새 제목", "새 내용", null, null, weatherInfo = weatherInfo, clothList = newClothItems
         )
 
         // Then
@@ -245,7 +247,7 @@ class ReviewServiceTest {
 
         // When
         reviewService.modifyReview(
-            review, "새 제목", "새 내용", null, null, weatherInfo, duplicateClothItems
+            review, "새 제목", "새 내용", null, null, weatherInfo = weatherInfo, clothList = duplicateClothItems
         )
 
         // Then
@@ -278,7 +280,7 @@ class ReviewServiceTest {
 
         // When
         reviewService.modifyReview(
-            review, "새 제목", "새 내용", null, null, weatherInfo, newClothItems
+            review, "새 제목", "새 내용", null, null, weatherInfo = weatherInfo, clothList = newClothItems
         )
 
         // Then
@@ -296,7 +298,7 @@ class ReviewServiceTest {
 
         // When
         val modifiedReview = reviewService.modifyReview(
-            review, "새 제목", "새 내용", null, null, weatherInfo, null
+            review, "새 제목", "새 내용", null, null, weatherInfo = weatherInfo, clothList = null
         )
 
         // Then

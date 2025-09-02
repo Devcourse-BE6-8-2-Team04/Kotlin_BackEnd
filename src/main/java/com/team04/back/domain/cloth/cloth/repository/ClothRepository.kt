@@ -18,5 +18,5 @@ interface ClothRepository : JpaRepository<ClothInfo, Int> {
     @Query("SELECT c FROM ClothInfo c WHERE :temperature BETWEEN c.minFeelsLike AND c.maxFeelsLike")
     fun findByTemperature(@Param("temperature") temperature: Double?): List<ClothInfo>
 
-    fun findByClothNameAndStyle(clothName: ClothName, style: Style?) : ClothInfo?
+    fun findFirstByClothNameAndStyle(clothName: ClothName, style: Style?) : ClothInfo?
 }

@@ -61,5 +61,6 @@ enum class ClothName(val category: Category) {
     BACKPACK(EXTRA),       // 백팩
     CROSSBODY_BAG(EXTRA),  // 크로스백
     SUNGLASSES(EXTRA),     // 선글라스
-    UMBRELLA(EXTRA)        // 우산
+    UMBRELLA(EXTRA),        // 우산
+    MASK(EXTRA)             // 마스크
 }
