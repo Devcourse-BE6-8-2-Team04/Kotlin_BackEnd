@@ -37,10 +37,10 @@ class SecurityConfig(
                         "/api/v1/geos",
                         "/api/v1/weathers",
                         "/api/v1/weathers/location",
-//                        "/api/v1/cloth",
-//                        "/api/v1/cloth/details",
-//                        "/api/v1/reviews",
-//                        "/api/v1/reviews/{id:\\d+}"
+                        "/api/v1/cloth",
+                        "/api/v1/cloth/details",
+                        "/api/v1/reviews",
+                        "/api/v1/reviews/{id:\\d+}"
                     ).permitAll()
                     .requestMatchers(
                         "/api/v1/auth/login",
@@ -49,6 +49,7 @@ class SecurityConfig(
                     .requestMatchers(HttpMethod.POST, "/api/v1/members").permitAll()
                     .requestMatchers("/api/*/adm/**").hasRole("ADMIN")
                     .requestMatchers("/api/*/**").authenticated()
+                    .requestMatchers("/api/**").authenticated()
                     .anyRequest().permitAll()
             }
             .headers { it.frameOptions { it.sameOrigin() } }
