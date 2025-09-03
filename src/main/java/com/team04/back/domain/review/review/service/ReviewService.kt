@@ -90,7 +90,7 @@ class ReviewService(
 
         val encodedPassword = password?.let { passwordEncoder.encode(password)}
 
-        val review = Review(null, email, encodedPassword, title, sentence, tagString, imageUrl, weatherInfo)
+        val review = Review(member, email, encodedPassword, title, sentence, tagString, imageUrl, weatherInfo)
         val savedReview = reviewRepository.save(review)
         val (recommendedClothInfos, notRecommendedClothInfos) = createClothInfo(savedReview.id, clothList)
 
