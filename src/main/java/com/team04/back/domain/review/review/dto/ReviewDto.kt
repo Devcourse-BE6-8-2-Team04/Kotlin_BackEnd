@@ -16,7 +16,7 @@ data class ReviewDto(
             return ReviewDto(
                 review.id,
                 review.member?.id,
-                review.email,
+                review.email ?: review.member?.email,
                 review.imageUrl,
                 review.title,
                 WeatherInfoDto(review.weatherInfo)

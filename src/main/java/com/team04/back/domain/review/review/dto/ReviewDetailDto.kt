@@ -26,7 +26,7 @@ data class ReviewDetailDto(
             return ReviewDetailDto(
                 review.id,
                 review.member?.id,
-                review.email,
+                review.email ?: review.member?.email,
                 review.imageUrl,
                 review.title,
                 review.sentence,
