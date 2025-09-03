@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.test.context.support.WithUserDetails
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
@@ -62,7 +63,8 @@ class ApiV1MemberControllerTest @Autowired constructor(
     @DisplayName("로그인")
     fun loginTest() {
         val userId = "user1"
-        val password = "1234"
+        val password = "password1"
+        val encodedPassword = BCryptPasswordEncoder().encode(password)
 
         val resultActions = mvc.perform(
             post("/api/v1/auth/login")  // 경로 수정
@@ -151,7 +153,7 @@ class ApiV1MemberControllerTest @Autowired constructor(
                 .content("""
                 {
                     "username": "user1",
-                    "password": "1234"
+                    "password": "password1"
                 }
             """.trimIndent())
         ).andReturn()
@@ -241,6 +243,5 @@ class ApiV1MemberControllerTest @Autowired constructor(
             )
         }
         val member = memberService.findByUsername("user1")
-        println("Saved apiKey: ${member?.apiKey}")
     }
 }
