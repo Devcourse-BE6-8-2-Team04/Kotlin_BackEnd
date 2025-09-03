@@ -17,8 +17,8 @@ class ClothRecommendationHistory(
     // public class User extends BaseEntity {}
     // 로 임시 생성하여 사용하였습니다.
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    val member: Member,
+    @JoinColumn(name = "user_id", nullable = true)
+    val member: Member?,
 
     // 지역
     @Column(name = "location", nullable = false)
