@@ -3,6 +3,7 @@ package com.team04.back.domain.cloth.cloth.controller
 import com.team04.back.domain.cloth.cloth.dto.OutfitRecommendationResponseDto
 import com.team04.back.domain.cloth.cloth.dto.WeatherClothResponseDto
 import com.team04.back.domain.cloth.cloth.service.ClothService
+import com.team04.back.domain.cloth.cloth.service.TopOnlyClothService
 import com.team04.back.domain.weather.geo.service.GeoService
 import com.team04.back.domain.weather.weather.service.WeatherService
 import io.swagger.v3.oas.annotations.Operation
@@ -18,6 +19,7 @@ class ClothController(
     private val clothService: ClothService,
     private val weatherService: WeatherService,
     private val geoService: GeoService,
+    private val topOnlyClothService: TopOnlyClothService,
 
     ) {
     @GetMapping("/details")
@@ -37,7 +39,7 @@ class ClothController(
 
 
         // 4. 현재 날씨에 맞는 옷차림 추천 조회
-        val outfitRecommendations : OutfitRecommendationResponseDto = clothService.getOutfitRecommendations(weatherPlan, location)
+        val outfitRecommendations : OutfitRecommendationResponseDto = topOnlyClothService.getOutfitRecommendations(weatherPlan, location)
 
         return WeatherClothResponseDto(
             weatherInfo = weatherInfo,

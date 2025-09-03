@@ -14,9 +14,9 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 @Transactional(readOnly = true)
-class ClothService(
+open class ClothService(
     private val clothRepository: ClothRepository,
-    private val clothRecommendationHistoryRepository: ClothRecommendationHistoryRepository
+    protected val clothRecommendationHistoryRepository: ClothRecommendationHistoryRepository
 ) {
 
     fun getOutfitRecommendations(
