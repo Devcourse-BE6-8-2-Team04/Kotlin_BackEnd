@@ -2,6 +2,8 @@ package com.team04.back.domain.review.review.service
 
 import com.team04.back.domain.cloth.cloth.entity.ClothInfo
 import com.team04.back.domain.cloth.cloth.service.ClothService
+import com.team04.back.domain.history.history.entity.ClothRecommendationHistory
+import com.team04.back.domain.history.history.service.ClothRecommendationHistoryService
 import com.team04.back.domain.member.member.entity.Member
 import com.team04.back.domain.review.review.dto.ClothItemReqBody
 import com.team04.back.domain.review.review.entity.Review
@@ -17,6 +19,7 @@ import com.team04.back.standard.dto.ReviewSearchSortType
 import com.team04.back.standard.dto.ReviewSearchSortType.ID
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
@@ -28,6 +31,8 @@ class ReviewService(
     private val clothService: ClothService,
     private val geoService: GeoService,
     private val weatherService: WeatherService,
+    private val passwordEncoder: PasswordEncoder,
+    private val clothRecommendationHistoryService: ClothRecommendationHistoryService,
 ) {
     fun count(): Long = reviewRepository.count()
 
@@ -47,19 +52,19 @@ class ReviewService(
         return reviewRepository.findBySearch(search, pageable)
     }
 
-    fun verifyPassword(review: Review, password: String): Boolean = review.password == password
+    fun verifyPassword(review: Review, rawPassword: String): Boolean = passwordEncoder.matches(rawPassword, review.password)
 
     fun checkCanDelete(review: Review, member: Member) {
-        val reviewUser = review.member
+        val reviewMember = review.member
             ?: throw ServiceException("403-2", "회원 리뷰가 아니므로 회원 권한으로 삭제할 수 없습니다.")
-        if (member.id != reviewUser.id)
+        if (member.id != reviewMember.id)
             throw ServiceException("403-1", "${review.id}번 리뷰 삭제 권한이 없습니다.")
     }
 
     fun checkCanModify(review: Review, member: Member) {
-        val reviewUser = review.member
+        val reviewMember = review.member
             ?: throw ServiceException("403-4", "회원 리뷰가 아니므로 회원 권한으로 수정할 수 없습니다.")
-        if (member.id != reviewUser.id)
+        if (member.id != reviewMember.id)
             throw ServiceException("403-3", "${review.id}번 리뷰 수정 권한이 없습니다.")
     }
 
@@ -79,13 +84,37 @@ class ReviewService(
         weatherInfo: WeatherInfo? = null,
         clothList: List<ClothItemReqBody>?
     ): Review {
-        require((member != null) xor (email != null && password != null)) { "Either user or (email and password) must be provided, but not both" }
+        require((member != null) xor (email != null && password != null)) { "Either member or (email and password) must be provided, but not both" }
 
         val weatherInfo = weatherInfo ?: getWeatherInfo(cityName, countryCode, date)
 
-        val review = Review(null, email, password, title, sentence, tagString, imageUrl, weatherInfo)
+        val encodedPassword = password?.let { passwordEncoder.encode(password)}
+
+        val review = Review(member, email, encodedPassword, title, sentence, tagString, imageUrl, weatherInfo)
         val savedReview = reviewRepository.save(review)
-        createClothInfo(savedReview.id, clothList)
+        val (recommendedClothInfos, notRecommendedClothInfos) = createClothInfo(savedReview.id, clothList)
+
+        if (member != null) {
+            val history = ClothRecommendationHistory(
+                member = member,
+                location = weatherInfo.location,
+                date = weatherInfo.date,
+                weatherInfo = listOf(weatherInfo),
+                likedClothings = recommendedClothInfos,
+                dislikedClothings = notRecommendedClothInfos,
+                feelsLike = weatherInfo.feelsLikeTemperature,
+                uvi = weatherInfo.uvi ?: 0.0,
+                rain = weatherInfo.rain ?: 0.0,
+                snow = weatherInfo.snow ?: 0.0,
+                humidity = weatherInfo.humidity ?: 0,
+                windSpeed = weatherInfo.windSpeed ?: 0.0,
+                tempMin = weatherInfo.minTemperature,
+                tempMax = weatherInfo.maxTemperature,
+                dailyTemperatureGap = weatherInfo.dailyTemperatureGap,
+                reviewedAt = savedReview.createDate
+            )
+            clothRecommendationHistoryService.createHistory(history)
+        }
 
         return savedReview
     }
@@ -192,11 +221,14 @@ class ReviewService(
         reviewClothInfoRepository.save(reviewClothInfo)
     }
 
-    private fun createClothInfo(reviewId: Int, clothList: List<ClothItemReqBody>?) {
+    private fun createClothInfo(reviewId: Int, clothList: List<ClothItemReqBody>?): Pair<MutableList<ClothInfo>, MutableList<ClothInfo>> {
+        val recommended = mutableListOf<ClothInfo>()
+        val notRecommended = mutableListOf<ClothInfo>()
+
         clothList?.forEach { clothItem ->
             // ClothName을 이용해 대표 ClothInfo 조회 (이미지 사용 위해)
             val defaultClothInfo = clothService.findByClothNameAndStyle(clothItem.clothName, null)
-                ?: throw ServiceException("404-1","옷 정보를 찾을 수 없습니다.")
+                ?: throw ServiceException("404-1", "옷 정보를 찾을 수 없습니다.")
 
             val clothInfo = ClothInfo.create(
                 clothName = clothItem.clothName,
@@ -208,8 +240,16 @@ class ReviewService(
                 maxFeelsLike = null
             )
             val savedClothInfo = clothService.save(clothInfo)
+
+            if (clothItem.isRecommend) {
+                recommended.add(savedClothInfo)
+            } else {
+                notRecommended.add(savedClothInfo)
+            }
+
             addReviewClothInfo(reviewId, savedClothInfo.id, clothItem.isRecommend)
         }
+        return recommended to notRecommended
     }
 
     private fun getWeatherInfo(cityName: String?, countryCode: String?, date: LocalDate?): WeatherInfo {

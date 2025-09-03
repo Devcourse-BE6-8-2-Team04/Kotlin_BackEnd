@@ -58,8 +58,6 @@ class CustomAuthenticationFilter(
             "/api/v1/weathers/location",
 //            "/api/v1/cloth",
 //            "/api/v1/cloth/details",
-//            "/api/v1/reviews",
-//            "/api/v1/reviews/",
             "/api/v1/auth/login",
             "/api/v1/auth/logout"
         )
@@ -134,7 +132,7 @@ class CustomAuthenticationFilter(
         }
 
         val user: UserDetails = SecurityUser(
-            id = member.id!!,
+            id = member.id,
             username = member.userId,
             password = member.password,
             name = member.userId,
