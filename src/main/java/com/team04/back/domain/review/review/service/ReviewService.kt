@@ -114,6 +114,26 @@ class ReviewService(
                 reviewedAt = savedReview.createDate
             )
             clothRecommendationHistoryService.createHistory(history)
+        }else{
+            val history = ClothRecommendationHistory(
+                member = null,
+                location = weatherInfo.location,
+                date = weatherInfo.date,
+                weatherInfo = listOf(weatherInfo),
+                likedClothings = recommendedClothInfos,
+                dislikedClothings = notRecommendedClothInfos,
+                feelsLike = weatherInfo.feelsLikeTemperature,
+                uvi = weatherInfo.uvi ?: 0.0,
+                rain = weatherInfo.rain ?: 0.0,
+                snow = weatherInfo.snow ?: 0.0,
+                humidity = weatherInfo.humidity ?: 0,
+                windSpeed = weatherInfo.windSpeed ?: 0.0,
+                tempMin = weatherInfo.minTemperature,
+                tempMax = weatherInfo.maxTemperature,
+                dailyTemperatureGap = weatherInfo.dailyTemperatureGap,
+                reviewedAt = savedReview.createDate
+            )
+            clothRecommendationHistoryService.createHistory(history)
         }
 
         return savedReview
