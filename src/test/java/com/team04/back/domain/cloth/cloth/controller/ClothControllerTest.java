@@ -69,7 +69,6 @@ class ClothControllerTest {
         WeatherInfo mockWeatherInfo = createWeatherInfo(Weather.CLEAR_SKY, NORMAL_TEMP, 18, 28);
         List<CategoryClothDto> mockCloths = List.of(CLOTH_TOP, CLOTH_BOTTOM);
 
-        // 파라미터 갯수 맞추기
         when(weatherService.getWeatherInfo(anyDouble(), anyDouble(), any(), any()))
                 .thenReturn(mockWeatherInfo);
         when(clothService.findClothByWeather(mockWeatherInfo.getFeelsLikeTemperature()))
