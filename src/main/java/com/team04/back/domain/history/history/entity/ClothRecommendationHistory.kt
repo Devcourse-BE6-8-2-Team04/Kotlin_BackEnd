@@ -1,7 +1,7 @@
 package com.team04.back.domain.history.history.entity
 
 import com.team04.back.domain.cloth.cloth.entity.ClothInfo
-import com.team04.back.domain.user.user.entity.User
+import com.team04.back.domain.member.member.entity.Member
 import com.team04.back.domain.weather.weather.entity.WeatherInfo
 import com.team04.back.global.jpa.entity.BaseEntity
 import jakarta.persistence.*
@@ -18,7 +18,7 @@ class ClothRecommendationHistory(
     // 로 임시 생성하여 사용하였습니다.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    val user: User,
+    val member: Member,
 
     // 지역
     @Column(name = "location", nullable = false)

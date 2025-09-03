@@ -23,6 +23,7 @@ import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
@@ -35,6 +36,7 @@ import java.time.LocalDate
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
+@WithMockUser(username="user1")
 @Import(TestConfig::class, TestInitData::class)
 class ReviewControllerTest {
     @Autowired
@@ -257,7 +259,7 @@ class ReviewControllerTest {
                 MockMvcRequestBuilders.get("/api/v1/reviews/${id}")
             ).andDo(MockMvcResultHandlers.print())
 
-        val review = reviewService.findById(id).getOrThrow()
+        val review = reviewService.findById(id!!).getOrThrow()
         val recommendedClothList = reviewService.findRecommendedClothInfo(id)
         val nonRecommendedClothList = reviewService.findNonRecommendedClothInfo(id)
 
@@ -404,7 +406,7 @@ class ReviewControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$.msg").value("${id}번 리뷰가 삭제되었습니다."))
             .andExpect(MockMvcResultMatchers.jsonPath("$.data.id").value(id))
 
-        val reviewClothInfo = reviewService.findReviewClothInfo(id)
+        val reviewClothInfo = reviewService.findReviewClothInfo(id!!)
         assertThat(reviewClothInfo.size).isEqualTo(0)
     }
 
@@ -598,7 +600,7 @@ class ReviewControllerTest {
                     )
             ).andDo(MockMvcResultHandlers.print())
 
-        val review = reviewService.findById(id).getOrThrow()
+        val review = reviewService.findById(id!!).getOrThrow()
 
         resultActions
             .andExpect(MockMvcResultMatchers.handler().handlerType(ReviewController::class.java))

@@ -2,12 +2,12 @@ package com.team04.back.domain.review.review.service
 
 import com.team04.back.domain.cloth.cloth.entity.ClothInfo
 import com.team04.back.domain.cloth.cloth.service.ClothService
+import com.team04.back.domain.member.member.entity.Member
 import com.team04.back.domain.review.review.dto.ClothItemReqBody
 import com.team04.back.domain.review.review.entity.Review
 import com.team04.back.domain.review.review.entity.ReviewClothInfo
 import com.team04.back.domain.review.review.repository.ReviewClothInfoRepository
 import com.team04.back.domain.review.review.repository.ReviewRepository
-import com.team04.back.domain.user.user.entity.User
 import com.team04.back.domain.weather.geo.service.GeoService
 import com.team04.back.domain.weather.weather.entity.WeatherInfo
 import com.team04.back.domain.weather.weather.service.WeatherService
@@ -49,24 +49,24 @@ class ReviewService(
 
     fun verifyPassword(review: Review, password: String): Boolean = review.password == password
 
-    fun checkCanDelete(review: Review, user: User) {
-        val reviewUser = review.user
+    fun checkCanDelete(review: Review, member: Member) {
+        val reviewUser = review.member
             ?: throw ServiceException("403-2", "회원 리뷰가 아니므로 회원 권한으로 삭제할 수 없습니다.")
-        if (user.id != reviewUser.id)
+        if (member.id != reviewUser.id)
             throw ServiceException("403-1", "${review.id}번 리뷰 삭제 권한이 없습니다.")
     }
 
-    fun checkCanModify(review: Review, user: User) {
-        val reviewUser = review.user
+    fun checkCanModify(review: Review, member: Member) {
+        val reviewUser = review.member
             ?: throw ServiceException("403-4", "회원 리뷰가 아니므로 회원 권한으로 수정할 수 없습니다.")
-        if (user.id != reviewUser.id)
+        if (member.id != reviewUser.id)
             throw ServiceException("403-3", "${review.id}번 리뷰 수정 권한이 없습니다.")
     }
 
 
     @Transactional
     fun createReview(
-        user: User? = null,
+        member: Member? = null,
         email: String? = null,
         password: String? = null,
         imageUrl: String?,
@@ -79,7 +79,7 @@ class ReviewService(
         weatherInfo: WeatherInfo? = null,
         clothList: List<ClothItemReqBody>?
     ): Review {
-        require((user != null) xor (email != null && password != null)) { "Either user or (email and password) must be provided, but not both" }
+        require((member != null) xor (email != null && password != null)) { "Either user or (email and password) must be provided, but not both" }
 
         val weatherInfo = weatherInfo ?: getWeatherInfo(cityName, countryCode, date)
 

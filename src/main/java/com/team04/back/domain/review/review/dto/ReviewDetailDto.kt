@@ -6,7 +6,7 @@ import com.team04.back.domain.review.review.entity.Review
 import com.team04.back.domain.weather.weather.dto.WeatherInfoDto
 
 data class ReviewDetailDto(
-    val id: Int,
+    val id: Int?,
     val userId: Int?,
     val email: String?,
     val imageUrl: String?,
@@ -25,7 +25,7 @@ data class ReviewDetailDto(
         ): ReviewDetailDto {
             return ReviewDetailDto(
                 review.id,
-                review.user?.id,
+                review.member?.id,
                 review.email,
                 review.imageUrl,
                 review.title,
