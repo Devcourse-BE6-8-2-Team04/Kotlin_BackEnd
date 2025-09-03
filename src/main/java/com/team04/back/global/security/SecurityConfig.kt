@@ -45,7 +45,7 @@ class SecurityConfig(
                         "/api/v1/auth/logout"
                     ).permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/v1/members").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/api/v1/reviews/**").permitAll()
+                    .requestMatchers("/api/v1/reviews/**").permitAll()
                     .requestMatchers("/api/*/adm/**").hasRole("ADMIN")
                     .requestMatchers("/api/*/**").authenticated()
                     .anyRequest().permitAll()

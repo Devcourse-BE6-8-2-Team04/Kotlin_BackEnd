@@ -2,6 +2,8 @@ package com.team04.back.domain.review.review.service
 
 import com.team04.back.domain.cloth.cloth.entity.ClothInfo
 import com.team04.back.domain.cloth.cloth.service.ClothService
+import com.team04.back.domain.history.history.entity.ClothRecommendationHistory
+import com.team04.back.domain.history.history.service.ClothRecommendationHistoryService
 import com.team04.back.domain.member.member.entity.Member
 import com.team04.back.domain.review.review.dto.ClothItemReqBody
 import com.team04.back.domain.review.review.entity.Review
@@ -30,6 +32,7 @@ class ReviewService(
     private val geoService: GeoService,
     private val weatherService: WeatherService,
     private val passwordEncoder: PasswordEncoder,
+    private val clothRecommendationHistoryService: ClothRecommendationHistoryService,
 ) {
     fun count(): Long = reviewRepository.count()
 
@@ -89,7 +92,29 @@ class ReviewService(
 
         val review = Review(null, email, encodedPassword, title, sentence, tagString, imageUrl, weatherInfo)
         val savedReview = reviewRepository.save(review)
-        createClothInfo(savedReview.id, clothList)
+        val (recommendedClothInfos, notRecommendedClothInfos) = createClothInfo(savedReview.id, clothList)
+
+        if (member != null) {
+            val history = ClothRecommendationHistory(
+                member = member,
+                location = weatherInfo.location,
+                date = weatherInfo.date,
+                weatherInfo = listOf(weatherInfo),
+                likedClothings = recommendedClothInfos,
+                dislikedClothings = notRecommendedClothInfos,
+                feelsLike = weatherInfo.feelsLikeTemperature,
+                uvi = weatherInfo.uvi ?: 0.0,
+                rain = weatherInfo.rain ?: 0.0,
+                snow = weatherInfo.snow ?: 0.0,
+                humidity = weatherInfo.humidity ?: 0,
+                windSpeed = weatherInfo.windSpeed ?: 0.0,
+                tempMin = weatherInfo.minTemperature,
+                tempMax = weatherInfo.maxTemperature,
+                dailyTemperatureGap = weatherInfo.dailyTemperatureGap,
+                reviewedAt = savedReview.createDate
+            )
+            clothRecommendationHistoryService.createHistory(history)
+        }
 
         return savedReview
     }
@@ -196,11 +221,14 @@ class ReviewService(
         reviewClothInfoRepository.save(reviewClothInfo)
     }
 
-    private fun createClothInfo(reviewId: Int, clothList: List<ClothItemReqBody>?) {
+    private fun createClothInfo(reviewId: Int, clothList: List<ClothItemReqBody>?): Pair<MutableList<ClothInfo>, MutableList<ClothInfo>> {
+        val recommended = mutableListOf<ClothInfo>()
+        val notRecommended = mutableListOf<ClothInfo>()
+
         clothList?.forEach { clothItem ->
             // ClothName을 이용해 대표 ClothInfo 조회 (이미지 사용 위해)
             val defaultClothInfo = clothService.findByClothNameAndStyle(clothItem.clothName, null)
-                ?: throw ServiceException("404-1","옷 정보를 찾을 수 없습니다.")
+                ?: throw ServiceException("404-1", "옷 정보를 찾을 수 없습니다.")
 
             val clothInfo = ClothInfo.create(
                 clothName = clothItem.clothName,
@@ -212,8 +240,16 @@ class ReviewService(
                 maxFeelsLike = null
             )
             val savedClothInfo = clothService.save(clothInfo)
+
+            if (clothItem.isRecommend) {
+                recommended.add(savedClothInfo)
+            } else {
+                notRecommended.add(savedClothInfo)
+            }
+
             addReviewClothInfo(reviewId, savedClothInfo.id, clothItem.isRecommend)
         }
+        return recommended to notRecommended
     }
 
     private fun getWeatherInfo(cityName: String?, countryCode: String?, date: LocalDate?): WeatherInfo {

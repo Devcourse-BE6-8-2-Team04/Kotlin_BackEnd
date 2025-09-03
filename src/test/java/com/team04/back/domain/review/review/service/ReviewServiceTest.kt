@@ -6,6 +6,7 @@ import com.team04.back.domain.cloth.cloth.enums.ClothName
 import com.team04.back.domain.cloth.cloth.enums.Material
 import com.team04.back.domain.cloth.cloth.enums.Style
 import com.team04.back.domain.cloth.cloth.service.ClothService
+import com.team04.back.domain.history.history.service.ClothRecommendationHistoryService
 import com.team04.back.domain.review.review.dto.ClothItemReqBody
 import com.team04.back.domain.review.review.entity.Review
 import com.team04.back.domain.review.review.entity.ReviewClothInfo
@@ -52,6 +53,9 @@ class ReviewServiceTest {
 
     @Mock
     private lateinit var passwordEncoder: PasswordEncoder
+
+    @Mock
+    private lateinit var clothRecommendationHistoryService: ClothRecommendationHistoryService
 
     @InjectMocks
     private lateinit var reviewService: ReviewService
