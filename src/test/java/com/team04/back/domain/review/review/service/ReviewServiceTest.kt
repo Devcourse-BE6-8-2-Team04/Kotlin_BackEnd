@@ -26,6 +26,7 @@ import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.*
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.context.ActiveProfiles
 import java.lang.reflect.Field
 import java.time.LocalDate
@@ -48,6 +49,9 @@ class ReviewServiceTest {
 
     @Mock
     private lateinit var weatherService: WeatherService
+
+    @Mock
+    private lateinit var passwordEncoder: PasswordEncoder
 
     @InjectMocks
     private lateinit var reviewService: ReviewService

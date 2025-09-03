@@ -7,7 +7,7 @@ import com.team04.back.domain.weather.weather.dto.WeatherInfoDto
 
 data class ReviewDetailDto(
     val id: Int?,
-    val userId: Int?,
+    val memberId: Int?,
     val email: String?,
     val imageUrl: String?,
     val title: String,

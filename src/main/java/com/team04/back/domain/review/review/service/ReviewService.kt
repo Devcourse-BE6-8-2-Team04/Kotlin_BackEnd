@@ -17,6 +17,7 @@ import com.team04.back.standard.dto.ReviewSearchSortType
 import com.team04.back.standard.dto.ReviewSearchSortType.ID
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
@@ -28,6 +29,7 @@ class ReviewService(
     private val clothService: ClothService,
     private val geoService: GeoService,
     private val weatherService: WeatherService,
+    private val passwordEncoder: PasswordEncoder,
 ) {
     fun count(): Long = reviewRepository.count()
 
@@ -47,19 +49,19 @@ class ReviewService(
         return reviewRepository.findBySearch(search, pageable)
     }
 
-    fun verifyPassword(review: Review, password: String): Boolean = review.password == password
+    fun verifyPassword(review: Review, rawPassword: String): Boolean = passwordEncoder.matches(rawPassword, review.password)
 
     fun checkCanDelete(review: Review, member: Member) {
-        val reviewUser = review.member
+        val reviewMember = review.member
             ?: throw ServiceException("403-2", "회원 리뷰가 아니므로 회원 권한으로 삭제할 수 없습니다.")
-        if (member.id != reviewUser.id)
+        if (member.id != reviewMember.id)
             throw ServiceException("403-1", "${review.id}번 리뷰 삭제 권한이 없습니다.")
     }
 
     fun checkCanModify(review: Review, member: Member) {
-        val reviewUser = review.member
+        val reviewMember = review.member
             ?: throw ServiceException("403-4", "회원 리뷰가 아니므로 회원 권한으로 수정할 수 없습니다.")
-        if (member.id != reviewUser.id)
+        if (member.id != reviewMember.id)
             throw ServiceException("403-3", "${review.id}번 리뷰 수정 권한이 없습니다.")
     }
 
@@ -79,11 +81,13 @@ class ReviewService(
         weatherInfo: WeatherInfo? = null,
         clothList: List<ClothItemReqBody>?
     ): Review {
-        require((member != null) xor (email != null && password != null)) { "Either user or (email and password) must be provided, but not both" }
+        require((member != null) xor (email != null && password != null)) { "Either member or (email and password) must be provided, but not both" }
 
         val weatherInfo = weatherInfo ?: getWeatherInfo(cityName, countryCode, date)
 
-        val review = Review(null, email, password, title, sentence, tagString, imageUrl, weatherInfo)
+        val encodedPassword = password?.let { passwordEncoder.encode(password)}
+
+        val review = Review(null, email, encodedPassword, title, sentence, tagString, imageUrl, weatherInfo)
         val savedReview = reviewRepository.save(review)
         createClothInfo(savedReview.id, clothList)
 

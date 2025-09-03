@@ -17,7 +17,7 @@ class Review(
     weatherInfo: WeatherInfo
 ) : BaseEntity() {
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "member_id")
     val member: Member? = member  // 회원일 경우
 
     val email: String? = email  // 비회원일 경우
