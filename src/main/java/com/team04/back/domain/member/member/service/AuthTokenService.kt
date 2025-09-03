@@ -28,7 +28,8 @@ class AuthTokenService(
     fun payload(accessToken: String): Map<String, Any>? {
         val parsedPayload = Ut.jwt.payload(jwtSecretKey, accessToken) ?: return null
 
-        val id = parsedPayload["id"] as? Int ?: 0
+        val id = (parsedPayload["id"] as? Number)?.toInt() ?: 0
+
         val userId = parsedPayload["userId"] as? String ?: ""
         val email = parsedPayload["email"] as? String ?: ""
 

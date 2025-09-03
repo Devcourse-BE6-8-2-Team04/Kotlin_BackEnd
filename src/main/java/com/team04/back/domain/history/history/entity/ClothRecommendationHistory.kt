@@ -33,7 +33,7 @@ class ClothRecommendationHistory(
     val weatherInfo: List<WeatherInfo> = mutableListOf(),
 
     //추천 의류 리스트
-    @OneToMany(cascade = [CascadeType.ALL])
+    @ManyToMany
     @JoinTable(
         name = "history_liked_clothing_map",
         joinColumns = [JoinColumn(name = "history_id")],
@@ -42,7 +42,7 @@ class ClothRecommendationHistory(
     val likedClothings: List<ClothInfo> = mutableListOf(),
 
     //비추천 의류 리스트
-    @OneToMany(cascade = [CascadeType.ALL])
+    @ManyToMany
     @JoinTable(
         name = "history_unliked_clothing_map",
         joinColumns = [JoinColumn(name = "history_id")],

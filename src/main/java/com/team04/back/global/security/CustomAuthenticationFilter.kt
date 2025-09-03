@@ -1,8 +1,6 @@
 package com.team04.back.global.security
 
-import com.team04.back.domain.member.member.entity.Gender
 import com.team04.back.domain.member.member.entity.Member
-import com.team04.back.domain.member.member.entity.Tendency
 import com.team04.back.domain.member.member.service.MemberService
 import com.team04.back.global.exception.ServiceException
 import com.team04.back.global.rq.Rq
@@ -85,40 +83,25 @@ class CustomAuthenticationFilter(
             accessToken.isNotBlank() -> {
                 val payload = memberService.payload(accessToken)
                 if (payload == null) {
-                    // accessToken이 유효하지 않으면 apiKey가 유효한지 검사 후 재발급
                     if (apiKey.isNotBlank()) {
                         val memberFromApiKey = memberService.findByApiKey(apiKey)
                             ?: throw ServiceException("401-3", "API 키가 유효하지 않습니다.")
-
-                        // 새 accessToken 생성
                         val newAccessToken = memberService.genAccessToken(memberFromApiKey)
-
-                        // 쿠키에 새 accessToken 세팅
                         val cookie = Cookie("accessToken", newAccessToken).apply {
-                            path = "/"
-                            isHttpOnly = true
-                            maxAge = 3600 // 필요한 경우 설정
+                            path = "/"; isHttpOnly = true; maxAge = 3600
                         }
                         response.addCookie(cookie)
-
-                        // Authorization 헤더에도 새 토큰 추가
                         response.setHeader("Authorization", "Bearer $newAccessToken")
-
                         memberFromApiKey
                     } else {
                         throw ServiceException("401-4", "액세스 토큰이 유효하지 않습니다.")
                     }
                 } else {
-                    // 정상적인 경우
-                    Member(
-                        userId = payload["userId"] as? String ?: "",
-                        password = "",
-                        email = payload["email"] as? String ?: "",
-                        age = 0,
-                        gender = Gender.MALE,
-                        tendency = Tendency.NEUTRAL,
-                        apiKey = apiKey
-                    )
+                    // ✅ 여기만 DB 재조회로 변경
+                    val userId = payload["userId"] as? String
+                        ?: throw ServiceException("401-5", "토큰에 userId가 없습니다.")
+                    memberService.findByUsername(userId)
+                        ?: throw ServiceException("404-1", "존재하지 않는 회원입니다.")
                 }
             }
 
@@ -130,6 +113,7 @@ class CustomAuthenticationFilter(
                 return
             }
         }
+
 
         val user: UserDetails = SecurityUser(
             id = member.id,
