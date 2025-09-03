@@ -3,7 +3,7 @@ package com.team04.back.domain.cloth.cloth.controller
 import com.team04.back.domain.cloth.cloth.dto.OutfitRecommendationResponseDto
 import com.team04.back.domain.cloth.cloth.dto.WeatherClothResponseDto
 import com.team04.back.domain.cloth.cloth.service.ClothService
-import com.team04.back.domain.weather.weather.dto.WeatherInfoDto
+import com.team04.back.domain.weather.geo.service.GeoService
 import com.team04.back.domain.weather.weather.service.WeatherService
 import io.swagger.v3.oas.annotations.Operation
 import org.springframework.web.bind.annotation.GetMapping
@@ -17,17 +17,33 @@ import java.time.LocalDate
 class ClothController(
     private val clothService: ClothService,
     private val weatherService: WeatherService,
-) {
+    private val geoService: GeoService,
 
+    ) {
     @GetMapping("/details")
     @Operation(summary = "날씨 기반 옷 정보 조회", description = "위도와 경도를 이용하여 날씨 정보를 조회하고, 해당 날씨에 적합한 옷 정보를 반환합니다.")
     fun getClothDetails(
         @RequestParam latitude: Double,
-        @RequestParam longitude: Double
-    ): WeatherClothResponseDto {
+        @RequestParam longitude: Double,
+    ): WeatherClothResponseDto  {
+        // 1. 위도, 경도로 위치 조회
+        val location = geoService.getLocationFromCoordinates(latitude, longitude)
+
+        // 2. 현재 날씨 조회
         val weatherInfo = weatherService.getWeatherInfo(latitude, longitude, LocalDate.now())
-        val cloths = clothService.findClothByWeather(weatherInfo.feelsLikeTemperature)
-        return WeatherClothResponseDto(WeatherInfoDto(weatherInfo), cloths)
+
+        // 3. 오늘 날짜 범위로 날씨 계획을 만들어서 서비스 호출
+        val weatherPlan = weatherService.getWeatherInfos(latitude, longitude, LocalDate.now(), LocalDate.now())
+
+
+        // 4. 현재 날씨에 맞는 옷차림 추천 조회
+        val outfitRecommendations : OutfitRecommendationResponseDto = clothService.getOutfitRecommendations(weatherPlan, location)
+
+        return WeatherClothResponseDto(
+            weatherInfo = weatherInfo,
+            recommendedOutfits = outfitRecommendations.recommendedOutfits,
+            notRecommendedOutfits = outfitRecommendations.notRecommendedOutfits
+        )
     }
 
     @GetMapping
