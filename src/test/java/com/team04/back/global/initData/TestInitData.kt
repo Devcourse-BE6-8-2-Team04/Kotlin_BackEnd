@@ -214,8 +214,9 @@ class TestInitData(
                     isRecommend = true
                 ),
                 ClothItemReqBody(
-                    clothName = ClothName.CAP,
+                    clothName = ClothName.BEANIE,
                     category = Category.EXTRA,
+                    style = Style.CASUAL_DAILY,
                     isRecommend = true
                 )
             )

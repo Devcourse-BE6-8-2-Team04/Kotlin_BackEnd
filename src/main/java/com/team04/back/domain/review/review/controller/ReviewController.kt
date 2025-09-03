@@ -4,6 +4,7 @@ import com.team04.back.domain.cloth.cloth.entity.ClothInfo
 import com.team04.back.domain.review.review.dto.*
 import com.team04.back.domain.review.review.entity.Review
 import com.team04.back.domain.review.review.service.ReviewService
+import com.team04.back.global.rq.Rq
 import com.team04.back.global.rsData.RsData
 import com.team04.back.standard.dto.PageDto
 import com.team04.back.standard.dto.ReviewSearchDto
@@ -23,6 +24,7 @@ import java.time.LocalDate
 @Tag(name = "ReviewController", description = "리뷰 API")
 class ReviewController(
     private val reviewService: ReviewService,
+    private val rq: Rq
 ) {
     /**
      * 이 API는 location, date, feelsLikeTemperature, month 파라미터를 사용하여 필터링된 리뷰 목록을 조회합니다.
@@ -117,11 +119,11 @@ class ReviewController(
     fun deleteReview(
         @PathVariable id: Int
     ): RsData<ReviewDto> {
-//        val user: User? = rq.member
+        val member = rq.actor
 
         val review = reviewService.findById(id).getOrThrow()
 
-//        user?.let { reviewService.checkCanDelete(review, user) }
+        member?.let { reviewService.checkCanDelete(review, member) }
 
         reviewService.deleteReview(review)
 
@@ -143,10 +145,10 @@ class ReviewController(
     fun createReview(
         @RequestBody @Valid createReviewReqBody: CreateReviewReqBody
     ): RsData<ReviewDto> {
-//        val user: User? = rq.member
+        val member = rq.actor
 
         val review = reviewService.createReview(
-//            user,
+            member,
             email = createReviewReqBody.email,
             password = createReviewReqBody.password,
             imageUrl = createReviewReqBody.imageUrl,
@@ -179,11 +181,11 @@ class ReviewController(
         @PathVariable id: Int,
         @RequestBody @Valid modifyReviewReqBody: ModifyReviewReqBody
     ): RsData<ReviewDto> {
-//        val user: User? = rq.member
+        val member = rq.actor
 
         var review = reviewService.findById(id).getOrThrow()
 
-//        user?.let { reviewService.checkCanModify(review, user) }
+        member?.let { reviewService.checkCanModify(review, member) }
 
         review = reviewService.modifyReview(
             review,

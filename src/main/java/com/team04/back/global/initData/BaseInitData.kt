@@ -42,10 +42,10 @@ class BaseInitData(
     fun work1() {
         if (reviewService.count() > 0) return
 
-        val weatherInfo1 = WeatherInfo(Weather.CLEAR_SKY, 7.0, 33.0, 37.0, 24.0, "서울", LocalDate.parse("2022-07-28"))
-        val weatherInfo2 = WeatherInfo(Weather.SNOW, 8.0, -6.0, -2.0, -10.0, "삿포로", LocalDate.parse("2023-01-15"))
-        val weatherInfo3 = WeatherInfo(Weather.FEW_CLOUDS, 12.0, 26.0, 29.0, 17.0, "파리", LocalDate.parse("2023-08-05"))
-        val weatherInfo4 = WeatherInfo(Weather.MODERATE_RAIN, 7.0, 14.0, 16.0, 9.0, "런던", LocalDate.parse("2023-10-20"))
+        val weatherInfo1 = WeatherInfo(Weather.CLEAR_SKY, 7.0, 33.0, 37.0, 24.0, "서울", LocalDate.parse("2022-07-28"), Weather.CLEAR_SKY.description)
+        val weatherInfo2 = WeatherInfo(Weather.SNOW, 8.0, -6.0, -2.0, -10.0, "삿포로", LocalDate.parse("2023-01-15"), Weather.SNOW.description)
+        val weatherInfo3 = WeatherInfo(Weather.FEW_CLOUDS, 12.0, 26.0, 29.0, 17.0, "파리", LocalDate.parse("2023-08-05"), Weather.FEW_CLOUDS.description)
+        val weatherInfo4 = WeatherInfo(Weather.MODERATE_RAIN, 7.0, 14.0, 16.0, 9.0, "런던", LocalDate.parse("2023-10-20"), Weather.MODERATE_RAIN.description)
         weatherService.save(weatherInfo1)
         weatherService.save(weatherInfo2)
         weatherService.save(weatherInfo3)
@@ -74,13 +74,13 @@ class BaseInitData(
                     isRecommend = true
                 ),
                 ClothItemReqBody(
-                    clothName = ClothName.SANDALS,
+                    clothName = ClothName.ATHLETIC_SHOES,
                     category = Category.SHOES,
                     style = Style.CASUAL_DAILY,
                     isRecommend = true
                 ),
                 ClothItemReqBody(
-                    clothName = ClothName.CAP,
+                    clothName = ClothName.BEANIE,
                     category = Category.EXTRA,
                     style = Style.CASUAL_DAILY,
                     isRecommend = true
