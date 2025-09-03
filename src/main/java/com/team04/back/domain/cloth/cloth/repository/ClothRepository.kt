@@ -10,13 +10,11 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface ClothRepository : JpaRepository<ClothInfo, Int> {
-    fun findByMinFeelsLikeLessThanEqualAndMaxFeelsLikeGreaterThanEqual(
-        min: Double?,
-        max: Double?
-    ): List<ClothInfo>
 
     @Query("SELECT c FROM ClothInfo c WHERE :temperature BETWEEN c.minFeelsLike AND c.maxFeelsLike")
     fun findByTemperature(@Param("temperature") temperature: Double?): List<ClothInfo>
 
     fun findFirstByClothNameAndStyle(clothName: ClothName, style: Style?) : ClothInfo?
+
+    fun findByClothName(clothName: ClothName) : List<ClothInfo>
 }

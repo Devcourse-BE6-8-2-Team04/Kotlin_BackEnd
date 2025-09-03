@@ -1,6 +1,5 @@
 package com.team04.back.domain.cloth.cloth.service
 
-import com.team04.back.domain.cloth.cloth.dto.CategoryClothDto
 import com.team04.back.domain.cloth.cloth.dto.OutfitRecommendationResponseDto
 import com.team04.back.domain.cloth.cloth.entity.ClothInfo
 import com.team04.back.domain.cloth.cloth.enums.Category
@@ -19,23 +18,6 @@ class ClothService(
     private val clothRepository: ClothRepository,
     private val clothRecommendationHistoryRepository: ClothRecommendationHistoryRepository
 ) {
-
-    fun findClothByWeather(feelsLikeTemperature: Double?): List<CategoryClothDto> {
-        return clothRepository
-            .findByMinFeelsLikeLessThanEqualAndMaxFeelsLikeGreaterThanEqual(
-                feelsLikeTemperature,
-                feelsLikeTemperature
-            )
-            .map { cloth ->
-                CategoryClothDto(
-                    cloth.clothName,
-                    cloth.imageUrl,
-                    cloth.category,
-                    cloth.style,
-                    cloth.material
-                )
-            }
-    }
 
     fun getOutfitRecommendations(
         weatherPlan: List<WeatherInfo>,
@@ -190,5 +172,9 @@ class ClothService(
 
     fun findByClothNameAndStyle(clothName: ClothName, style: Style?) : ClothInfo? {
         return clothRepository.findFirstByClothNameAndStyle(clothName, style)
+    }
+
+    fun findByClothName(clothName: ClothName) : List<ClothInfo> {
+        return clothRepository.findByClothName(clothName)
     }
 }
