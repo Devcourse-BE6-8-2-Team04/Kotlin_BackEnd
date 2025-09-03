@@ -82,7 +82,8 @@ class WeatherInfo(
         maxTemperature = 0.0,
         minTemperature = 0.0,
         location = "",
-        date = LocalDate.now()
+        date = LocalDate.now(),
+        description = null
     )
 
     // 3시간 이내에 수정된 데이터인지 확인
