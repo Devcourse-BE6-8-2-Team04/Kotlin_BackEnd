@@ -39,14 +39,13 @@ class SecurityConfig(
                         "/api/v1/weathers/location",
 //                        "/api/v1/cloth",
 //                        "/api/v1/cloth/details",
-//                        "/api/v1/reviews",
-//                        "/api/v1/reviews/{id:\\d+}"
                     ).permitAll()
                     .requestMatchers(
                         "/api/v1/auth/login",
                         "/api/v1/auth/logout"
                     ).permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/v1/members").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/v1/reviews/**").permitAll()
                     .requestMatchers("/api/*/adm/**").hasRole("ADMIN")
                     .requestMatchers("/api/*/**").authenticated()
                     .anyRequest().permitAll()
