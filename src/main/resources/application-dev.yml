@@ -15,3 +15,12 @@ spring:
   # JPA 설정
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect  # JPA가 사용할 DB 종류 (H2 전용 설정)
+    hibernate:
+      ddl-auto: update
+
+logging:
+  level:
+    org.hibernate.orm.jdbc.bind: TRACE     # 바인딩된 SQL 파라미터 출력
+    org.hibernate.orm.jdbc.extract: TRACE  # DB에서 가져오는 값 출력
+    org.springframework.transaction.interceptor: TRACE  # 트랜잭션 동작 로그
+    com.team04.back: DEBUG  # 프로젝트 패키지 로그 자세히 보기
